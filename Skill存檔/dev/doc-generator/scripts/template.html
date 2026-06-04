@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>{{ title }}</title>
+    <style>
+        /* 1️⃣ 先宣告內嵌字型，路徑是相對於 base_url 的 fonts/ 資料夾 */
+        @font-face {
+            font-family: "NotoSansTC";
+            src: url("fonts/NotoSansTC-VariableFont_wght.ttf") format("truetype");
+            font-weight: 400;
+            font-style: normal;
+        }
+
+        @font-face {
+            font-family: "NotoSansTC";
+            src: url("fonts/NotoSansTC-VariableFont_wght.ttf") format("truetype");
+            font-weight: 700;
+            font-style: normal;
+        }
+
+        /* 2️⃣ 全站優先用內嵌的 NotoSansTC，找不到才 fallback 到系統字型 */
+        body {
+            font-family:
+                "NotoSansTC",
+                "PingFang TC",
+                "Heiti TC",
+                "Songti TC",
+                "Hiragino Sans GB",
+                "Noto Sans CJK TC",
+                "Microsoft JhengHei",
+                sans-serif;
+            font-size: 12pt;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        @page {
+            size: A4;
+            margin: 25mm 20mm;
+        }
+
+        h1, h2, h3, h4 {
+            color: #1a73e8;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+
+        h1 {
+            font-size: 24pt;
+            border-bottom: 2px solid #1a73e8;
+            padding-bottom: 0.3em;
+        }
+
+        h2 {
+            font-size: 18pt;
+            border-left: 4px solid #1a73e8;
+            padding-left: 8px;
+        }
+
+        h3 {
+            font-size: 14pt;
+        }
+
+        p {
+            margin: 0.4em 0;
+        }
+
+        ul, ol {
+            margin: 0.4em 0 0.4em 1.5em;
+        }
+
+        /* Inline code style */
+     code {
+        font-family: "JetBrains Mono", "Consolas", "Courier New", monospace;
+        background: #f5f5f5;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 90%;
+        /* 重要：讓 inline code 也會在必要時換行 */
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+    }
+
+    pre {
+        background: #d3d3d3;   /* 灰底 */
+        color: #000000;        /* 黑字 */
+        padding: 10px;
+        border-radius: 4px;
+        /* ✅ 取消橫向捲軸 */
+        /* overflow-x: auto; */  /* 刪掉這行 */
+        font-size: 11pt;
+        border: 1px solid #ccc;
+
+        /* ✅ 關鍵：JSON 不要超出格子，改成自動換行 */
+        white-space: pre-wrap;      /* 保留換行 + 自動折行 */
+        word-wrap: break-word;      /* 舊屬性，WeasyPrint 支援 */
+        overflow-wrap: break-word;  /* 新屬性，雙保險 */
+        box-sizing: border-box;     /* 含 padding 在內計算寬度 */
+        max-width: 100%;            /* 不超出頁面 / 容器寬度 */
+    }
+
+        /* Code inside pre block should inherit styles */
+        pre code {
+            background: transparent;
+            padding: 0;
+            color: inherit;
+            border-radius: 0;
+        }
+
+        blockquote {
+            border-left: 4px solid #ddd;
+            margin: 0.5em 0;
+            padding: 0.4em 1em;
+            color: #555;
+            background: #fafafa;
+        }
+
+    /* 如果 JSON 在表格的儲存格裡，讓它貼齊格子 */
+    table pre {
+        margin: 0;
+    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.8em 0;
+            font-size: 11pt;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 6px 8px;
+        }
+
+        th {
+            background: #f1f3f4;
+            font-weight: bold;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+{{ content|safe }}
+</body>
+</html>

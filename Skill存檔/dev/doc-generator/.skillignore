@@ -1,0 +1,14 @@
+# 不需要的文件
+__pycache__/
+*.pyc
+*.pyo
+.DS_Store
+.venv/
+*.log
+
+# 生成的輸出（應該在專案根目錄，不在 skill 目錄）
+delivery_doc/
+*.pdf
+*.json
+*.png
+*.puml

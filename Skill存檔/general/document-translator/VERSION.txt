@@ -1,0 +1,91 @@
+Document Translator Skill
+Version: 3.2.2
+Release Date: 2026-02-06
+
+=== 版本資訊 ===
+
+v3.2.2 (2026-02-06) - Bug 修復版
+- 修復 macOS 瀏覽器連接問題（sandbox 設定）
+- 修復 asyncio 事件循環錯誤（__del__ 方法）
+- 更新 Chrome Profile 資料夾名稱（chrome-profile-v3）
+- 改進錯誤訊息和除錯資訊
+- 新增 CAPTCHA 處理說明
+- 測試確認所有翻譯模式正常運作
+
+v3.2.1 (2026-02-06) - 文件改進與打包
+- 新增「支援的檔案格式」章節
+- 更新 troubleshooting.md 加入檔案格式問題
+- 新增純文字檔案翻譯範例
+- 建立完整的打包和安裝文件
+- 新增 README.md、INSTALL.md、.gitignore
+- 新增自動化安裝腳本 install.sh
+
+v3.2.0 (2025-01-20) - --doc-type 參數 + 校稿強化
+- 新增 `--doc-type` 參數
+- 校稿提示詞自動加入文件類型背景資訊
+- 強化程式碼區塊保護規則
+- ChatGPT 校稿器使用內容穩定偵測機制
+
+v3.1.0 (2025-01-20) - ChatGPT 校稿器
+- 新增 ChatGPT 校稿器
+- 新增 `google+proofread` 翻譯模式
+- 校稿器與翻譯器共用 Chrome Profile
+
+v3.0.0 (2025-01-20) - nodriver 升級
+- 從 Playwright 遷移到 nodriver
+- CAPTCHA 觸發率降至 <5%
+- 自動下載 Chrome
+- 瀏覽器資料持久化
+
+=== 系統需求 ===
+
+- Python: 3.7+
+- pip: 最新版本
+- 網路連線
+- 磁碟空間: 500MB
+
+=== 主要依賴 ===
+
+- nodriver>=0.38
+- deep-translator>=1.11.0
+
+=== 支援的作業系統 ===
+
+- macOS 10.14+
+- Ubuntu 18.04+
+- Windows 10+
+
+=== 檔案格式支援 ===
+
+✅ 支援:
+- .md (Markdown)
+- .txt (純文字)
+- .rst (reStructuredText)
+- .html (HTML)
+
+❌ 不支援:
+- .docx (Word)
+- .pdf (PDF)
+- .xlsx (Excel)
+
+=== 打包內容 ===
+
+- document-translator-skill-v3.2.2.tar.gz (52KB)
+- document-translator-skill-v3.2.2.zip (67KB)
+- INSTALL.md (安裝指南)
+- VERSION.txt (本檔案)
+
+=== 授權 ===
+
+MIT License
+
+=== 聯絡資訊 ===
+
+- 問題回報: 查看 references/troubleshooting.md
+- 使用範例: 查看 references/examples.md
+- 完整文件: 查看 SKILL.md
+
+===========================
+Document Translator Team
+2026-02-06
+===========================

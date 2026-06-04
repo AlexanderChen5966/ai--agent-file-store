@@ -1,0 +1,28 @@
+# Document Translator v2.1.0 依賴
+# 技術升級：Selenium → nodriver
+
+# ===== 核心依賴 =====
+# nodriver - undetected-chromedriver 作者的新一代反偵測瀏覽器
+# 自動下載管理 Chrome，不依賴系統 Chrome 版本
+nodriver>=0.38
+
+# HTTP 請求
+requests>=2.31.0
+
+# ===== Google Translate =====
+# deep-translator - 支援 Python 3.13+（推薦）
+deep-translator>=1.11.0
+
+# googletrans - 備案選項（不支援 Python 3.13+）
+# googletrans==4.0.0-rc1
+
+# ===== Hugging Face Translator =====
+torch>=2.0.0
+transformers>=4.38.0
+accelerate>=0.26.0
+
+# ===== 可選依賴 =====
+# 如果需要使用舊版 Selenium（不推薦）
+# selenium>=4.15.0
+# undetected-chromedriver>=3.5.0
+# webdriver-manager>=4.0.0

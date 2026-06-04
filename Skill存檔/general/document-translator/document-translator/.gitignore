@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# 翻譯相關
+docs/zh-TW/
+*.zh-TW.md
+*.zh-TW.txt
+
+# 瀏覽器資料
+.chatgpt-translator/
+
+# 日誌
+*.log
+
+# 臨時檔案
+*.bak
+*拷貝*
+*.tmp

@@ -1,0 +1,546 @@
+# CLAUDE.md - 專案配置模板
+
+> 這是專案的 AI 工具配置檔案，記錄專案基本資訊、工具分工策略和工作流程
+
+## 📋 專案資訊
+
+**專案名稱：** [你的專案名稱]  
+**專案描述：** [簡短描述專案目標和功能]  
+**技術棧：** [例如：Node.js, TypeScript, PostgreSQL, React]  
+**開發階段：** [例如：MVP / Beta / 生產環境 / 重構]  
+**團隊規模：** [例如：個人 / 2-5人 / 5-10人]
+
+## 🤖 AI 工具分工策略
+
+### Claude Code
+
+**負責領域：**
+- [ ] 系統架構設計和規劃
+- [ ] 複雜業務邏輯實作
+- [ ] 代碼審查和重構
+- [ ] 技術決策和方案評估
+- [ ] 效能優化分析
+- [ ] 安全性審查
+
+**使用時機：**
+```
+- 專案初期架構設計
+- 新功能設計階段
+- 代碼品質提升
+- 複雜問題排查
+- 重大技術決策
+```
+
+### GitHub Copilot CLI
+
+**負責領域：**
+- [ ] 快速代碼生成
+- [ ] 樣板和模板代碼
+- [ ] 單元測試撰寫
+- [ ] Shell 腳本生成
+- [ ] 常見模式實作
+- [ ] API 端點快速實作
+
+**使用時機：**
+```
+- 實作標準 CRUD
+- 生成測試案例
+- 撰寫 Shell 腳本
+- 快速原型開發
+- 重複性代碼
+```
+
+**設定確認：**
+```bash
+gh copilot --version
+```
+
+### Codex CLI（如果可用）
+
+**負責領域：**
+- [ ] 演算法實作和優化
+- [ ] 資料處理管道
+- [ ] 數學和科學計算
+- [ ] 機器學習相關代碼
+
+**使用時機：**
+```
+- 複雜演算法實作
+- 資料轉換邏輯
+- 效能關鍵路徑
+- ML 模型整合
+```
+
+### Gemini CLI（如果可用）
+
+**負責領域：**
+- [ ] 技術調研和比較
+- [ ] 多角度方案分析
+- [ ] 最新技術趨勢
+- [ ] 文檔整合和總結
+
+**使用時機：**
+```
+- 技術選型階段
+- 方案比較分析
+- 新技術調研
+- 競品分析
+```
+
+## 🔄 標準工作流程
+
+### 新功能開發流程
+
+```
+1. 需求分析（Claude）
+   ├─ 理解需求
+   ├─ 分析影響範圍
+   └─ 更新 TASKS.md
+
+2. 架構設計（Claude）
+   ├─ 設計模組結構
+   ├─ 定義 API 介面
+   ├─ 設計資料庫 schema
+   └─ 更新 ARCHITECTURE.md
+
+3. 技術決策（Claude + 可選 Gemini）
+   ├─ 評估技術方案
+   ├─ 選擇實作方式
+   └─ 記錄到 DECISIONS.md
+
+4. 實作（Copilot / Codex）
+   ├─ 生成基礎代碼
+   ├─ 實作業務邏輯
+   └─ 更新 TASKS.md 進度
+
+5. 審查（Claude）
+   ├─ 代碼品質檢查
+   ├─ 安全性審查
+   ├─ 效能評估
+   └─ 建議改進
+
+6. 測試（Copilot）
+   ├─ 生成單元測試
+   ├─ 生成整合測試
+   └─ 更新 TASKS.md
+
+7. 完成（Claude）
+   ├─ 最終驗證
+   ├─ 更新文檔
+   └─ 標記 TASKS.md 完成
+```
+
+### Bug 修復流程
+
+```
+1. 問題分析（Copilot 快速查詢）
+   └─ 查詢常見原因和解決方案
+
+2. 深度診斷（Claude）
+   ├─ 分析根本原因
+   ├─ 評估影響範圍
+   └─ 記錄到 TASKS.md
+
+3. 修復實作（Claude / Copilot）
+   └─ 實作修復方案
+
+4. 驗證測試（Claude）
+   ├─ 驗證修復效果
+   ├─ 避免副作用
+   └─ 更新 TASKS.md
+```
+
+### 重構流程
+
+```
+1. 重構分析（Claude）
+   ├─ 識別重構範圍
+   ├─ 評估風險
+   └─ 制定計劃
+
+2. 實作重構（Claude + Copilot）
+   ├─ 複雜部分：Claude
+   └─ 簡單部分：Copilot
+
+3. 驗證（Claude）
+   ├─ 功能正確性
+   ├─ 效能影響
+   └─ 更新 ARCHITECTURE.md
+```
+
+## 📁 專案結構
+
+```
+project/
+├── CLAUDE.md              # 本檔案：專案配置
+├── TASKS.md               # 任務追蹤
+├── ARCHITECTURE.md        # 系統架構
+├── DECISIONS.md           # 技術決策記錄
+├── src/
+│   ├── api/              # API 端點
+│   ├── services/         # 業務邏輯
+│   ├── models/           # 資料模型
+│   ├── utils/            # 工具函數
+│   └── config/           # 配置檔案
+├── tests/
+│   ├── unit/             # 單元測試
+│   └── integration/      # 整合測試
+└── docs/
+    └── api/              # API 文檔
+```
+
+## 🎨 代碼風格規範
+
+### 命名規範
+
+```typescript
+// 檔案：kebab-case
+user-service.ts
+auth-middleware.ts
+
+// 類別：PascalCase
+class UserService { }
+class AuthMiddleware { }
+
+// 函數/變數：camelCase
+function getUserById() { }
+const userName = "John";
+
+// 常數：UPPER_SNAKE_CASE
+const MAX_RETRY_COUNT = 3;
+const API_BASE_URL = "https://api.example.com";
+
+// 介面/類型：PascalCase with I prefix
+interface IUser { }
+type UserRole = "admin" | "user";
+```
+
+### Lint 配置
+
+- **ESLint：** `.eslintrc.js`
+- **Prettier：** `.prettierrc`
+- **TypeScript：** `tsconfig.json`
+
+### Git Commit 規範
+
+```bash
+# 格式
+type(scope): description
+
+# 類型
+feat:     新功能
+fix:      修復
+refactor: 重構
+test:     測試
+docs:     文檔
+style:    格式
+perf:     效能優化
+chore:    建構/工具
+
+# 範例
+feat(auth): add JWT refresh token
+fix(api): handle null pointer in user service
+refactor(db): optimize query performance
+test(auth): add unit tests for login
+docs(api): update API documentation
+```
+
+## 🗄️ 資料庫
+
+### 連線設定
+
+```typescript
+// config/database.ts
+export const dbConfig = {
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT || '5432'),
+  database: process.env.DB_NAME,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  pool: {
+    min: 2,
+    max: 10
+  }
+};
+```
+
+### Schema 管理
+
+- **遷移工具：** [例如：Knex / TypeORM / Prisma]
+- **Schema 文件：** `docs/database/schema.md`
+- **遷移檔案：** `migrations/`
+
+### 命名規範
+
+```sql
+-- 表名：複數、snake_case
+users
+refresh_tokens
+user_sessions
+
+-- 欄位：snake_case
+user_id
+created_at
+is_active
+
+-- 索引：idx_{table}_{column}
+idx_users_email
+idx_refresh_tokens_user_id
+```
+
+## 🌐 API 設計規範
+
+### RESTful 端點
+
+```
+# 資源操作
+GET    /api/v1/{resource}           # 列表
+GET    /api/v1/{resource}/:id       # 詳情
+POST   /api/v1/{resource}           # 新增
+PUT    /api/v1/{resource}/:id       # 完整更新
+PATCH  /api/v1/{resource}/:id       # 部分更新
+DELETE /api/v1/{resource}/:id       # 刪除
+
+# 範例
+GET    /api/v1/users
+POST   /api/v1/users
+GET    /api/v1/users/123
+PUT    /api/v1/users/123
+DELETE /api/v1/users/123
+```
+
+### 回應格式
+
+```typescript
+// 成功回應
+{
+  "success": true,
+  "data": { ... },
+  "meta": {
+    "page": 1,
+    "total": 100
+  }
+}
+
+// 錯誤回應
+{
+  "success": false,
+  "error": {
+    "code": "ERROR_CODE",
+    "message": "Human readable message",
+    "details": { ... }
+  }
+}
+```
+
+### 認證方式
+
+- **方法：** JWT Bearer Token
+- **Header：** `Authorization: Bearer <token>`
+- **Access Token 有效期：** 15 分鐘
+- **Refresh Token 有效期：** 7 天
+
+## 🧪 測試策略
+
+### 測試工具
+
+- **單元測試：** Jest
+- **整合測試：** Supertest
+- **E2E 測試：** Playwright / Cypress
+
+### 覆蓋率目標
+
+- **整體覆蓋率：** ≥ 80%
+- **核心業務邏輯：** ≥ 90%
+- **工具函數：** 100%
+
+### 測試命令
+
+```bash
+# 所有測試
+npm test
+
+# 單元測試
+npm run test:unit
+
+# 整合測試
+npm run test:integration
+
+# E2E 測試
+npm run test:e2e
+
+# 覆蓋率報告
+npm run test:coverage
+```
+
+## 🚀 部署環境
+
+### 環境配置
+
+| 環境 | 網址 | 分支 | 部署方式 |
+|-----|------|-----|---------|
+| **開發** | http://localhost:3000 | develop | 手動 |
+| **測試** | https://test.example.com | staging | CI/CD |
+| **生產** | https://api.example.com | main | CI/CD |
+
+### 環境變數
+
+```bash
+# .env.example
+NODE_ENV=development
+PORT=3000
+
+# Database
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=myapp
+DB_USER=postgres
+DB_PASSWORD=secret
+
+# JWT
+JWT_SECRET=your-secret-key
+JWT_EXPIRES_IN=15m
+
+# Redis
+REDIS_URL=redis://localhost:6379
+```
+
+### CI/CD 流程
+
+- **平台：** [GitHub Actions / GitLab CI / Jenkins]
+- **流程：**
+  ```
+  1. Lint 檢查
+  2. 單元測試
+  3. 建構
+  4. 整合測試
+  5. 部署（自動/手動）
+  ```
+
+## 📊 監控和日誌
+
+### 日誌系統
+
+- **工具：** Winston / Pino
+- **等級：** error, warn, info, debug
+- **位置：** `logs/`
+- **輪換：** 每日輪換，保留 30 天
+
+### 監控指標
+
+- **APM：** [New Relic / Datadog / 自建]
+- **關鍵指標：**
+  - API 回應時間
+  - 錯誤率
+  - 資料庫查詢時間
+  - 記憶體使用率
+
+## 🔐 安全性規範
+
+### 安全檢查清單
+
+- [ ] 所有 API 端點都有認證
+- [ ] 輸入驗證和消毒
+- [ ] SQL 注入防護
+- [ ] XSS 防護
+- [ ] CSRF 防護
+- [ ] Rate limiting
+- [ ] 敏感資料加密
+- [ ] 安全 HTTP headers
+
+### 密碼政策
+
+```
+最小長度：8 字元
+必須包含：
+- 大寫字母
+- 小寫字母
+- 數字
+建議包含：特殊符號
+```
+
+## 📚 文件維護
+
+### 必要文件
+
+- [x] CLAUDE.md - 專案配置（本檔案）
+- [x] TASKS.md - 任務追蹤
+- [x] ARCHITECTURE.md - 系統架構
+- [x] DECISIONS.md - 技術決策
+- [ ] README.md - 專案說明
+- [ ] API.md - API 文檔
+- [ ] CHANGELOG.md - 變更記錄
+
+### 更新頻率
+
+- **TASKS.md：** 每日更新
+- **ARCHITECTURE.md：** 架構變更時
+- **DECISIONS.md：** 重要決策時
+- **CLAUDE.md：** 專案配置變更時
+
+## 💡 常見問題
+
+### Q: 何時使用 Claude vs Copilot？
+
+**Claude 適合：**
+- 需要深度思考和分析
+- 複雜的架構設計
+- 代碼審查和優化
+- 技術決策
+
+**Copilot 適合：**
+- 快速生成樣板代碼
+- 常見模式實作
+- 簡單問題查詢
+- 測試案例生成
+
+### Q: 如何保持文件同步？
+
+1. 代碼變更時立即更新相關文件
+2. Code Review 時檢查文件更新
+3. 使用 Git hooks 提醒
+4. 定期（每週）審查文件
+
+### Q: 遇到技術難題怎麼辦？
+
+```
+1. 查閱 DECISIONS.md（過去是否解決過）
+2. Copilot 快速查詢常見解法
+3. Claude 深度分析問題
+4. 記錄解決方案到 DECISIONS.md
+5. 團隊討論（如果是團隊專案）
+```
+
+## 🔗 相關資源
+
+### 專案文檔
+
+- API 文檔：[連結]
+- 資料庫 Schema：[連結]
+- 部署指南：[連結]
+
+### 外部資源
+
+- 技術棧文檔
+- 第三方服務文檔
+- 團隊 Wiki
+
+### 工具連結
+
+- GitHub Repository：[連結]
+- CI/CD Dashboard：[連結]
+- 監控系統：[連結]
+
+## 📝 更新記錄
+
+| 日期 | 更新內容 | 更新者 |
+|-----|---------|--------|
+| 2025-01-28 | 初始版本建立 | [你的名字] |
+
+---
+
+**維護者：** [你的名字/團隊名稱]  
+**最後更新：** 2025-01-28  
+**版本：** 1.0
+
+**注意：** 這是專案的核心配置文件，任何重大變更都應該通知團隊成員。
