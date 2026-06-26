@@ -6,48 +6,20 @@
 [![Status: Experimental](https://img.shields.io/badge/Status-Experimental-orange.svg)](#status)
 [![Claude Code Skill](https://img.shields.io/badge/Claude%20Code-Skill-blue)](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/skills)
 
-Coordinate multiple AI models to work together as a team. One creates, three review — not for redundancy, but because different models naturally focus on different dimensions.
+Coordinate multiple AI models to work together as a team. One creates, two review — not for redundancy, but because different models naturally focus on different dimensions.
 
-讓不同 AI 模型組成團隊協作。一個創作，三個審查 — 不是為了冗餘，而是因為不同模型天然關注不同維度。
+讓不同 AI 模型組成團隊協作。一個創作，兩個審查 — 不是為了冗餘，而是因為不同模型天然關注不同維度。
 
-> **v4.2.0：** v4.1 優化版本 ✅
-> - 新增 "When to run" 觸發條件（需有需求文件）
-> - Review file 限縮至 DONE 回報的具體檔案（防 diff 污染）
-> - TASK context file 加入 `Tier:` 欄位（Decision C 補充文檔化）
-
-> **v4.1.0：** Phase 1 模型驗證完成 ✅  
-> - 驗證 11 個模型（7 Copilot + 4 Gemini）全部可用
-> - 新增 Tier 系統（FREE / LOW / STANDARD / COMPLEX）
-> - 統一 FREE 層級 Fallback：移除 Haiku 4.5，改用 gpt-5-mini → gpt-4.1
-> - 動態模型選擇：Team Lead 可透過 `--model` 參數覆寫固定分配
-> - 拆分文檔：SKILL.md (603 行) + agents-prompts.md + cli-invocation-ref.md
-> - 補充已知限制、偏誤防護、兼容性驗證
-
-> **v3.0.0：** 開發與內容流程統一升級為 **Copilot CLI（GPT）+ Claude + Gemini** 三審查架構，加入分層 review、壓縮協議、diff-only review 與降級機制。
+> **v2.0.0：** 審查者從 Codex CLI + Gemini CLI 改為 **Copilot CLI（GPT）+ Claude**，只需兩個工具即可運作。
 
 > **Next Step:** Want to turn Skills from demo to asset? Check out [Agent Skills Resource Library](https://www.axtonliu.ai/agent-skills) (includes slides, PDF, diagnostics)
 
 ## Status
 
-> **Status: v4.2.0 | 狀態：Phase 1 驗證完成，已部署**
->
-> ### ✅ Phase 1 驗證結果（2026-05-15）
-> - **驗證範圍：** 完整開發流程（規劃 → 實現 → 3-reviewer 並行審查）
-> - **驗收結果：** 14/16 檢查點通過（87.5%）
-> - **模型驗證：** 11 個模型 100% 可用（7 Copilot + 4 Gemini）
-> - **Token 效率：** 相對 v3.1 節省 25-42%
-> - **並行評審：** 3 reviewers 154s 完成（相對順序需 300s+，-50%）
->
-> ### 📖 驗證文檔（`reference/` 資料夾）
-> - [`reference/PHASE-1-EXECUTION-LOG.md`](reference/PHASE-1-EXECUTION-LOG.md) — 完整執行紀錄
-> - [`reference/v4-FLOW-TEST-CHECKLIST.md`](reference/v4-FLOW-TEST-CHECKLIST.md) — 驗收測試清單
-> - [`reference/EXECUTION-MODELS-AND-TOKENS.md`](reference/EXECUTION-MODELS-AND-TOKENS.md) — Token 消耗分析
-> - [`reference/重構建議-v4.1.md`](reference/重構建議-v4.1.md) — Phase 1 決策紀錄
->
-> ---
+> **Status: Experimental | 狀態：實驗性**
 >
 > - This is a public prototype that works for real workflows, but does not yet cover all edge cases. | 公開原型，可用於實際工作流程，但尚未涵蓋所有邊界情況。
-> - Requires Claude Code + Copilot CLI + Gemini CLI
+> - Requires Claude Code + Codex CLI + Gemini CLI
 > - My primary focus is demonstrating how tools and systems work together, not maintaining this codebase. | 重點是展示工具和系統如何協作，而非維護這個程式庫。
 > - If you encounter issues, please submit a reproducible case (input + output + steps to reproduce). | 如遇問題，請提交可重現的案例。
 
@@ -70,7 +42,6 @@ Team Lead (Claude Code session) | 團隊領導（Claude Code 工作階段）
   |-- creator (Claude Code agent) — writes code or content | 創作者 — 寫程式碼或內容
   |-- copilot-reviewer (agent → Copilot CLI) — GPT analytical review | GPT 分析型審查
   |-- claude-reviewer (Claude Code agent) — Claude editorial review | Claude 編輯型審查
-  |-- gemini-reviewer (agent → Gemini CLI) — requirements and coverage review | Gemini 需求對齊與覆蓋率審查
 ```
 
 The workflow is semi-automatic — you stay in control at every step:
@@ -79,27 +50,25 @@ The workflow is semi-automatic — you stay in control at every step:
 
 1. You assign a task → creator executes | 你下達任務 → 創作者執行
 2. Creator reports back → you decide whether to send for review | 創作者回報 → 你決定是否送審
-3. Team Lead prepares one shared diff/review file | Team Lead 準備一份共享 diff/review 檔
-4. Reviewers analyze in parallel based on review level | 依 review level 並行審查
-5. You decide: revise or pass → loop or next task | 你決定：修改還是通過 → 循環或下一個任務
+3. Both reviewers analyze in parallel → consolidated report | 兩個審查者並行分析 → 彙總報告
+4. You decide: revise or pass → loop or next task | 你決定：修改還是通過 → 循環或下一個任務
 
 ## Prerequisites | 前置條件
 
-These are **command-line tools** that run in your terminal (Terminal, iTerm2, etc.), not desktop apps.
+Both are **command-line tools** that run in your terminal (Terminal, iTerm2, etc.), not desktop apps.
 
-這些都是**命令列工具**，在終端機中執行（Terminal、iTerm2 等），不是桌面應用程式。
+兩個都是**命令列工具**，在終端機中執行（Terminal、iTerm2 等），不是桌面應用程式。
 
 | Tool | Purpose | Install |
 |------|---------|---------|
 | [Claude Code](https://docs.anthropic.com/en/docs/agents-and-tools/claude-code/overview) | Team Lead + agent runtime | `npm install -g @anthropic-ai/claude-code` |
-| [Copilot CLI](https://github.com/github/copilot-cli) | GPT-powered developer/reviewer | `npm install -g @github/copilot-cli` |
-| Gemini CLI | Requirement-alignment reviewer | Follow Gemini CLI official install instructions |
+| [Copilot CLI](https://github.com/github/copilot-cli) | GPT-powered reviewer | `npm install -g @github/copilot-cli` |
 
-Copilot CLI and Gemini CLI must have authentication configured before use.
+Both CLIs must have authentication configured before use.
 
 兩個 CLI 使用前都需要完成認證設定。
 
-> **Quick check | 快速確認:** Run `claude --version`, `copilot --version`, and `gemini --version` to verify installation.
+> **Quick check | 快速確認:** Run `claude --version` and `copilot --version` to verify both are installed.
 
 ## Installation | 安裝
 
@@ -127,15 +96,12 @@ For project-level installation, clone into `.claude/skills/ai-pair` within your 
 
 ```bash
 /ai-pair dev-team MyProject
-/ai-pair dev-team MyProject --quick
-/ai-pair dev-team MyProject --deep
 ```
 
 Team Lead creates | 團隊領導建立:
 - **developer** — writes code | 寫程式碼
 - **copilot-reviewer** — GPT model, checks bugs, security, performance, edge cases | GPT 模型審查 bug、安全性、效能、邊界條件
 - **claude-reviewer** — Claude second perspective, checks architecture, design patterns, maintainability | Claude 第二視角，審查架構、設計模式、可維護性
-- **gemini-reviewer** — Gemini perspective, checks spec compliance, missing scenarios, requirement alignment | Gemini 視角，審查需求對齊、遺漏情境、覆蓋率
 
 ### Content Team — for articles, scripts, newsletters | 內容團隊 — 寫文章、腳本、Newsletter
 
@@ -147,7 +113,6 @@ Team Lead creates | 團隊領導建立:
 - **author** — writes content | 寫內容
 - **copilot-reviewer** — GPT model, checks logic, accuracy, structure, fact-checking | GPT 模型審查邏輯、準確性、結構、事實查核
 - **claude-reviewer** — Claude second perspective, checks readability, engagement, style, audience fit | Claude 第二視角，審查可讀性、吸引力、風格、受眾適配
-- **gemini-reviewer** — Gemini perspective, checks completeness, missing points, topic alignment | Gemini 視角，審查完整性、缺漏與主題對齊
 
 ### Stop Team | 關閉團隊
 
@@ -173,41 +138,13 @@ None of these overlapped. That's the point. See [`examples/`](examples/) for ste
 
 ```
 ai-pair/
-├── SKILL.md                           # 核心 skill 定義（603 行）| Core skill definition
-├── README.md                          # 本文件 | This file
-├── 說明文件.md                        # 繁體中文說明 | Traditional Chinese guide
-├── LICENSE                            # MIT
-├── reference/                         # 技術參考文檔 | Technical reference
-│   ├── agents-prompts.md             # 8 個 Agent 初始化提示 | Agent init prompts
-│   └── cli-invocation-ref.md         # CLI 協議技術細節 | CLI protocol reference
-├── examples/                          # 使用範例 | Usage examples
-│   ├── dev-team.md
-│   └── content-team.md
-└── [Phase 1 Validation Documents]    # Phase 1 驗證文檔
-    ├── PHASE-1-EXECUTION-LOG.md      # 完整執行紀錄 (636 lines)
-    ├── v4-FLOW-TEST-CHECKLIST.md     # 驗收測試結果 (v4.1 驗證版)
-    ├── EXECUTION-MODELS-AND-TOKENS.md# 模型與 token 消耗分析
-    ├── 重構建議-v4.1.md               # Phase 1 前置規劃與決策記錄
-    └── FLOW-TEST-GUIDE.md             # 流程測試指南
+├── SKILL.md       # Claude Code skill definition | Skill 定義檔
+├── README.md      # This file | 本文件
+├── LICENSE         # MIT
+└── examples/      # Usage examples | 使用範例
+    ├── dev-team.md
+    └── content-team.md
 ```
-
-**v4.1 新增檔案結構：**
-- `reference/` — 可獨立查閱的技術文檔資料夾
-  - `agents-prompts.md` — 8 個 Agent 初始化提示（複製貼上即用）
-  - `cli-invocation-ref.md` — Copilot / Gemini 協議詳細說明與錯誤處理
-
-- **Phase 1 驗證檔案** — 完整開發流程實際執行記錄
-  - `PHASE-1-EXECUTION-LOG.md` — 詳細的執行日誌、模型分布、Token 消耗分析
-  - `v4-FLOW-TEST-CHECKLIST.md` — 所有驗收檢查點的實測結果（14/16 通過）
-  - `EXECUTION-MODELS-AND-TOKENS.md` — 模型使用統計、Token 預測、vs v3.1 對比
-  - `重構建議-v4.1.md` — Phase 1 前置規劃、決策清單、驗證結論
-  - `FLOW-TEST-GUIDE.md` — 逐步流程測試指南（15-20 分鐘）
-
-## Review Levels | 審查層級
-
-- `--quick` — Gemini only，適合 typo、小 UI 調整、低風險微調
-- default — Copilot reviewer + Claude reviewer，適合一般功能與 bug fix
-- `--deep` — Copilot reviewer + Claude reviewer + Gemini reviewer，適合高風險模組與架構變更
 
 ## Troubleshooting | 常見問題
 
@@ -221,9 +158,9 @@ ai-pair/
 
 **如何驗證：** 檢查審查輸出中是否有 `**Source: Copilot CLI gpt-4.1**` 標籤和 `### CLI Raw Output` 部分。如果缺失，表示 CLI 沒有被呼叫。
 
-**Fix | 解決方式:** Ensure Copilot CLI and Gemini CLI are installed and authenticated (`copilot --version`, `gemini --version`). Update to v3.0.0 if on an older version.
+**Fix | 解決方式:** Ensure Copilot CLI is installed and authenticated (`copilot --version`). Update to v2.0.0 if on an older version.
 
-**解決方式：** 確認 Copilot CLI 與 Gemini CLI 已安裝並完成認證（`copilot --version`、`gemini --version`）。如使用舊版請更新至 v3.0.0。
+**解決方式：** 確認 Copilot CLI 已安裝並完成認證（`copilot --version`）。如使用舊版請更新至 v2.0.0。
 
 ## What's Not Included | 未包含的功能
 

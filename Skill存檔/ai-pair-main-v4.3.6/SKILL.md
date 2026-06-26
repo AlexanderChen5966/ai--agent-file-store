@@ -7,13 +7,15 @@ description: |
 
   Trigger: /ai-pair, ai pair, dev-team, content-team, team-stop
 metadata:
-  version: 4.2.5
+  version: 4.3.5
 ---
 
 # AI Pair Collaboration
 
 Coordinate heterogeneous AI teams: one creates, three review from different angles.
-Uses Claude Code's native Agent Teams with GitHub Copilot CLI (GPT), Claude subagent, and Gemini CLI as reviewers.
+Uses Claude Code's native Agent Teams with GitHub Copilot CLI (GPT), Claude subagent, and Antigravity CLI (`agy`) as reviewers.
+
+> **v4.3 遷移（2026-06-18 生效）：** Gemini CLI（`gemini`）已停止為 Google One / 免費帳號服務，gemini-reviewer 底層改用 **Antigravity CLI（`agy`）**。角色名稱 `gemini-reviewer` 保留不變。
 
 ## Why Multiple AI Reviewers?
 
@@ -23,7 +25,7 @@ Different AI models have fundamentally different review tendencies. Using review
 |---|---|---|
 | copilot-reviewer | GPT-5.4 mini | bugs, security, concurrency, performance, edge cases |
 | claude-reviewer | Claude | architecture, design patterns, maintainability, alternatives |
-| gemini-reviewer | gemini-2.5-flash | spec compliance, missing scenarios, requirement alignment |
+| gemini-reviewer | agy "Gemini 3.1 Pro (High)" | spec compliance, missing scenarios, requirement alignment |
 
 ## When to Run ai-pair
 
@@ -40,7 +42,7 @@ If the requirement doc doesn't exist yet, write it first — ai-pair's reviewers
 
 ```bash
 /ai-pair dev-team [project]        # Start dev team (default: Level 2 review)
-/ai-pair dev-team [project] --quick  # Level 1: fast scan (gemini only)
+/ai-pair dev-team [project] --quick  # Level 1: fast scan (agy only)
 /ai-pair dev-team [project] --deep   # Level 3: all 3 reviewers in parallel
 /ai-pair content-team [topic]      # Start content team
 /ai-pair team-stop                 # Shut down the team
@@ -61,11 +63,14 @@ Model selection is guided by **Tier** (cost + capability):
 | Tier | Output Credits/M | Models | Use Case |
 |---|---|---|---|
 | **FREE** | 200 | `gpt-5-mini` | Fallback, quota exhaust |
-| **LOW** | 450~500 | `gpt-5.4-mini`, `claude-haiku-4.5`, `gemini-3.1-flash-lite-preview` | Level 1 quick scans, cost-sensitive reviewer |
-| **STANDARD** | 1,400~1,500 | `claude-sonnet-4.6`, `gpt-5.2/5.3/5.4`, `gemini-2.5-flash`, `gemini-3-flash-preview` | Default for Level 2/3 reviews |
+| **LOW** | 450~500 | `gpt-5.4-mini`（主力）, `mai-code-1-flash-picker`（候選）, `claude-haiku-4.5`, agy `"Gemini 3.5 Flash (Low)"` | Level 1 quick scans, cost-sensitive reviewer |
+| **STANDARD** | 1,400~1,500 | `claude-sonnet-4.6`, `claude-sonnet-4.5`, `gpt-5.4`, `gpt-5.3-codex`, agy `"Gemini 3.5 Flash (Medium)"` | Default for Level 2/3 reviews |
+| **PREVIEW** | — | agy `"Gemini 3.1 Pro (High)"` | gemini-reviewer Level 3 深度 review 主力 |
 | **COMPLEX** | 1,400+ | `gpt-5.3-codex` (reserved for future) | Enterprise tasks |
 
 > **Credit 計費說明（2026-06-01 起）：** Copilot 改為 AI Credits 計費（1 Credit = US$0.01）。上方 Output Credits/M = 每百萬 output tokens 消耗的 Credits。Developer（STANDARD tier）佔單輪任務約 92% Credits 消耗。
+>
+> **MAI-Code-1-Flash（v4.3.5 Phase 2 實測 2026-06-25）：** LOW developer 預設**維持 `gpt-5.4-mini`**。MAI 在真實多檔任務中違反約束、產出空殼測試、token 反而更高（詳見 `reference/phase2-mai-vs-gpt54mini/`），故僅列 LOW fallback 末段，不作主力。slug 必須帶 `-picker` 後綴。
 
 **Team Lead Model Selector:** Assign models by task complexity, not hard-coded roles.
 
@@ -73,12 +78,12 @@ Model selection is guided by **Tier** (cost + capability):
 
 - **Claude Code** — Team Lead + agent runtime
 - **Copilot CLI** (`copilot`) — for copilot-reviewer and copilot-developer
-- **Gemini CLI** (`gemini`) — for gemini-reviewer
+- **Antigravity CLI** (`agy`) — for gemini-reviewer（取代已停服的 Gemini CLI）
 
 Verify installation:
 ```bash
 copilot --version
-gemini --version
+agy --version
 ```
 
 ### Permissions Setup (Required)
@@ -91,16 +96,16 @@ Add to `.claude/settings.local.json`:
 "Bash(copilot --model gpt-5-mini:*)",
 "Bash(copilot --model claude-haiku-4.5:*)",
 "Bash(copilot --model gpt-5.4-mini:*)",
+"Bash(copilot --model mai-code-1-flash-picker:*)",
 "Bash(copilot --model gpt-5.2-codex:*)",
 "Bash(copilot --model gpt-5.3-codex:*)",
 "Bash(copilot --model gpt-5.2:*)",
 "Bash(copilot --model gpt-5.4:*)",
+"Bash(copilot --model claude-sonnet-4.5:*)",
 "Bash(copilot --model claude-sonnet-4.6:*)",
-"Bash(cat * | copilot:*)",
-"Bash(gemini --model gemini-2.5-flash:*)",
-"Bash(gemini --model gemini-3-flash-preview:*)",
-"Bash(gemini --model gemini-3.1-flash-lite-preview:*)",
-"Bash(cat * | gemini:*)"
+"Bash(cat * | agy --model *:*)",
+"Bash(agy --model *:*)",
+"Bash(agy -p:*)"
 ```
 
 ## Team Architecture
@@ -126,7 +131,7 @@ Team Lead (current Claude session)
   │     Focus: architecture, design patterns, maintainability
   │
   └── gemini-reviewer (Claude Code agent)      [Level 1 / Level 3]
-        Invokes: gemini --model gemini-2.5-flash -p "..."
+        Invokes: agy --model "Gemini 3.1 Pro (High)" -p "..."
         Focus: spec compliance, missing scenarios, requirement alignment
 ```
 
@@ -134,7 +139,7 @@ Team Lead (current Claude session)
 
 ```
 Level 1 — Quick scan (--quick)
-  Reviewers: gemini-reviewer only (gemini-2.5-flash for speed)
+  Reviewers: gemini-reviewer only (agy "Gemini 3.5 Flash (Low)" for speed)
   When: typo fix, i18n key, small UI tweaks
   Est. time: ~30s
 
@@ -200,12 +205,16 @@ FAIL:{reason}             # developer → Team Lead (failed)
 
 When any reviewer reports `ERR:QUOTA`, `ERR:AUTH`, `ERR:MODEL`, or `ERR:TIMEOUT`:
 
-**Fallback chains (Phase 1 verified):**
+**Fallback chains (Phase 1 verified 2026-06-22):**
 ```
-Gemini:  gemini-2.5-flash → SKIP
-GPT:     gpt-5.4-mini (LOW) → gpt-5-mini (FREE) → SKIP
+agy (gemini-reviewer):
+  L3: "Gemini 3.1 Pro (High)" → "Gemini 3.5 Flash (Medium)" → "Gemini 3.5 Flash (Low)" → SKIP
+  L1: "Gemini 3.5 Flash (Low)" → "Gemini 3.5 Flash (Medium)" → SKIP
+GPT:     gpt-5.4-mini (LOW) → gpt-5-mini (FREE) → mai-code-1-flash-picker (LOW 末段候選) → SKIP
 Claude:  native subagent (no external dependency, almost never fails)
 ```
+
+> ⚠️ agy 對無效模型名稱不報錯（靜默改用預設模型），ERR:MODEL 偵測不可靠；fallback 主要在 QUOTA/AUTH/TIMEOUT 時觸發。
 
 **Minimum viable threshold:**
 - 2+ reviewers available → continue with note
@@ -251,7 +260,7 @@ Claude:  native subagent (no external dependency, almost never fails)
 If a reviewer was skipped:
 ```markdown
 ### Gemini Review
-⏭️ 已跳過 — gemini-2.5-flash 額度耗盡（ERR:QUOTA）
+⏭️ 已跳過 — agy "Gemini 3.1 Pro (High)" 額度耗盡（ERR:QUOTA）
 建議額度恢復後用 `--deep` 重新 review
 ```
 
@@ -275,11 +284,17 @@ All WARN, no BLOCK → WARN, list warnings for user
 TeamCreate: team_name = "{project}-dev" or "{topic}-content"
 ```
 
+> **⚠️ 環境相容性（v4.3.6 實測 2026-06-26）：** 部分 Claude Code 環境**沒有** `TeamCreate` / `TeamDelete` 工具（native Agent Teams 未啟用）。此時**不要中止**——改用等效機制即可，全流程已實測可正常運作：
+> - **Team Lead** = 當前 Claude session（不需任何 team 物件）
+> - **copilot-developer / copilot-reviewer / gemini-reviewer** = Team Lead 直接用 **Bash** 呼叫對應 CLI（見「Team Lead override」與各 CLI Invocation Protocol）
+> - **claude-reviewer** = 用 **Agent** 工具 `subagent_type: "general-purpose"` 啟動的 subagent
+> - 偵測方式：若 `TeamCreate` 不在可用工具清單（或呼叫失敗）→ 直接跳過 Step 1，進 Step 2，後續 review 改以 Bash/Agent 並行派發；`team-stop` 也跳過 `TeamDelete`，只需清掉 `/tmp` 暫存與背景 agent。
+
 ### Step 2: Pre-flight CLI Check
 
 ```bash
 copilot --version || echo "COPILOT_MISSING"
-gemini --version || echo "GEMINI_MISSING"
+agy --version || echo "AGY_MISSING"
 ```
 
 Warn user of any missing CLI and ask to proceed with degraded mode or abort.
@@ -290,12 +305,13 @@ Default model assignment (backward compatible):
 - copilot-developer → `claude-sonnet-4.6` (STANDARD tier)
 - copilot-reviewer  → `gpt-5.4-mini` (LOW tier, fallback to `gpt-5-mini`)
 - claude-reviewer   → Claude subagent (always available)
-- gemini-reviewer   → `gemini-2.5-flash` (STANDARD tier, fallback to SKIP)
+- gemini-reviewer   → agy `"Gemini 3.1 Pro (High)"` (PREVIEW tier，fallback: Flash Medium → Flash Low → SKIP)
 
 **Team Lead override (advanced usage):**
-Directly invoke Bash with `--model` parameter:
+Directly invoke Bash with `--model` parameter（⚠️ v4.3.5：任務內容放進 `-p`，copilot 不讀 stdin／無 `-c @file`）：
 ```bash
-copilot --model gpt-5.3-codex -c @TASK_FILE --allow-all-tools --autopilot
+TASK_BODY="$(cat $TASK_FILE)"
+copilot --model gpt-5.3-codex --allow-all-tools --autopilot -p "=== TASK CONTEXT ===\n$TASK_BODY"
 ```
 Useful for testing specific tier models or avoiding quota exhaustion.
 
@@ -313,7 +329,7 @@ Members:
   - copilot-developer: ready (claude-sonnet-4.6)
   - copilot-reviewer:  ready (gpt-5.4-mini)
   - claude-reviewer:   ready (Claude)
-  - gemini-reviewer:   ready (gemini-2.5-flash)
+  - gemini-reviewer:   ready (agy/Gemini 3.1 Pro High)
 
 Review level: Level 2 (default) — use --quick or --deep to change
 
@@ -448,10 +464,11 @@ See `reference/cli-invocation-ref.md` for detailed technical specifications:
 
 - **[Copilot Developer](reference/cli-invocation-ref.md#cli-invocation-protocol-copilot-developer)** — Task execution with `--allow-all-tools --autopilot`
 - **[Copilot Reviewer](reference/cli-invocation-ref.md#cli-invocation-protocol-copilot-reviewer)** — Code review for bugs/security/performance
-- **[Gemini Reviewer](reference/cli-invocation-ref.md#cli-invocation-protocol-gemini-reviewer)** — Spec compliance review with error handling
+- **[Gemini Reviewer (agy)](reference/cli-invocation-ref.md#cli-invocation-protocol-gemini-reviewer--antigravity-cli-agy)** — Spec compliance review via Antigravity CLI (`agy`) with error handling
 
 **Quick reference:**
-- All use stdin piping (`cat $FILE | cli-name --model MODEL -p "..."`)
+- **agy:** stdin piping (`cat $FILE | agy --model MODEL -p "..."`) ✅ 仍有效
+- **copilot（v4.3.5 修正）:** ❌ 不讀 stdin／無 `-c @file`；改 `BODY="$(cat $FILE)"; copilot --model MODEL -p "...$BODY"`
 - All output compressed format (SRC / findings / VERDICT)
 - All have error handling + fallback logic
 - Phase 1 verified: `--allow-all-tools --autopilot` compatible with all Copilot models ✅
@@ -498,8 +515,12 @@ ERR:CLI_MISSING → ⏭️ 已跳過 — 對應 CLI 未安裝（請安裝後重�
 
 ## Known Limitations
 
-- **Gemini + Chinese paths:** Gemini CLI fails on paths with Chinese characters. Keep TASK_FILE and REVIEW_FILE under `/tmp/` (ASCII-only) — already by design.
-- **Gemini quota:** `exhausted capacity` errors auto-recover via fallback chain (1–7s retry). No manual action needed.
+- **🔴 Copilot CLI 不讀 stdin（v1.0.65 實測 2026-06-25）：** `cat $FILE | copilot ... -p "..."` 會讓模型**完全收不到任務內容**（空跑燒 Credit）。Copilot CLI 無 stdin pipe、無 `-c @file`，任務內容必須讀進變數後嵌入 `-p`：`BODY="$(cat $FILE)"; copilot --model M -p "...$BODY"`。**僅影響 copilot；agy stdin pipe 仍正常。**
+- **MAI-Code-1-Flash slug：** Copilot CLI 正確名稱為 `mai-code-1-flash-picker`（**必帶 `-picker` 後綴、全小寫**）；`mai-code-1-flash`、`MAI-Code-1-Flash` 皆回 `not available`。Phase 2 實測品質不足以取代 `gpt-5.4-mini`，僅列 LOW fallback 末段。
+- **agy 模型名稱格式：** `--model` 必須帶引號完整名稱（含括號），如 `"Gemini 3.1 Pro (High)"`。傳入無效名稱時 agy **不報錯**，會靜默改用預設模型，故 ERR:MODEL 偵測不可靠。
+- **agy + 中文路徑：** 中文路徑行為尚未完整驗證；沿用既有設計，TASK_FILE / REVIEW_FILE 一律放在 `/tmp/`（ASCII-only）。
+- **agy quota：** 額度耗盡依 model-level fallback chain 降級（Pro High → Flash Medium → Flash Low → SKIP）。
+- **Gemini CLi 已停服：** `gemini` 指令自 2026-06-18 起對 Google One / 免費帳號失效，請改用 `agy`。
 - **o1 / o3-mini:** Not available. Use Tier STANDARD alternatives.
 - **macOS `mktemp` suffix limitation:** On macOS (BSD), `mktemp` does NOT support a suffix after the X's (e.g. `mktemp /tmp/XXXXXX.md` outputs the template literally). Use one of these alternatives:
   - No extension: `TASK_FILE=$(mktemp /tmp/task-XXXXXX)` ✅
@@ -513,7 +534,7 @@ When user calls `/ai-pair team-stop`:
 
 1. Send `shutdown_request` to all agents
 2. Wait for confirmation
-3. Call `TeamDelete`
+3. Call `TeamDelete`（若環境無此工具則跳過，見 Step 1 環境相容性註記；改為清掉 `/tmp` 暫存檔與結束背景 agent 即可）
 4. Output:
    ```
    Team shut down.
@@ -525,4 +546,7 @@ When user calls `/ai-pair team-stop`:
 
 ---
 
+*v4.3.6 — 2026-06-26 | 環境相容性：無 `TeamCreate`/`TeamDelete`（native Agent Teams 未啟用）時改用 Team Lead=當前 session + Bash 直呼 CLI（developer/copilot/agy）+ Agent subagent（claude-reviewer）等效流程，全程實測 PASS（SSGS-12664 搬移任務驗證 copilot `-p` 嵌入、agy stdin pipe、三 reviewer 壓縮格式皆正常）*
+*v4.3.5 — 2026-06-25 | 🔴 修正 Copilot CLI v1.0.65 不讀 stdin（改 `-p` 嵌入任務內容）；新增 MAI-Code-1-Flash（slug `mai-code-1-flash-picker`）列 LOW 候選，Phase 2 實測維持 `gpt-5.4-mini` 主力；Tier 補 claude-sonnet-4.5/gpt-5.4 | 詳見 `reference/重構建議-v4.3.5.md`、`reference/phase2-mai-vs-gpt54mini/`*
+*v4.3.0 — 2026-06-22 | Gemini CLI → Antigravity CLI (`agy`) 遷移：gemini-reviewer 底層改用 agy，模型對應 Flash(Low)/Flash(Medium)/Pro(High)，角色名稱保留 | 詳見 `reference/重構建議-v4.3-agy遷移.md`*
 *v4.2.5 — 2026-06-01 | Copilot Credit adaptation: gpt-4.1→gpt-5.4-mini, Tier cost column, claude-haiku-4.5 added | Full changelog: `other/v4.2.5-changelog.md`*

@@ -2,7 +2,7 @@
 name: knowledge-elevation
 description: |
   知識昇華 Skill：三層遞進式知識提煉，適用於任何個人知識庫場景。
-  從已整理的精粹條目（wiki/topic-synthesis/）出發，執行三層昇華：
+  從已整理的精粹條目（wiki/synthesis/）出發，執行三層昇華：
   （1）自動模式偵測——同概念跨來源出現時自動合成；
   （2）E 層加深——將 CAVE 精粹的 E 層結構化為一句話洞察 + 信心等級 + 實際意義；
   （3）跨主題連結——多個精粹條目 → 更高層概念框架（wiki/concepts/）。
@@ -12,7 +12,7 @@ description: |
 metadata:
   version: 1.1.0
   target: 個人知識庫使用者（PKM）
-  prerequisite: knowledge-synthesizer（需有 wiki/topic-synthesis/ 條目）
+  prerequisite: knowledge-synthesizer（需有 wiki/synthesis/ 條目）
 ---
 
 # knowledge-elevation
@@ -27,10 +27,10 @@ metadata:
 請列出 wiki/concepts/ 最近新增的合成頁面，摘要核心洞察
 
 # 第二層：E 層加深（指定主題）
-對 wiki/topic-synthesis/claude-skills.md 執行 E 層加深
+對 wiki/synthesis/claude-skills.md 執行 E 層加深
 
 # 第三層：跨主題連結（指定領域）
-讀取 wiki/topic-synthesis/ 中與「AI 工作流」相關的所有精粹，執行 meta-synthesis
+讀取 wiki/synthesis/ 中與「AI 工作流」相關的所有精粹，執行 meta-synthesis
 
 # 全部三層依序執行
 對「AI 工作流」主題執行完整知識昇華（三層）
@@ -41,7 +41,7 @@ metadata:
 ## 前置條件
 
 執行本 Skill 前，確認：
-- `wiki/topic-synthesis/` 已有目標主題的精粹條目（由 `knowledge-synthesizer` 產出）
+- `wiki/synthesis/` 已有目標主題的精粹條目（由 `knowledge-synthesizer` 產出）
 - 第三層需要同領域 ≥ 3 個精粹條目
 
 ---
@@ -112,7 +112,7 @@ status: auto-generated
 ### 執行步驟
 
 ```
-Step 1  讀取 wiki/topic-synthesis/[主題].md
+Step 1  讀取 wiki/synthesis/[主題].md
 Step 2  找到現有的 E（精華）層
 Step 3  依下方格式重新產出結構化 E 層
 Step 4  更新原檔，原 E 層內容移至 E-original 保存
@@ -163,12 +163,12 @@ Step 4  更新原檔，原 E 層內容移至 E-original 保存
 
 ### 觸發條件
 
-同一知識領域的 `wiki/topic-synthesis/` 條目累積 ≥ 3 個。
+同一知識領域的 `wiki/synthesis/` 條目累積 ≥ 3 個。
 
 ### 執行步驟
 
 ```
-Step 1  列出 wiki/topic-synthesis/ 中與目標領域相關的條目
+Step 1  列出 wiki/synthesis/ 中與目標領域相關的條目
 Step 2  讀取每個條目的 C（共識）、A（爭論）、E（精華）層
 Step 3  識別跨主題的共同概念、核心張力、意外連結、應用缺口
 Step 4  產出 wiki/concepts/meta-[領域].md
@@ -184,9 +184,9 @@ date: YYYY-MM-DD
 tags: [領域 tag, type/concept]
 type: meta-synthesis
 sources:
-  - [[topic-synthesis/主題A]]
-  - [[topic-synthesis/主題B]]
-  - [[topic-synthesis/主題C]]
+  - [[synthesis/synthesis-主題A]]
+  - [[synthesis/synthesis-主題B]]
+  - [[synthesis/synthesis-主題C]]
 status: processed
 ---
 
@@ -218,13 +218,13 @@ status: processed
 ## 完整三層執行流程（依序全跑）
 
 ```
-前置：確認 wiki/topic-synthesis/[主題].md 已存在
+前置：確認 wiki/synthesis/[主題].md 已存在
 
 第一層  確認 wiki/concepts/ 有無自動生成的相關合成頁面
         → 若無，手動補充觸發
 
 第二層  對目標精粹條目執行 E 層加深
-        → 更新 wiki/topic-synthesis/[主題].md
+        → 更新 wiki/synthesis/[主題].md
 
 第三層  若同領域有 ≥ 3 個精粹條目
         → 執行 meta-synthesis
@@ -242,8 +242,8 @@ status: processed
 | 層次 | 觸發條件 | 觸發方式 | 輸入 | 產出位置 |
 |------|---------|---------|------|---------|
 | 自動模式偵測 | 同概念在 3+ 來源出現 | 自動（obsidian-second-brain）| vault 全域 | `wiki/concepts/` |
-| E 層加深 | 精粹條目 E 層需強化 | 手動指定條目 | `wiki/topic-synthesis/` | 更新原條目 |
-| 跨主題連結 | 同領域 ≥ 3 個精粹 | 手動指定領域 | `wiki/topic-synthesis/*` | `wiki/concepts/meta-` |
+| E 層加深 | 精粹條目 E 層需強化 | 手動指定條目 | `wiki/synthesis/` | 更新原條目 |
+| 跨主題連結 | 同領域 ≥ 3 個精粹 | 手動指定領域 | `wiki/synthesis/*` | `wiki/concepts/meta-` |
 
 ---
 
@@ -252,14 +252,14 @@ status: processed
 | Skill | 處理層次 | 輸入 | 輸出 |
 |-------|---------|------|------|
 | `knowledge-organizer` | 單篇整理 | `raw/` 素材 | `wiki/` 條目 |
-| `knowledge-synthesizer` | 主題精粹 | 多篇 wiki 條目 | `wiki/topic-synthesis/`（CAVE）|
-| `scientific-brainstorming` | 探索延伸 | topic-synthesis | `ideas/` 洞察與假設 |
-| **`knowledge-elevation`** | **概念昇華** | **topic-synthesis** | **`wiki/concepts/`** |
+| `knowledge-synthesizer` | 主題精粹 | 多篇 wiki 條目 | `wiki/synthesis/`（CAVE）|
+| `scientific-brainstorming` | 探索延伸 | `wiki/synthesis/` | `ideas/` 洞察與假設 |
+| **`knowledge-elevation`** | **概念昇華** | **`wiki/synthesis/`** | **`wiki/concepts/`** |
 
 知識流向：
 ```
-raw/ → wiki/ → topic-synthesis/ → concepts/（meta）
-                               ↘ ideas/（brainstorm）
+raw/ → wiki/ → wiki/synthesis/ → concepts/（meta）
+                              ↘ ideas/（brainstorm）
 ```
 
 ---

@@ -1,0 +1,16 @@
+{
+  "configVersion": 2,
+  "packages": [
+    {
+      "name": "test",
+      "rootUri": "../",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    }
+  ],
+  "generator": "pub",
+  "generatorVersion": "3.10.0-290.4.beta",
+  "flutterRoot": "file:///Users/alexander/development/flutter",
+  "flutterVersion": "3.38.0",
+  "pubCache": "file:///Users/alexander/.pub-cache"
+}

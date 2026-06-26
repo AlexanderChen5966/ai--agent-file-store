@@ -1,11 +1,11 @@
 ---
 title: CLI Invocation Protocols Reference
-description: Detailed CLI command specifications for Copilot and Gemini invocations
-version: 4.1.0
-last_updated: 2026-05-15
+description: Detailed CLI command specifications for Copilot and Antigravity (agy) invocations
+version: 4.3.0
+last_updated: 2026-06-22
 ---
 
-# CLI Invocation Protocols (v4.1)
+# CLI Invocation Protocols (v4.3)
 
 Technical reference for Team Lead and agent developers. These are **not** copy-paste prompts — they define the exact CLI command structure and error handling logic.
 
@@ -85,39 +85,51 @@ cat $REVIEW_FILE | copilot --model gpt-5.4-mini \
 
 ---
 
-## CLI Invocation Protocol (Gemini Reviewer)
+## CLI Invocation Protocol (Gemini Reviewer → Antigravity CLI `agy`)
 
-**Used by:** gemini-reviewer agent dispatching spec reviews to Gemini CLI
+**Used by:** gemini-reviewer agent dispatching spec reviews to Antigravity CLI (`agy`)
+
+> **遷移備註（v4.3）：** Gemini CLI（`gemini`）自 2026-06-18 起停止為 Google One / 免費帳號提供服務，已遷移至 Antigravity CLI（`agy`）。**角色名稱 `gemini-reviewer` 保留不變**（避免 `reviewer_set` 快取鍵失效），只有底層 CLI 由 `gemini` 換成 `agy`。
 
 ```
 [Timeout] Bash timeout: 300000 (5 min)
-[Model] gemini-2.5-flash (primary)
+[Model] "Gemini 3.1 Pro (High)" (Level 3 primary) / "Gemini 3.5 Flash (Low)" (Level 1)
 
-[Command] stdin pipe confirmed working (tested v0.38.2)
-cat $REVIEW_FILE | gemini --model gemini-2.5-flash \
+[Command] stdin pipe + --model confirmed working (tested agy v1.0.10, 2026-06-22)
+cat $REVIEW_FILE | agy --model "Gemini 3.1 Pro (High)" \
   -p "Review this code for spec compliance, missing scenarios, requirement gaps, edge cases.
       Output ONLY in this exact format, each item on its own newline, no extra text:
-      SRC:gemini-2.5-flash
+      SRC:agy/gemini-3.1-pro-high
       C|{file:line_or_NA}|{issue}|{fix}
       W|{file:line_or_NA}|{issue}|{fix}
       S|{file:line_or_NA}|{suggestion}|{fix}
       VERDICT:PASS or VERDICT:WARN or VERDICT:BLOCK" 2>&1
 
-[Note — Compression format ✅ Verified Phase 1]
-  All Gemini models (2.5-flash, 3-flash-preview, 3.1-flash-lite-preview) use `|` separator in Inter-Agent Protocol.
+[Note — Compression format ✅ Verified Phase 1 (2026-06-22)]
+  agy 各模型均使用 `|` 分隔符，符合 Inter-Agent Protocol v1。
   Example: `C|file.dart:142|issue|fix` (NOT forward slash)
   Team Lead should accept both newline and single-line "|" separated formats when parsing.
+  SRC 欄位格式改為 `SRC:agy/{model-slug}`，方便識別實際使用模型。
+
+[Model-level fallback chain]
+  agy L3: "Gemini 3.1 Pro (High)" → "Gemini 3.5 Flash (Medium)" → "Gemini 3.5 Flash (Low)" → SKIP
+  agy L1: "Gemini 3.5 Flash (Low)" → "Gemini 3.5 Flash (Medium)" → SKIP
 
 [Error handling]
-  - Exit code 1 + "ModelNotFoundError" in stderr → ERR:MODEL
+  - Exit code 1 + "model not found" / "unknown model" in stderr → ERR:MODEL, try next tier
   - Exit code 1 + "quota" / "429" in stderr → ERR:QUOTA
   - Exit code 1 + "401" / "Unauthorized" in stderr → ERR:AUTH
   - Timeout (no output) → ERR:TIMEOUT, retry once
-  - "command not found" → ERR:CLI_MISSING
+  - "command not found: agy" → ERR:CLI_MISSING
   Do NOT substitute own review.
 
+[⚠️ 已知行為 — 無效模型名稱不報錯（agy v1.0.10 實測 2026-06-22）]
+  傳入不存在的模型名稱時，agy 不會回傳 exit 1，而是**靜默改用預設模型**回應。
+  因此 ERR:MODEL 較難由 stderr 偵測；fallback chain 主要在 QUOTA/AUTH/TIMEOUT 時觸發。
+  影響：使用未驗證的模型名稱可能拿到非預期模型的審查結果，請確認 --model 字串完全符合「agy 可用模型清單」。
+
 [Known Limitation — Chinese filenames in paths]
-  Gemini CLI may fail to parse Chinese character paths in context supplementation.
+  agy 中文路徑行為尚未完整驗證；沿用既有防護：
   Workaround: Keep REVIEW_FILE and TASK_FILE paths ASCII-only (use /tmp/review-XXXXXX, /tmp/task-XXXXXX)
   Already satisfied: Review files are generated in /tmp and stdin piped directly.
 
@@ -126,25 +138,43 @@ cat $REVIEW_FILE | gemini --model gemini-2.5-flash \
 
 ### Details
 
-- **Primary model:** `gemini-2.5-flash` (STANDARD tier)
-- **Additional models:** `gemini-3-flash-preview`, `gemini-3.1-flash-lite-preview` (Phase 1 verified alternatives)
-- **Output format:** Pipe-separated (`|`), not forward-slash (`/`)
+- **Primary model:** `"Gemini 3.1 Pro (High)"` (PREVIEW tier，Level 3 主力)
+- **Additional models:** `"Gemini 3.5 Flash (Medium)"`（STANDARD fallback）、`"Gemini 3.5 Flash (Low)"`（LITE，Level 1 快速掃描）— Phase 1 已驗證
+- **`--model` 語法：** 帶引號的完整名稱（含括號），如 `agy --model "Gemini 3.1 Pro (High)"`
+- **Output format:** Pipe-separated (`|`), not forward-slash (`/`)；SRC 為 `SRC:agy/{model-slug}`
 - **stdin:** Review file piped via `cat $REVIEW_FILE |`
 - **Error handling:**
-  - `QUOTA` → fallback or SKIP
+  - `QUOTA` → 依 fallback chain 降級或 SKIP
   - `AUTH` → ask user to re-login
   - `TIMEOUT` → retry once
-  - `MODEL` → try lite variant or SKIP
+  - `MODEL` → 換下一層 tier（注意：agy 對無效模型多半靜默改用預設，不一定觸發）
   - `CLI_MISSING` → show install command
+
+### agy 可用模型清單（實測確認）
+
+| 模型名稱 | tier 對應 | 備註 |
+|---|---|---|
+| `Gemini 3.5 Flash (Low)` | LITE | 速度最快，Level 1 |
+| `Gemini 3.5 Flash (Medium)` | STANDARD | 預設模型，fallback 層 |
+| `Gemini 3.5 Flash (High)` | — | 高算力 Flash |
+| `Gemini 3.1 Pro (Low)` | — | Pro 低算力 |
+| `Gemini 3.1 Pro (High)` | PREVIEW | 最強，Level 3 主力 |
+| `Claude Sonnet 4.6 (Thinking)` | — | Anthropic |
+| `Claude Opus 4.6 (Thinking)` | — | Anthropic 最強 |
+| `GPT-OSS 120B (Medium)` | — | OpenAI |
 
 ### Known Limitations
 
-1. **Chinese character paths:** Gemini CLI context supplementation fails with non-ASCII paths
+1. **無效模型靜默 fallback：** agy 傳入不存在模型名稱時不報錯，改用預設模型
+   - **Mitigation:** 確認 `--model` 字串與上方清單完全一致
+   - **Impact:** ERR:MODEL 偵測不可靠，fallback 主要靠 QUOTA/AUTH/TIMEOUT
+
+2. **Chinese character paths:** agy 中文路徑行為待驗證
    - **Mitigation:** Keep `/tmp/review-*` paths ASCII-only (already implemented)
    - **Impact:** None for current workflow
 
-2. **Quota exhaustion:** Gemini models occasionally return "exhausted capacity"
-   - **Mitigation:** Auto-retry with 1-7 second delay via fallback chain
+3. **Quota exhaustion:** 額度耗盡時依 fallback chain 降級
+   - **Mitigation:** model-level fallback（Pro High → Flash Medium → Flash Low → SKIP）
    - **Impact:** Transparent to user
 
 ---

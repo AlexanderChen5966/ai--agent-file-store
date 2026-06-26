@@ -20,7 +20,8 @@
   - [context-sharing](#10-context-sharing)
   - [dev-doc-organizer](#11-dev-doc-organizer)
   - [ai-pair](#12-ai-pair)
-  - [figma-to-flutter](#13-figma-to-flutter)
+  - [figma-to-flutter ⚠️ 已退役](#13-figma-to-flutter--已退役歸檔2026-06-23)
+  - [figma-to-requirements](#16-figma-to-requirements)
   - [zerospec-skills](#14-zerospec-skills)
   - [ai-pair-v4-test](#15-ai-pair-v4-test)
 - [通用類（general）](#通用類general)
@@ -458,16 +459,16 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `ai-pair` |
-| **版本** | `4.2.5` |
-| **路徑** | `ai-pair-main-v4.2/`（存檔：`ai-pair-main-v4.2.5/`）|
-| **最後更新** | 2026-06-01 |
+| **版本** | `4.3.6` |
+| **路徑** | `ai-pair-main-v4.3.6/`（存檔：`ai-pair-main-v4.3.6/`）|
+| **最後更新** | 2026-06-26 |
 
 **描述：**
-自動化異構 AI 協作團隊 Skill。由 Claude Code 擔任 Team Lead，協調一個創作者（developer/author）與三個不同視角的 reviewer（GPT-4.1 + Claude + Gemini），形成三重審查工作流程。支援程式碼開發與內容創作兩種情境，並具備分層 review 策略、壓縮通訊協議與快取機制。
+自動化異構 AI 協作團隊 Skill。由 Claude Code 擔任 Team Lead，協調一個創作者（developer/author）與三個不同視角的 reviewer（GPT + Claude + agy/Gemini），形成三重審查工作流程。支援程式碼開發與內容創作兩種情境，並具備分層 review 策略、壓縮通訊協議與快取機制。**v4.3 起 gemini-reviewer 底層由停服的 Gemini CLI 遷移至 Antigravity CLI（`agy`），角色名稱保留。v4.3.5 修正 Copilot CLI v1.0.65 不讀 stdin 的問題（任務內容改以 `-p` 傳遞），並新增 MAI-Code-1-Flash 為 LOW 候選（Phase 2 實測後維持 `gpt-5.4-mini` 主力）。v4.3.6 補環境相容性：無 `TeamCreate`/`TeamDelete`（native Agent Teams 未啟用）時，改用 Team Lead=當前 session + Bash 直呼 CLI + Agent subagent 的等效流程（實測 PASS）。**
 
 **用途：**
 - `/ai-pair dev-team [project]` — Level 2 標準 review（預設）
-- `/ai-pair dev-team [project] --quick` — Level 1 快速掃描（Gemini only，~30s）
+- `/ai-pair dev-team [project] --quick` — Level 1 快速掃描（agy only，~30s）
 - `/ai-pair dev-team [project] --deep` — Level 3 深度 review（三 reviewer 並行，~3min）
 - `/ai-pair content-team [topic]` — 啟動內容團隊
 - `/ai-pair team-stop` — 關閉團隊，清理資源
@@ -475,7 +476,7 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 **前置需求：**
 - Claude Code（Team Lead + agent runtime）
 - GitHub Copilot CLI（`copilot`）已安裝並完成驗證
-- Gemini CLI（`gemini`）已安裝並完成驗證
+- Antigravity CLI（`agy`）已安裝並完成驗證（取代已停服的 Gemini CLI）
 
 **團隊架構：**
 
@@ -484,13 +485,13 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | copilot-developer | Claude Sonnet 4.6（via Copilot CLI） | 程式實作（dispatcher 模式） |
 | copilot-reviewer | GPT-5.4 mini（via Copilot CLI） | bugs、安全性、效能、邊界條件 |
 | claude-reviewer | Claude subagent | 架構、設計模式、可維護性 |
-| gemini-reviewer | Gemini 2.5 Flash（via Gemini CLI） | spec compliance、需求對齊、遺漏情境 |
+| gemini-reviewer | agy「Gemini 3.1 Pro (High)」（via Antigravity CLI） | spec compliance、需求對齊、遺漏情境 |
 
 **Review Levels：**
 
 | Level | 指令 | Reviewer 組合 | 適用情境 |
 |-------|------|-------------|---------|
-| 1 | `--quick` | Gemini only（flash-lite） | typo、i18n、小 UI 調整 |
+| 1 | `--quick` | agy only（Gemini 3.5 Flash (Low)） | typo、i18n、小 UI 調整 |
 | 2 | 預設 | Copilot + Claude（並行） | 一般功能、bug fix |
 | 3 | `--deep` | 三 reviewer 並行 | 架構變更、高風險模組 |
 
@@ -499,7 +500,8 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 - **diff-only review**：Team Lead 產生一份共用 `REVIEW_FILE`，透過 `REVIEW:{path}` 傳給各 reviewer；reviewer 不讀 source files（實測 tool_uses=1）
 - **單任務 dispatch**：每次只 dispatch 一個小型 task context file（~30-50 行）
 - **Review 結果快取**：WARN/BLOCK 時寫入 `.ai-pair-cache/review-findings/{task_id}.md`；re-review 自動附加 `Previous findings`
-- **Fallback chain**：Gemini → flash-lite → SKIP；GPT → gpt-4.1-mini → SKIP；Claude 永遠可用
+- **Fallback chain**：agy → Pro High → Flash Medium → Flash Low → SKIP；GPT → gpt-5.4-mini → gpt-5-mini → mai-code-1-flash-picker → SKIP；Claude 永遠可用
+- **⚠️ Copilot CLI 任務傳遞（v4.3.5）**：v1.0.65 不讀 stdin、無 `-c @file`，任務／審查內容須 `BODY="$(cat $FILE)"` 後嵌入 `-p`；`cat $FILE | copilot` 會讓模型收不到內容（agy stdin pipe 不受影響）
 
 **版本歷程：**
 
@@ -512,6 +514,9 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | v4.1.0 | — | ai-pair-v4-test 測試分支（Phase 1 驗證中） |
 | **v4.2.0** | **2026-05-25** | **Content Team 動態模型分配、Level 定義更新、settings.local.json 新模型補充** |
 | **v4.2.5** | **2026-06-01** | **Copilot Credit 適應：gpt-4.1→gpt-5.4-mini、Tier 加 Credit 成本欄、claude-haiku-4.5 加入 LOW** |
+| **v4.3.0** | **2026-06-22** | **Gemini CLI → Antigravity CLI（`agy`）遷移；模型對應 Flash(Low)/Flash(Medium)/Pro(High)、新增 PREVIEW tier；角色名稱保留；`說明文件.md` 併入 `README.md`** |
+| **v4.3.5** | **2026-06-25** | **🔴 修正 Copilot CLI v1.0.65 不讀 stdin（任務內容改 `-p` 傳遞）；新增 MAI-Code-1-Flash（slug `mai-code-1-flash-picker`）為 LOW 候選，Phase 2 實測維持 `gpt-5.4-mini` 主力；Tier 補 claude-sonnet-4.5/gpt-5.4** |
+| **v4.3.6** | **2026-06-26** | **環境相容性：無 `TeamCreate`/`TeamDelete`（native Agent Teams 未啟用）時改用 Team Lead=當前 session + Bash 直呼 CLI（developer/copilot/agy）+ Agent subagent（claude-reviewer）等效流程，全程實測 PASS（SSGS-12664 搬移任務驗證 copilot `-p` 嵌入、agy stdin pipe、三 reviewer 壓縮格式皆正常）** |
 
 **與 `multi-tool-coordination` 的定位差異：**
 
@@ -522,14 +527,16 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | 操作模式 | Agent 間壓縮格式自動溝通 | 人工切換工具、手動傳遞上下文 |
 | 適用情境 | 程式碼/內容的創作 + 三重 AI 審查 | 技術選型、多工具效率分配 |
 
-### 13. figma-to-flutter
+### 13. figma-to-flutter ⚠️ 已退役歸檔（2026-06-23）
 
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `figma-to-flutter` |
-| **版本** | `1.0.0` |
-| **路徑** | `dev/figma-to-flutter/` |
+| **版本** | `1.0.0`（退役）|
+| **路徑** | `dev/figma-to-flutter/`（僅存檔，已從 ~/.claude/skills 移除）|
 | **最後更新** | 2026-03-18 |
+
+> **退役原因（2026-06-23）：** 工作流改為 `figma-to-requirements → requirements → 對著 DESIGN.md 實作`。本 skill 的「Figma→Flutter 元件對應表」已併入各專案 DESIGN.md（元件名對齊現行 codebase）；「響應式尺寸規則」已過時（b2b DESIGN.md 慣例改以固定 px 為主，新 UI 不用 `.w/.h/.sp`；但 `flutter_screenutil` 套件與 `ScreenUtilInit` 仍保留供既有部分使用，未移除依賴）。詳見 [16. figma-to-requirements](#16-figma-to-requirements)。
 
 **描述：**
 將 Figma 截圖轉換為 Flutter UI 代碼，專為山隆 B2B 智慧平台（B2B Manager）設計，強制遵守專案規範。
@@ -549,6 +556,34 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 - `references/component-mapping.md`：Figma UI 元素 → Flutter 元件對應表
 
 **適用專案：** 山隆 B2B Manager（Flutter Web）
+
+---
+
+### 16. figma-to-requirements
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `figma-to-requirements` |
+| **版本** | `1.0.1` |
+| **路徑** | `dev/figma-to-requirements/`（備份）；作用中安裝於**全域** `~/.claude/skills/figma-to-requirements/` |
+| **最後更新** | 2026-06-23 |
+
+**描述：**
+把一組 Figma 設計截圖轉成「精確的 UI 任務需求草稿」，作為 `requirements` 的前處理階段。取代已退役的 figma-to-flutter。
+
+**用途：**
+- 讀「截圖所屬 repo 根目錄的 DESIGN.md」（非 CWD），將截圖元素對應到既有設計 token
+- 強制三產出：**Token 對應表**、**狀態矩陣**、**待新增 token 清單**（截圖出現但 DESIGN.md 沒有的色 → 標註不 hardcode）
+- 邊界：不產 code（實作階段負責）、不做風險分析（requirements 負責），做完交棒 requirements
+- 輸出 `docs/shared/<功能>_task.md`，metadata header 與 requirements 對齊
+- 通用設計：讀本專案 DESIGN.md，可跨 Flutter 專案（b2b-manager / app01-double 各用各的 token）
+
+**觸發關鍵字：**
+「截圖轉需求」、「Figma 轉需求」、「設計稿轉任務」、「把截圖變成需求文件」、「UI 需求分析」、「依設計稿寫需求」
+
+**前置依賴：** 截圖所屬 repo 根目錄需有 `DESIGN.md`（設計系統 SoT）
+
+**完整工作流：** `figma-to-requirements → requirements → Claude 開發/ai-pair（含 review）→ doc-update`
 
 ---
 
@@ -1111,7 +1146,7 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | multi-tool-coordination | 1.0.0 | 無記錄 | dev | 人工操作指南；執行型版本見 ai-pair |
 | context-sharing | 1.0.0 | 2025-01-28 | dev | |
 | dev-doc-organizer | 1.0.0 | 無記錄 | dev | |
-| **ai-pair** | **4.2.5** | **2026-06-01** | **dev** | **Copilot Credit 適應：gpt-4.1→gpt-5.4-mini、Tier 加 Credit 成本欄、claude-haiku-4.5 加入 LOW tier（路徑：`ai-pair-main-v4.2/`）** |
+| **ai-pair** | **4.3.6** | **2026-06-26** | **dev** | **環境相容性：無 `TeamCreate`/`TeamDelete` 時改用 Bash 直呼 CLI + Agent subagent 等效流程（實測 PASS）；承 v4.3.5 Copilot `-p` 傳遞修正（存檔：`ai-pair-main-v4.3.6/`）** |
 | **ai-pair-v4-test** | **4.1.0** | **2026-05-14** | **dev** | **v4 測試分支（Phase 1 驗證中）；v4.1 校正誤判 2 項、新增缺口 4 項** |
 | **figma-to-flutter** | **1.0.0** | **2026-03-18** | **dev** | **Figma 截圖 → Flutter UI 代碼（B2B 專屬，路徑：`dev/figma-to-flutter/`）** |
 | media-processor | 2.0.0 | 2025-12-31 | general | |

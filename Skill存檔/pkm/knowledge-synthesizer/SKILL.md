@@ -136,7 +136,7 @@ knowledge-synthesizer wiki/harness-engineering.md wiki/agents-md-guide.md wiki/z
 - V 層（知識缺口）
 
 ### 第五步：輸出
-1. 建立 `wiki/synthesis-[主題].md`
+1. 建立 `wiki/synthesis/synthesis-[主題].md`
 2. 更新 `wiki/INDEX.md`，加入新的精粹條目
 
 ---
@@ -213,4 +213,4 @@ asset_value: [分數]
 - 初始版本
 - CAVE 四層框架：Consensus / Angles / Voids / Essence
 - 五步驟執行流程（收集 → 萃取 → 比對 → 合成 → 輸出）
-- 輸出格式：`wiki/synthesis-[主題].md`，type: synthesis
+- 輸出格式：`wiki/synthesis/synthesis-[主題].md`，type: synthesis
