@@ -7,7 +7,7 @@ description: |
 
   Trigger: wiki-health-check, 健康檢查, health check, wiki品質, 知識庫健檢, monthly review
 metadata:
-  version: 1.3.0
+  version: 1.6.0
 ---
 
 # wiki-health-check
@@ -112,19 +112,26 @@ monthly review
 ### 6. 未處理素材（Unprocessed Raw）
 > 找出 raw/ 中尚未轉化為 wiki 條目的素材
 
-**判斷邏輯（cross-reference 方式）：**
-1. 掃描 `raw/` 所有 `.md` 和 `.pdf` 檔，提取每篇的 `source:` URL（PDF 無 frontmatter 則 source 視為空白）
-2. 掃描 `wiki/` 所有 `.md` 檔，收集所有 `source:` URL 成清單
-3. 對每個 raw 檔：若其 `source:` URL **已出現在** wiki/ 某條目 → 視為已處理，跳過
-4. `.pdf` 額外判斷：若 wiki/ 存在 `source_format: pdf` 且檔名相符的條目 → 視為已處理
-5. 若 raw 檔的 `source:` URL **未出現在任何** wiki 條目，且建立超過 30 天 → 標記為未處理
+**判斷邏輯（標記檔 + cross-reference 雙軌）：**
 
-> **為什麼不看 raw/ 的 status 欄位：** raw/ 是唯讀輸入區，AI 不應修改原始素材；「是否已處理」的真實狀態應由 wiki/ 是否存在對應條目來判斷。
+A. **`.md` 素材**（v1.5.0 起**雙條件**）：frontmatter `status:` 為 `inbox` / `"inbox"` / 缺欄位，**且** raw/ 中**不存在**同名 `.processed` 標記檔 → 才視為未處理
+   掃描指令：`for f in raw/*.md; do grep -q 'status:.*inbox' "$f" 2>/dev/null && [ ! -f "${f}.processed" ] && echo "$f"; done`
+   ⚠️ 不可只看 frontmatter——raw/ 一律唯讀，已處理的 .md 其 frontmatter 仍會停留在 inbox，僅靠旁車標記辨識
+
+B. **非 `.md` 素材**（.pdf / 圖片 / .srt / .csv 等）：raw/ 中**不存在**同名 `.processed` 標記檔 → 未處理
+   掃描指令：`find raw/ -type f ! -name "*.md" ! -name "*.processed"`
+
+C. **幽靈標記偵測（health-check 專屬，比 pipeline 多一層）**：
+   對每個有 `.processed` 標記的檔案（v1.5.0 起**含 .md 與非 md**），反查 wiki/ 或 research/ 是否真有對應條目
+   （用檔名前綴或 `source:` 比對）。若**標記存在但找不到對應條目** → 標記為「⚠️ 幽靈標記」，
+   代表當初標記了卻沒真的建立條目，需人工確認。
+
+> **關於 raw/ 唯讀原則：** `.processed` 是旁車標記檔（新增元資料），不修改原始素材內容，
+> 不違反「NEVER modify raw/」。這是 2026-06 後確立的慣例（取代舊版「只靠 wiki cross-reference」判斷）。
 
 **特殊情況：**
-- raw `.md` 的 `source:` 為空 → 無法比對，單獨列出，手動確認
-- raw `.pdf` → 無 frontmatter 屬正常，改用檔名比對 wiki/ 的 `source_format: pdf` 條目
-- 多個 raw 檔對應同一 wiki 條目（合併處理）→ 視為已處理，不報告
+- `.processed` 標記（含 .md 與非 md）存在但建立超過 30 天仍無對應條目 → 列入幽靈標記
+- 多個 raw 檔對應同一 wiki 條目（合併處理）→ 各自有 `.processed` 標記即視為已處理
 
 輸出格式：
 ```
@@ -136,11 +143,47 @@ monthly review
 
 ---
 
+### 7. 精粹過時偵測（Stale Synthesis Detection）
+> 找出來源已增加、但精粹條目尚未重跑的 `wiki/synthesis/` 條目
+
+**背景**：`knowledge-synthesizer` 產出的精粹是「快照」，一次讀取當下 N 篇來源後定稿，
+不會自動感知日後新增的同主題 wiki 條目。若來源持續增長而精粹未重跑，精粹的
+A 層（獨特視角）與 V 層（知識缺口）會過時，且過時會沿 synthesis → concepts 往上傳染。
+
+**判斷邏輯（依賴 frontmatter 戳記，2026-07 起）：**
+
+每篇精粹 frontmatter 應含：
+- `source_count`：定稿當下的來源條目數（整數）
+- `synthesis_snapshot_date`：該快照的基準日
+
+對每篇 `wiki/synthesis/*.md`：
+1. 讀取 frontmatter 的 `source_count`
+2. 依主題比對規則（見下表）數出**目前** wiki/ 中該主題實際條目數 `actual`
+3. 若 `actual > source_count` → 標記為「精粹過時」，列出新增的候選條目
+4. 若精粹**缺** `source_count` 欄位 → 標記為「⚠️ 缺戳記，無法偵測」，建議補上
+
+**主題比對規則**：以精粹的「來源條目」段落所列的 `[[...]]` 為基準集合，
+再用該主題的檔名前綴 glob 掃出現況（例：`synthesis-multi-agent` → `wiki/multi-agent*.md`
+＋ `wiki/*multi-agent*.md`；`synthesis-claude-md` → `wiki/claude-md*.md`）。
+glob 判準可能誤抓，故本項為「提醒」而非「自動重跑」——寧可過報，由人工確認後再決定是否重跑。
+
+輸出格式：
+```
+🔄 精粹過時：[[synthesis-xxx]]
+快照：N 篇（YYYY-MM-DD）→ 現有 M 篇
+新增候選：[[new-entry-a]]、[[new-entry-b]]
+建議：確認後重跑 knowledge-synthesizer <主題> 覆蓋更新
+```
+
+> **不自動重跑**：重跑會覆蓋可能經人工微調的精粹，一律列入報告等使用者確認。
+
+---
+
 ## 執行流程
 
-1. 讀取所有 `wiki/` 目錄的 `.md` 檔案，收集 source URL 清單
-2. 讀取所有 `raw/` 目錄的 `.md` 和 `.pdf` 檔案，提取 source URL 與建立日期
-3. 依序執行六項檢查（第 6 項需 wiki/raw cross-reference）
+1. 讀取所有 `wiki/`（與 `research/`）目錄的 `.md` 檔案，收集 source URL 清單
+2. 讀取 `raw/`：`.md` 與非 md 檔**一律**比對 `.processed` 旁車標記（.md 另加 frontmatter inbox 雙條件）
+3. 依序執行七項檢查（第 6 項：未處理 = 缺標記；額外做幽靈標記偵測。第 7 項：比對 synthesis 的 source_count 與現況）
 4. 彙整結果，產出健康檢查報告
 5. 存入 `outputs/health-check-YYYY-MM-DD.md`
 6. 提供優先處理清單（最需要修復的 3-5 個問題）
@@ -209,6 +252,21 @@ monthly review
 ---
 
 ## Changelog
+
+### v1.6.0（2026-07-24）
+- **新增第 7 項檢查：精粹過時偵測（Stale Synthesis Detection）**——比對 `wiki/synthesis/*.md` frontmatter 的 `source_count` 與該主題現況條目數，`actual > source_count` 即列入報告提醒重跑 `knowledge-synthesizer`
+- 配套：全部既有 synthesis 條目已補上 `source_count` + `synthesis_snapshot_date` 兩個機器可讀戳記欄位
+- 設計原則：只「提醒」不「自動重跑」（避免覆蓋人工微調）；主題比對用 glob 寧可過報，由人工確認
+- 執行流程由六項改七項；對應 5A+ 的 ADJUST 階段（同主題已有精粹但來源已長）
+
+### v1.5.0（2026-07-08）
+- **制度統一（批次 C 健檢 C-1 修正）**：第 6 項 A 的 `.md` 判斷改**雙條件**（frontmatter inbox 且無 `.processed` 標記）——對齊 CLAUDE.md「raw/ .md 一律旁車標記」現行規則，修正只看 frontmatter 會把已處理 56 篇誤報為積壓的問題
+- 幽靈標記偵測擴及 `.md`（原僅非 md 檔）
+
+### v1.4.0（2026-06-22）
+- 第 6 項未處理素材檢查改用 `.processed` 標記檔（取代舊版「只靠 wiki source cross-reference」）
+- 新增「幽靈標記偵測」：標記存在但無對應 wiki/research 條目 → 標記異常，需人工確認
+- 改寫「raw/ 唯讀」說明：`.processed` 為旁車元資料，不違反唯讀原則（呼應 2026-06 確立的慣例）
 
 ### v1.3.0（2026-05-14）
 - 輸出格式新增「5A+ 階段評估」區塊（當前階段 + 理由 + 下一步建議）

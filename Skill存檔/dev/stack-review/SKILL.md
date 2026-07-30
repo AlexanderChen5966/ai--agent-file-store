@@ -29,20 +29,51 @@ This skill provides comprehensive code reviews for various technology stacks:
 
 ### Step 1: Identify Changed Files
 
-Determine what files have been modified or created:
+#### 1a. Establish a fresh, correct review base (do this FIRST)
+
+**Never diff against a local branch ref without fetching.** A stale base silently invalidates the
+entire review: you will miss work already merged upstream, mistake existing files for new ones,
+and can even "approve" a duplicate reimplementation of something already on the target branch.
 
 ```bash
-# Check git status for modified files
-git status
+# 1. Always fetch first — a local `main`/`master` ref can be weeks out of date
+git fetch origin
 
-# See detailed changes
-git diff
+# 2. Is the branch behind the target? If so, STOP and resolve before reviewing
+git log --oneline HEAD..origin/main        # commits on target that this branch lacks
 
-# For staged changes
-git diff --cached
+# 3. Diff against the REMOTE ref, never the local one
+git diff origin/main...HEAD               # ✅ correct (3 dots = merge-base diff)
+# git diff main...HEAD                    # ❌ local ref may be stale
 ```
 
-If the user hasn't specified which files to review, check git status to identify the scope.
+**If the branch is behind the target**: recommend merging (or rebasing) the target in *before*
+reviewing. Reviewing a stale branch means the conclusions describe a state that will not exist
+after the merge — and any conflicts found later force a second review pass anyway.
+
+> Real failure this rule prevents: a review ran with `git diff main...HEAD` where the local `main`
+> was 7 weeks stale. A task already merged upstream 13 days earlier had been reimplemented on the
+> branch; the review passed cleanly, and the duplicate only surfaced as merge conflicts in the MR.
+
+#### 1b. Determine the scope
+
+```bash
+# Uncommitted work
+git status
+git diff
+git diff --cached
+
+# Whole-branch review (most common for feature branches / MRs)
+git diff --stat origin/main...HEAD
+git log --oneline origin/main..HEAD
+```
+
+If the user hasn't specified which files to review, ask or infer: uncommitted changes only, or the
+whole branch vs its target? For an MR/PR review it is almost always the whole branch.
+
+**Exclude from findings** (report them only if they are themselves the defect): generated files
+(`*.g.dart`, `*.freezed.dart`, `lib/generated/**`, `build/`), lockfiles, and vendored/third-party
+directories. Verify a suspected generated file really is generated before dismissing it.
 
 ### Step 2: Detect Project Type
 

@@ -1,0 +1,1 @@
+{"note":"native Agent subagent output. 9 findings, verdict WARN. Paths mechanically verified: 9/9 exist.","verdict":"WARN","findings_count":9,"severity_breakdown":{"C":0,"W":2,"S":7},"usage":{"subagent_tokens":182755,"tool_uses":78,"duration_ms":531285}}

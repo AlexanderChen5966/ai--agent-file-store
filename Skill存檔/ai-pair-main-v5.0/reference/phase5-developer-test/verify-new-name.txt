@@ -1,0 +1,3 @@
+web/index.html:28:  <meta name="apple-mobile-web-app-title" content="slc_b2b_devtest">
+web/manifest.json:2:    "name": "slc_b2b_devtest",
+web/manifest.json:3:    "short_name": "slc_b2b_devtest",

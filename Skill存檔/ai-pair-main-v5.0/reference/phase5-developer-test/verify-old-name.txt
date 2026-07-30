@@ -1,0 +1,2 @@
+web/index_dev.html:27:  <meta name="apple-mobile-web-app-title" content="b2b_manager">
+web/index_stage.html:28:  <meta name="apple-mobile-web-app-title" content="b2b_manager">

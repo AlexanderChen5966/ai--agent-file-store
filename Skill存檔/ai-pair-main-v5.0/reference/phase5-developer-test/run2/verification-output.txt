@@ -1,0 +1,16 @@
+$ grep -rn "b2b_manager" web/
+web/index_dev.html:27:  <meta name="apple-mobile-web-app-title" content="b2b_manager">
+web/index_stage.html:28:  <meta name="apple-mobile-web-app-title" content="b2b_manager">
+
+$ grep -rn "slc_b2b_devtest" web/
+web/index.html:28:  <meta name="apple-mobile-web-app-title" content="slc_b2b_devtest">
+web/manifest.json:2:    "name": "slc_b2b_devtest",
+web/manifest.json:3:    "short_name": "slc_b2b_devtest",
+$ grep -rn "b2b_manager" web/
+
+$ grep -rn "slc_b2b_devtest" web/
+web/index.html:28:  <meta name="apple-mobile-web-app-title" content="slc_b2b_devtest">
+web/index_dev.html:27:  <meta name="apple-mobile-web-app-title" content="slc_b2b_devtest">
+web/index_stage.html:28:  <meta name="apple-mobile-web-app-title" content="slc_b2b_devtest">
+web/manifest.json:2:    "name": "slc_b2b_devtest",
+web/manifest.json:3:    "short_name": "slc_b2b_devtest",

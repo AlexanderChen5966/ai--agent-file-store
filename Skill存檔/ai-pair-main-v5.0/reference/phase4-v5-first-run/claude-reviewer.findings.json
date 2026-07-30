@@ -1,0 +1,68 @@
+{
+  "findings": [
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/util/next_delivery_date.dart",
+      "line": 55,
+      "severity": "W",
+      "issue": "MONTHLY 下次寄送日與後端 nextRunDate 不一致",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/api/response/report_schedule/report_schedule_result.dart",
+      "line": 63,
+      "severity": "S",
+      "issue": "註解宣稱列表顯示 nextRunDate，實際無 UI 讀取（死欄位）",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/notifier/report_schedule/report_schedule_state.dart",
+      "line": 28,
+      "severity": "W",
+      "issue": "visibleList 只過濾已載入頁，卻搭配全量 totalPagesFromAPI",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/notifier/report_schedule/report_schedule_state_notifier.dart",
+      "line": 94,
+      "severity": "S",
+      "issue": "殘留 upsert 過期註解，與同段正確版本矛盾",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/api/request/report_schedule/report_schedule_create_request.dart",
+      "line": 9,
+      "severity": "S",
+      "issue": "類別 doc 稱 upsert，與後端現況相反",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/page/setting/report_auto_send_page.dart",
+      "line": 30,
+      "severity": "S",
+      "issue": "類別 doc 仍稱純前端 mock",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/l10n/intl_zh_TW.arb",
+      "line": 1081,
+      "severity": "S",
+      "issue": "3 個未被引用的 i18n key；其一代表重複收件人提示未實作",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/lib/page/setting/report_auto_send_page.dart",
+      "line": 43,
+      "severity": "S",
+      "issue": "_paginatorController 未 dispose",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    },
+    {
+      "file": "/Users/alexander/GitLab/b2b-manager/test/models/enum_api_contract_test.dart",
+      "line": 20,
+      "severity": "S",
+      "issue": "任務文件記 23 例，實際 25 例",
+      "fix": "見 docs/shared/report_schedule_post_merge_findings.md"
+    }
+  ],
+  "verdict": "WARN"
+}

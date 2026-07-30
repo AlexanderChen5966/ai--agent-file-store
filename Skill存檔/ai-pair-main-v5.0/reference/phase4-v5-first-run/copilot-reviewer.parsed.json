@@ -1,0 +1,12 @@
+{
+  "findings": [
+    {
+      "file": "lib/page/setting/report_auto_send_page.dart",
+      "line": 157,
+      "severity": "W",
+      "issue": "刪除流程沒有檢查 `deleteSchedule()` 的回傳值；即使 API 刪除失敗，程式仍會重抓列表並顯示「刪除成功」，會誤導使用者且把錯誤狀態蓋掉。",
+      "fix": "先接住刪除結果，例如 `final ok = await notifier.deleteSchedule(...);`，只有 `ok == true` 時才重抓列表並顯示成功對話框；失敗時直接返回並保留目前畫面/錯誤提示。"
+    }
+  ],
+  "verdict": "WARN"
+}

@@ -1,0 +1,3 @@
+ M .gitignore
+ M web/index.html
+ M web/manifest.json

@@ -56,6 +56,26 @@
 - [ ] 是否避免空的 catch 區塊？
 - [ ] 資源是否在 finally/defer 中正確釋放？
 
+### 跨服務契約（enum / DTO）
+
+適用於**前後端分離**或**多 repo**專案。diff 若動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
+
+- [ ] enum 的常數值是否與**後端原始碼**逐字一致？（❌ 不可只看 API 文件——文件常落後或誤植）
+- [ ] 解析方式是 **fail-hard 還是 fail-soft**？
+      fail-hard（如 Dart `json_serializable` 的 `$enumDecode`、非 nullable 欄位）遇到未知值會**拋錯**，
+      而 `fromJson` 通常是整批解析 → **一筆未知值會讓整個列表解析失敗、整頁空白**，
+      不是單列顯示異常
+- [ ] 若為 fail-hard，是否有**契約測試**鎖住值清單？（後端新增值時能在測試層先發現）
+- [ ] 是否考慮 fail-soft fallback（如 `unknownEnumValue`）？若採用，未知值是否會記 log
+      而非靜默忽略？（靜默 fallback 會把問題藏起來）
+- [ ] 該 enum 的 `values` 是否被當作 UI 選項來源（下拉／篩選）？
+      若是，新增 fallback 值（如 `UNKNOWN`）會出現在使用者可見選單中，需額外過濾
+
+> ⚠️ **review 的能力邊界**：此清單只能攔住「**本次 diff 新增或修改**」的 enum。
+> 最常見的失效模式是「**後端新增值、前端零改動**」——那種情況前端沒有任何 diff，
+> **code review 不可能發現**，只能靠契約測試或 fail-soft 解析。
+> 因此發現 fail-hard 解析時，應直接建議加契約測試，而不是只確認「這次改對了」。
+
 ### 註解與文件
 - [ ] 複雜邏輯是否有註解說明？
 - [ ] 公開 API 是否有文件註解？

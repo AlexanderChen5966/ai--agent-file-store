@@ -1,0 +1,36 @@
+我先讀 manifest 和變更範圍，接著只針對指定內容做審查。
+
+我已確認工作區本身只有未相關的 `.gitignore` 變動；接下來直接看 manifest 指定的 commit range。
+
+我在核對 enum/DTO wire contract；接著比對後端原始碼與產生的序列化結果。
+
+我需要後端 SoT 來核對 enum/DTO 是否補齊；先抓 backend 對應定義。
+
+後端程式碼不一定用同樣的檔名，我改用功能字串定位 report schedule 的實作。
+
+我還要看 generated 序列化與測試，特別是 enum 反序列化是否有 non-nullable 風險。
+
+我補讀 Drawer / Header / 權限頁面區塊，確認裁決是否真的落實。
+
+我再核對 converter / 文案，避免 enum 新增後 `toText()` 或顯示名稱漏支援。
+
+我最後掃一次關鍵字：新的 `report_schedule` key、權限 gating 和 `nextDeliveryDate` 邊界。
+
+我看到 Drawer 內有 `nextDeliveryDate` 預覽與 `MONTHLY` 的 null 邊界，接著只補那段。
+
+我看一下 side menu 末段，確認報表寄送頁入口有沒有被正確 gating。
+
+我現在看 commit diff 本身，找是否有「只改一半」的契約或流程。
+
+我檢查 `OperationType` 的實際使用位置，確認順序差異會不會影響 UI。
+
+我看 `OperationType.values` 的下拉用途，確認新增值的順序是不是會造成篩選行為偏差。
+
+我再做一次最小契約比對：後端文件是否還有前端沒覆上的 enum 值。
+
+我只查 `log_result.g.dart` / `log_search_request.g.dart` 是否真的含新增 `EntityType.REPORT_SCHEDULE`。
+
+我已鎖定一個高可信的刪除流程問題；再看一下行號與是否還有同級別缺陷。
+
+{"findings":[{"file":"lib/page/setting/report_auto_send_page.dart","line":157,"severity":"W","issue":"刪除流程沒有檢查 `deleteSchedule()` 的回傳值；即使 API 刪除失敗，程式仍會重抓列表並顯示「刪除成功」，會誤導使用者且把錯誤狀態蓋掉。","fix":"先接住刪除結果，例如 `final ok = await notifier.deleteSchedule(...);`，只有 `ok == true` 時才重抓列表並顯示成功對話框；失敗時直接返回並保留目前畫面/錯誤提示。"}],"verdict":"WARN"}
+
