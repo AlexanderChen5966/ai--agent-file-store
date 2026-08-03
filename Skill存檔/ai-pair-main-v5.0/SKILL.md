@@ -25,7 +25,7 @@ Uses Claude Code's native Agent tool, GitHub Copilot CLI, and Antigravity CLI (`
 
 > **v5.0 核心原則：Claude 額度只花在「協調決策」與「review 驗證」；探索與實作外包給 external CLI。**
 > 依據是資源不可替代性——Claude 額度耗盡時 Team Lead 本身停擺，整個流程無法運作；Copilot Credits 耗盡只需降級。
-> 完整推導見 `reference/重構建議-v5.0.md`，實測依據見 `reference/phase-v5-cli-probe.md`。
+> 完整推導見 `reference/archive/重構建議-v5.0.md`，實測依據見 `reference/archive/phase-v5-cli-probe.md`。
 
 ## Why Multiple AI Reviewers?
 
@@ -455,25 +455,40 @@ TASK_FILE=$(mktemp /tmp/task-context-XXXXXX)   # macOS 不支援 X 之後的後�
 
 ## Reference 索引（一層引用）
 
+### 操作型（執行流程時載入）
+
 | 檔案 | 內容 | 何時載入 |
 |---|---|---|
-| `reference/review-protocol.md` | Review Context Protocol 六步完整規格、MANIFEST 契約面清單範本、統一解析配方、Inter-Agent Protocol v2、Translation Layer | 要派 review 時 |
-| `reference/cli-invocation-ref.md` | 四個角色的 CLI 指令規格、findings schema、錯誤處理、原始輸出落檔 | 要呼叫 CLI 時 |
+| `reference/review-protocol.md` | Review Context Protocol 六步、MANIFEST 契約面清單範本、統一解析配方、Inter-Agent Protocol v2、Translation Layer | 要派 review 時 |
+| `reference/cli-invocation-ref.md` | 各角色的 CLI 指令規格、findings schema、錯誤處理、原始輸出落檔、幻覺路徑攔阻 | 要呼叫 CLI 時 |
 | `reference/agents-prompts.md` | 各角色的 agent 初始化 prompt（可直接複製） | 要啟動 agent 時 |
-| `reference/model-selection.md` | tier pattern 表、兩 CLI 命名慣例、developer 准入制與黑白名單、費率快照 | 要解析模型時 |
-| `reference/known-limitations.md` | 完整限制清單 + 已修正項目的版本沿革 | 遇到異常行為時 |
-| `reference/phase-v5-cli-probe.md` | E1–E8 實測原始紀錄 | 要查某項結論的依據時 |
-| `reference/phase2-mai-vs-gpt54mini/`<br>`reference/phase3-luna-kimi/` | developer 候選 A/B 的方法與原始產物 | 要做新模型准入時 |
-| `reference/重構建議-v5.0.md` | v5.0 的完整推導、被推翻的初稿主張、修訂紀錄 | 要理解「為何這樣設計」時 |
-| ~~`reference/archive/`~~ | v3–v4.5.1 歷史提案 | ⚠️ **不隨 live skill 安裝**（2870 行、僅供考古）。僅存於完整快照 `Skill存檔/ai-pair-main-v5.0/` |
+| `reference/model-selection.md` | tier pattern、兩 CLI 命名慣例、developer gate 與黑白名單、費率快照 | 要解析模型時 |
+| `reference/ab-admission-method.md` | A/B 准入程序、四條淘汰制條件、六個方法論規則 | **要納入新模型或換 CLI 時** |
+| `reference/known-limitations.md` | 現行限制、已修正項目的版本沿革、未驗清單 | 遇到異常行為時 |
 
-⚠️ **引用深度限一層**：**操作型** reference（前五項）彼此不互相引用，全部由本檔索引——確保載入任一份就能執行，不必再追下一層。
+⚠️ **操作型 reference 彼此不互相引用**，全部由本檔索引——載入任一份就能執行，不必再追下一層。
 
-📚 後三項是**紀錄型**文件（實測原始紀錄、A/B 產物、設計推導），不在執行路徑上，只在「要查依據」時載入。它們之間允許互相標註出處（那是來源引用，不是取得指令的導航）。
+### 紀錄型（`reference/archive/`，只在查依據時載入）
+
+| 內容 | 說明 |
+|---|---|
+| `archive/重構建議-v5.0.md` | v5.0 完整推導、被實測推翻的初稿主張、修訂紀錄 |
+| `archive/phase-v5-cli-probe.md` | E1–E8 實測原始紀錄（CLI 能力、費率、輸出格式、回歸測試） |
+| `archive/phase6-golive-acceptance.md` | 上線驗收：四項阻擋的修正與證據、契約面清單有效性 A/B |
+| `archive/phase2-*` … `archive/phase5-*` | 各輪 A/B 與實測的原始產物 |
+| `archive/重構建議-v3` ~ `v4.5.1` | 歷史提案（含未採納者） |
+
+### 提案型
+
+| 檔案 | 狀態 |
+|---|---|
+| `reference/重構建議-v5.1.md` | **提案中，未採納**——CLI adapter 抽象層與引擎抽換評估（加減 codex／opencode、退訂 copilot 的影響） |
+
+📚 紀錄型文件**不隨 live skill 安裝**，僅存於 repo 工作副本與完整快照。它們之間允許互相標註出處（那是來源引用，不是取得指令的導航）。
 
 ---
 
 *v5.0 — 2026-07-30 | Claude 額度只花在協調決策與 review 驗證／developer 預設 copilot（native 為品質升級，含兩次出局護欄）／新增 explorer 角色與四道護欄／claude-reviewer 強制保留，reviewer 不作預算調節閥／developer 模型篩選與 A/B 准入制度化（回報誠實性為淘汰項）／傳遞層改 manifest，廢除「reviewer 不得讀 source」禁令／模型層改執行期發現／結構化輸出與幻覺路徑機械攔阻*
 
-*實測依據：`reference/phase-v5-cli-probe.md`（E1–E5）、`reference/phase3-luna-kimi/`（developer 候選 A/B）*
-*完整推導與被推翻的初稿主張：`reference/重構建議-v5.0.md`*
+*實測依據：`reference/archive/phase-v5-cli-probe.md`（E1–E5）、`reference/phase3-luna-kimi/`（developer 候選 A/B）*
+*完整推導與被推翻的初稿主張：`reference/archive/重構建議-v5.0.md`*

@@ -8,8 +8,8 @@ description: >-
   觸發關鍵字："產出文件"、"記錄功能"、"建立架構文件"、"整理 API"、
   "bug 紀錄"、"修復紀錄"、"widget 文件"、"元件文件"、"變更歷程"、"更新文件"。
 metadata:
-  version: 2.1.0
-  last-updated: 2026-07-30
+  version: 2.2.1
+  last-updated: 2026-08-03
 ---
 
 # Project Documentation
@@ -47,14 +47,29 @@ metadata:
 理由：AI 判斷不出自己哪裡在猜（猜測與抽取在生成當下的主觀確信度相同），
 但**可以被要求區分「我從檔案讀到的」與「我依慣例補的」**。
 
-### 原則 3：記錄 `source-commit`
+### 原則 3：文件必須帶「可判斷版本的標記」
 
-frontmatter 必填 `source-commit`（`git rev-parse --short HEAD`）與 `updated`。
-沒有 commit hash，就無法判斷文件對應哪個版本的程式碼、該不該重生成。
+**每份文件都要能回答：這份描述對應哪個時間點的程式碼？**
+沒有這個訊號，就無法判斷該不該重生成，文件會靜默過期。
+
+**兩種實作形式，依專案既有慣例擇一**（⚠️ 不要在同一專案混用）：
+
+| 形式 | 內容 | 適用 |
+|------|------|------|
+| **A. YAML frontmatter**（預設）| `source-commit`（`git rev-parse --short HEAD`）＋ `updated` | 新建文件、專案無既有慣例時 |
+| **B. 專案自有版本／日期慣例** | 版本號 ＋ 最後更新日期，散佈在文件 footer／版本總覽表／changelog 表頭 | 專案**已有**這套慣例時——**沿用它，不要另外硬塞 frontmatter** |
 
 ```bash
-git rev-parse --short HEAD    # 產出前先取得，寫入 frontmatter
+git rev-parse --short HEAD    # 形式 A 產出前先取得
 ```
+
+⚠️ **形式 B 的已知弱點**：多數自有慣例只有「版本號＋日期」，**沒有 commit hash**，
+所以能回答「文件改過」卻回答不了「對應哪個程式碼狀態」。
+若該專案的 changelog 條目有記 commit 範圍（如 `commits abc1234 ~ def5678`），
+**務必維持**——那是形式 B 唯一的可追溯來源。
+
+形式 B 的完整規則見 Step 0 >「專案自有版本／日期慣例」與
+[frontmatter-spec.md](references/frontmatter-spec.md) >「形式 B」。
 
 ## 支援狀態
 
@@ -70,7 +85,7 @@ git rev-parse --short HEAD    # 產出前先取得，寫入 frontmatter
 
 所有產出的文件必須遵守統一規範，詳見 [frontmatter-spec.md](references/frontmatter-spec.md)：
 
-- **Frontmatter**：必填 `title`、`type`、`created`、`updated`、**`source-commit`**、`status`、`related-modules`
+- **版本標記**（原則 3，二擇一）：**形式 A** YAML frontmatter——必填 `title`、`type`、`created`、`updated`、**`source-commit`**、`status`、`related-modules`；**形式 B** 沿用專案自有的版本號／日期慣例（見 Step 0）
 - **可信度標記**：推導而未從原始碼確認的內容一律標 `⚠️ 推導未驗證`
 - **命名規則**：**以專案既有慣例為準**；目錄為空／新建時才用 kebab-case
 - **存放位置**：產出前先 `ls docs/` 確認實際目錄，不要新建重複文件
@@ -144,6 +159,25 @@ git rev-parse --short HEAD            # 取得 source-commit
 | **存在，`source-commit` 較舊** | 走**更新流程**（見下），❌ **不可直接覆蓋** |
 | **存在但無 `source-commit`**（舊版產出） | 視為不可信基線：重新產出，但**先列出將被移除的內容給使用者確認** |
 
+#### ⚠️ 先判斷這個專案用哪種版本標記形式
+
+```bash
+grep -rn '^source-commit:' docs/ | head            # 形式 A 的訊號
+grep -rn '文件版本\|最後更新\|^## 🆕' docs/ | head   # 形式 B 的訊號
+```
+
+| 命中 | 用哪種 |
+|------|--------|
+| 有 `source-commit:` | **形式 A**（YAML frontmatter）|
+| 有「文件版本／最後更新／`## 🆕`」但無 frontmatter | **形式 B**（專案自有慣例）——**沿用它，不要另外硬塞 frontmatter** |
+| 都沒有 | 新建文件 → 用**形式 A** |
+
+🔴 **不可在同一專案混用**，否則會出現兩套版本訊號互相矛盾。
+
+完整規則見 [frontmatter-spec.md](references/frontmatter-spec.md)（形式 A ／ 形式 B 各一節）。
+⚠️ 形式 B 的關鍵易錯點：**出現位置通常不只一處**（footer／彙總表／changelog 表頭），
+漏改任一處就會自相矛盾。
+
 #### 🔴 更新流程（不可直接覆蓋）
 
 既有文件可能含**人工修正過的內容**——那些往往正是修掉 AI 猜錯之處，直接覆蓋會把正確資訊換回錯的。
@@ -196,7 +230,9 @@ API 總覽依 Controller／資源分檔（如 `api/car.md`、`api/order.md` + `a
 - [ ] **每一項「已驗證」內容都能指出來源檔案與行號**——指不出來的改標 `⚠️ 推導未驗證` 或刪除
 - [ ] **沒有流程未要求的章節／範例／JSON payload**（原則 1）
 - [ ] **所有 JSON 範例的鍵命名都經序列化配置確認**——未確認就標記或刪除
-- [ ] frontmatter 六個必填欄位齊全，`source-commit` 為實際 HEAD
+- [ ] **版本標記**（依 Step 0 判定的形式）：
+      **形式 A** → frontmatter 七個欄位齊全、`source-commit` 為實際 HEAD；
+      **形式 B** → 所有出現位置（footer／彙總表／changelog 表頭）都已同步、版本號的增減與「內容是否實質變更」一致、日期是**撰寫當下**而非 commit 日期、新 changelog 條目帶 commit 範圍
 - [ ] 檔名與存放位置符合該專案**既有慣例**（非 skill 預設）
 - [ ] 未改動 `docs/shared/*`、`AGENTS.md`、`CLAUDE.md`、`DESIGN.md`
 - [ ] 更新流程：未受影響章節確實原封不動

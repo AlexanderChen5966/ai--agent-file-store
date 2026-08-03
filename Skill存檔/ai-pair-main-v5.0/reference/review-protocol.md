@@ -159,7 +159,7 @@ Cache 清除時機：PASS 確認、task id 改變、需求轉向、檔案集擴�
 🔴 **copilot 的 stdout 不保證是乾淨 JSON。** 單輪短任務時是；但配 `--allow-all-tools` 做多步驟工具呼叫時，過程敘述會混入 stdout，JSON 落在**最尾端**。必須抽取：
 
 ```bash
-# 🔴 三條鐵則（皆經回歸測試，見 phase-v5-cli-probe.md E8）
+# 🔴 三條鐵則（皆經回歸測試，見 archive/phase-v5-cli-probe.md E8）
 #   ① 一律先落檔，不讓 CLI 輸出穿過 shell 變數（會被 control char 弄壞）
 #   ② 一律抽取 JSON 物件行——兩個 CLI 的 stdout 都可能夾雜非 JSON 文字
 #   ③ ❌ 不可用變數名 status —— zsh 的 $status 是唯讀保留字，賦值直接報錯

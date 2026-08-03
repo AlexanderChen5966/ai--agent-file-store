@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25
+> 整理日期：2026-05-25（最後更新：2026-07-30 — ai-pair v5.0 上線）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -318,12 +318,12 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `project-documentation` |
-| **版本** | `2.1.0` |
+| **版本** | `2.2.1` |
 | **路徑** | `dev/project-documentation/` |
-| **最後更新** | 2026-07-30 |
+| **最後更新** | 2026-08-03 |
 
 **描述：**
-多技術棧可擴展文件產出系統，為 `flutter-b2b-documentation` 的通用化進化版。v2.0.0 新增 Spring Boot 完整支援、Bug 修復紀錄與 Widget 元件文件兩種新類型。**v2.1.0 為可信度強化版**：加入「不得產出流程未要求的內容」硬約束、`⚠️ 推導未驗證` 標記規範、`source-commit` 必填、wire 契約推導階段、更新（非覆蓋）流程與產出自檢，並新增「變更歷程文件」類型。
+多技術棧可擴展文件產出系統，為 `flutter-b2b-documentation` 的通用化進化版。v2.0.0 新增 Spring Boot 完整支援、Bug 修復紀錄與 Widget 元件文件兩種新類型。**v2.1.0 為可信度強化版**：加入「不得產出流程未要求的內容」硬約束、`⚠️ 推導未驗證` 標記規範、`source-commit` 必填、wire 契約推導階段、更新（非覆蓋）流程與產出自檢，並新增「變更歷程文件」類型。**v2.2.0 補上專案自有版本／日期慣例的處理**：部分專案（如 b2b-backend）文件不用 YAML frontmatter，而是自己的「文件版本」／「最後更新」footer + 版本總覽表；Step 0 新增判斷規則（視為 frontmatter 等價物，需找出所有出現位置同步更新），Step 5 自檢明確要求日期用**文件實際撰寫當下**、不可誤用最後一個 commit 的日期。
 
 **用途（六種文件類型）：**
 
@@ -346,6 +346,39 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | Flutter（Riverpod/Bloc） | ✅ 完整支援 |
 | Spring Boot（Spring Data JDBC） | ✅ 完整支援 |
 | Android | 🔧 框架就緒（待擴展） |
+
+**新增功能（v2.2.0）：**
+
+> 🔴 **起因**：b2b-backend 的三份文件（`ARCHITECTURE.md`／`API_DOCUMENTATION.md`／`UPDATE_RECORD.md`）
+> 不是用本 skill 規範的 YAML frontmatter，而是自己的「**文件版本**」／「**最後更新**」footer + 頂部版本總覽表。
+> 用本 skill 更新文件時，這套自有慣例沒被同步更新；修正後第一次填日期，還誤填成最後一個 commit 的日期，
+> 而非文件實際撰寫當下的日期——兩者常常不同，尤其事後才補文件、或一次處理多個 commit 時。
+
+- **Step 0 新增「專案自有版本／日期慣例」處理規則**：無 YAML frontmatter 但有自己版本追蹤慣例的專案，
+  視為該專案的 frontmatter 等價物，一體適用同樣的更新規則
+- **找出所有出現位置**：這類慣例常見不只一處（文件自身 footer、彙總表格、changelog 表頭），逐一確認同步
+- **日期規則明確化**：一律填**文件實際撰寫／更新當下的日期**，🔴 不可誤用「最後一個 commit 的日期」
+- **Step 5 自檢對應更新**：原「frontmatter 六個必填欄位」檢查項擴充為涵蓋無 frontmatter 專案的等價檢查
+
+**修正（v2.2.1）：消除原則 3 的指令衝突**
+
+> 🔴 v2.2.0 加入「專案自有版本／日期慣例」後，與**原則 3「frontmatter 必填 `source-commit`」產生衝突**：
+> 原則層說無條件必填，流程層說可用等價物替代。實測後果——後端三份文件 `source-commit` **0 處**，
+> 模型仲裁衝突時選了流程層，等於讓一條「最高優先原則」靜默失效。
+
+- **原則 3 改為描述原則**（依「有沒有例外」測試：有例外就不該是絕對指令）——
+  「文件必須帶**可判斷版本的標記**」，下分**形式 A**（YAML frontmatter）／**形式 B**（專案自有慣例），二擇一不可混用
+- **`frontmatter-spec.md` 補「形式 B」整節**（原本 0 處提及，是最大缺口）：典型出現位置、四條規則、自檢清單
+- **Step 0 改為「先判斷用哪種形式」**的決策表 ＋ grep 指令，細節指向 spec（依「指令只寫一次」收斂重複）
+- **Step 5 自檢**依形式分流
+- 指出**形式 B 的結構性弱點**：多數自有慣例只有版本號＋日期、**沒有 commit hash**，
+  能回答「文件改過」卻回答不了「對應哪個程式碼狀態」→ changelog 條目的 commit 範圍是唯一可追溯來源，務必維持
+
+**新增功能（v2.2.0）：專案自有版本／日期慣例**
+
+- Step 0 新增該節；Step 5 自檢對應加項
+- 關鍵易錯點：出現位置**通常不只一處**（footer／彙總表／changelog 表頭），漏改任一處即自相矛盾
+- 日期須填**文件實際撰寫當下**，🔴 不可誤用最後一個 commit 的日期
 
 **新增功能（v2.1.0）：**
 
@@ -564,72 +597,88 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `ai-pair` |
-| **版本** | `4.3.6` |
-| **路徑** | `ai-pair-main-v4.3.6/`（存檔：`ai-pair-main-v4.3.6/`）|
-| **最後更新** | 2026-06-26 |
+| **版本** | `5.0.0` |
+| **路徑** | `ai-pair-main-v5.0/`（存檔：完整快照含 archive／examples；live 安裝版已精簡）|
+| **最後更新** | 2026-07-30 |
 
 **描述：**
-自動化異構 AI 協作團隊 Skill。由 Claude Code 擔任 Team Lead，協調一個創作者（developer/author）與三個不同視角的 reviewer（GPT + Claude + agy/Gemini），形成三重審查工作流程。支援程式碼開發與內容創作兩種情境，並具備分層 review 策略、壓縮通訊協議與快取機制。**v4.3 起 gemini-reviewer 底層由停服的 Gemini CLI 遷移至 Antigravity CLI（`agy`），角色名稱保留。v4.3.5 修正 Copilot CLI v1.0.65 不讀 stdin 的問題（任務內容改以 `-p` 傳遞），並新增 MAI-Code-1-Flash 為 LOW 候選（Phase 2 實測後維持 `gpt-5.4-mini` 主力）。v4.3.6 補環境相容性：無 `TeamCreate`/`TeamDelete`（native Agent Teams 未啟用）時，改用 Team Lead=當前 session + Bash 直呼 CLI + Agent subagent 的等效流程（實測 PASS）。**
+異構 AI 協作團隊 Skill。**v5.0 為結構性改版**，核心原則轉為「**Claude 額度只花在協調決策與 review 驗證；探索與實作外包給 external CLI**」——依據是資源不可替代性：Claude 額度耗盡時 Team Lead 本身停擺，整個流程無法運作，而 Copilot Credits 耗盡只需降級。五項主要變更：①新增 `explorer` 角色（探索常態外包，附四道護欄）②developer 改雙引擎，**copilot 為預設**、native subagent 為品質升級（含「連續 2 輪 BLOCK 出局」護欄）③**廢除 v4.x「reviewer 不得讀 source」禁令**——該禁令廢掉了跨檔案／跨 repo 查證能力，正是 ai-pair 過去輸給 `stack-review` 的主因 ④傳遞層改 **manifest 路徑**（不再嵌 payload）⑤模型層改執行期發現，developer 建立 **A/B 准入制**（回報誠實性為淘汰項）。
 
 **用途：**
 - `/ai-pair dev-team [project]` — Level 2 標準 review（預設）
 - `/ai-pair dev-team [project] --quick` — Level 1 快速掃描（agy only，~30s）
-- `/ai-pair dev-team [project] --deep` — Level 3 深度 review（三 reviewer 並行，~3min）
-- `/ai-pair content-team [topic]` — 啟動內容團隊
-- `/ai-pair team-stop` — 關閉團隊，清理資源
+- `/ai-pair dev-team [project] --deep` — Level 3 深度 review（三 reviewer 並行）
+- `/ai-pair dev-team [project] --dev=copilot|native|auto` — developer 引擎選擇
+- `/ai-pair dev-team [project] --conserve` — 節約模式（Team Lead 自身也收斂）
+- `/ai-pair content-team [topic]` / `/ai-pair team-stop`
 
 **前置需求：**
-- Claude Code（Team Lead + agent runtime）
-- GitHub Copilot CLI（`copilot`）已安裝並完成驗證
-- Antigravity CLI（`agy`）已安裝並完成驗證（取代已停服的 Gemini CLI）
+- Claude Code（Team Lead + native subagent runtime）
+- GitHub Copilot CLI（`copilot`）：explorer／developer／copilot-reviewer
+- Antigravity CLI（`agy`）：gemini-reviewer。🔴 **headless 必須加 `--dangerously-skip-permissions`**
+
+**Frontmatter（v5.0 新增）：**
+`disable-model-invocation: true`（會燒 Copilot Credits，屬有副作用流程，僅手動觸發）、`allowed-tools`、`argument-hint`
 
 **團隊架構：**
 
-| 角色 | 模型 | 負責面向 |
+| 角色 | 引擎 | 負責面向 |
 |------|------|---------|
-| copilot-developer | Claude Sonnet 4.6（via Copilot CLI） | 程式實作（dispatcher 模式） |
-| copilot-reviewer | GPT-5.4 mini（via Copilot CLI） | bugs、安全性、效能、邊界條件 |
-| claude-reviewer | Claude subagent | 架構、設計模式、可維護性 |
-| gemini-reviewer | agy「Gemini 3.1 Pro (High)」（via Antigravity CLI） | spec compliance、需求對齊、遺漏情境 |
-
-**Review Levels：**
-
-| Level | 指令 | Reviewer 組合 | 適用情境 |
-|-------|------|-------------|---------|
-| 1 | `--quick` | agy only（Gemini 3.5 Flash (Low)） | typo、i18n、小 UI 調整 |
-| 2 | 預設 | Copilot + Claude（並行） | 一般功能、bug fix |
-| 3 | `--deep` | 三 reviewer 並行 | 架構變更、高風險模組 |
+| Team Lead | 當前 session（高階模型） | 協調、判斷、決策。**不做大範圍探索、不做實作** |
+| explorer | external CLI（常態外包） | 找相關檔案、既有 pattern、契約面盤點 |
+| developer | **copilot（預設）／native（升級）** | 依 TASK context file 實作 |
+| copilot-reviewer | copilot CLI | bugs、安全性、效能、邊界條件 |
+| claude-reviewer | native subagent ⛔ **不可省略** | 架構、可維護性、**跨檔案／跨 repo 契約查證** |
+| gemini-reviewer | agy | spec compliance、需求對齊、遺漏情境 |
 
 **核心設計：**
-- **Inter-Agent Protocol v1**：agent 間使用壓縮格式通訊（`SRC|severity|file:line|issue|fix` + `VERDICT`），只有最終報告轉成人類可讀
-- **diff-only review**：Team Lead 產生一份共用 `REVIEW_FILE`，透過 `REVIEW:{path}` 傳給各 reviewer；reviewer 不讀 source files（實測 tool_uses=1）
-- **單任務 dispatch**：每次只 dispatch 一個小型 task context file（~30-50 行）
-- **Review 結果快取**：WARN/BLOCK 時寫入 `.ai-pair-cache/review-findings/{task_id}.md`；re-review 自動附加 `Previous findings`
-- **Fallback chain**：agy → Pro High → Flash Medium → Flash Low → SKIP；GPT → gpt-5.4-mini → gpt-5-mini → mai-code-1-flash-picker → SKIP；Claude 永遠可用
-- **⚠️ Copilot CLI 任務傳遞（v4.3.5）**：v1.0.65 不讀 stdin、無 `-c @file`，任務／審查內容須 `BODY="$(cat $FILE)"` 後嵌入 `-p`；`cat $FILE | copilot` 會讓模型收不到內容（agy stdin pipe 不受影響）
+- **manifest-based review（四段）**：裁決清單／審查範圍／🔴**契約面清單**／指示。reviewer **可讀任何驗證所需檔案**但不得擴張範圍
+- **Inter-Agent Protocol v2**：結構化輸出（agy `--json-schema`；copilot `-s` + prompt 約束），新增 `CONFLICT` 訊息型別
+- **機械驗證**：`DONE:{files}` 用 `git diff --stat` 比對；findings 路徑須經**共用正規化函式**驗證（產生 scope 與驗證 findings 必須同一實作）
+- **原始輸出一律落檔留存（含失敗）**——既是稽核證據，也是零成本回歸測試資料
+- **reviewer 不是預算調節閥**：依任務風險調數量可以，依預算壓力削減不行
+
+**上線驗收（2026-07-30）：**
+
+| 項目 | 結果 |
+|---|---|
+| reviewer 全路徑 | ✅ 首跑 10 個真實 findings、0 捏造路徑 |
+| **契約面清單有效性 A/B** | ✅ **唯一經實驗證明「原本抓不到、現在抓得到」**：嚴格 A（無清單）PASS/0 → 嚴格 B（有清單）BLOCK/1 Critical |
+| developer 雙引擎 | ✅ copilot 實作成功；native 正確回報 `CONFLICT:` 並停止（零改動） |
+| developer 模型 gate | ✅ 8/8（同時揭露並修正一個 live 邏輯矛盾：tier 是成本分級非品質分級） |
+| findings 路徑正規化 | ✅ 9/9（修正前 0/9 全被誤殺） |
+
+**⚠️ 已知未驗**：兩次 BLOCK 出局、`--conserve`／`--dev=auto`、content-team、跨模型測試。皆為「失敗會明確報錯」類型，詳見 `reference/known-limitations.md`。
 
 **版本歷程：**
 
 | 版本 | 日期 | 重點 |
 |------|------|------|
-| v2.3.0 | 2026-03-31 | Team Lead Planning Protocol、Copilot developer timeout 600s |
-| v3.0.0 | 2026-04-29 | 三 reviewer 架構（加入 Gemini）、Inter-Agent Protocol v1、分層 review、fallback chain |
-| v3.1.0 | 2026-04-30 | reviewer 改為接收 REVIEW:{path}（不讀 source files）、Review 結果快取執行層實作 |
-| v4.0.0 | 2026-05-08 | Pilot Suite 模型分配邏輯，developer/reviewer 動態 tier 選擇 |
-| v4.1.0 | — | ai-pair-v4-test 測試分支（Phase 1 驗證中） |
-| **v4.2.0** | **2026-05-25** | **Content Team 動態模型分配、Level 定義更新、settings.local.json 新模型補充** |
-| **v4.2.5** | **2026-06-01** | **Copilot Credit 適應：gpt-4.1→gpt-5.4-mini、Tier 加 Credit 成本欄、claude-haiku-4.5 加入 LOW** |
-| **v4.3.0** | **2026-06-22** | **Gemini CLI → Antigravity CLI（`agy`）遷移；模型對應 Flash(Low)/Flash(Medium)/Pro(High)、新增 PREVIEW tier；角色名稱保留；`說明文件.md` 併入 `README.md`** |
-| **v4.3.5** | **2026-06-25** | **🔴 修正 Copilot CLI v1.0.65 不讀 stdin（任務內容改 `-p` 傳遞）；新增 MAI-Code-1-Flash（slug `mai-code-1-flash-picker`）為 LOW 候選，Phase 2 實測維持 `gpt-5.4-mini` 主力；Tier 補 claude-sonnet-4.5/gpt-5.4** |
-| **v4.3.6** | **2026-06-26** | **環境相容性：無 `TeamCreate`/`TeamDelete`（native Agent Teams 未啟用）時改用 Team Lead=當前 session + Bash 直呼 CLI（developer/copilot/agy）+ Agent subagent（claude-reviewer）等效流程，全程實測 PASS（SSGS-12664 搬移任務驗證 copilot `-p` 嵌入、agy stdin pipe、三 reviewer 壓縮格式皆正常）** |
+| v3.0.0 | 2026-04-29 | 三 reviewer 架構、Inter-Agent Protocol v1、分層 review、fallback chain |
+| v4.2.5 | 2026-06-01 | Copilot Credit 適應、Tier 加成本欄 |
+| v4.3.0 | 2026-06-22 | Gemini CLI → Antigravity CLI（`agy`）遷移 |
+| v4.3.5 | 2026-06-25 | 修正 Copilot CLI 不讀 stdin（改 `-p` 嵌入）；MAI-Code-1-Flash 經 A/B 判定不採用 |
+| v4.3.6 | 2026-06-26 | 環境相容性：無 `TeamCreate`/`TeamDelete` 時的等效流程 |
+| **v5.0.0** | **2026-07-30** | **結構性改版：Claude 額度只花在協調與 review；新增 explorer（四道護欄）；developer 改雙引擎（copilot 預設）＋A/B 准入制；廢除「reviewer 不得讀 source」禁令；傳遞層改 manifest 路徑；模型層改執行期發現；結構化輸出＋幻覺路徑機械攔阻。文件符合官方硬規格（SKILL.md 465→479 行 ≤500、8 份 ref 皆有 TOC、一層引用）** |
+
+**v5.0 過程中被實測推翻的初稿主張（記錄以免重犯）：**
+
+| 初稿主張 | 實測結果 |
+|---|---|
+| agy 模型名稱格式全錯、被靜默降級掩蓋 | ❌ **錯**——agy 同時接受 slug 與顯示名；v1.1.8 對無效模型明確報錯且零 token 消耗 |
+| `agy models` 白名單可做前置驗證 | ❌ **會引入故障**——只輸出 slug，會誤殺有效的顯示名 |
+| copilot `-s` 的 stdout 就是乾淨 JSON | ❌ **只在單輪短任務成立**；多步驟工具呼叫時過程敘述混入 |
+| developer 禁用 LOW/FREE tier | ❌ **與自己的預設模型矛盾**——tier 是成本分級非品質分級 |
+
+> 📌 共同教訓：**寫進文件不等於驗證過。** 這些全是「不發聲的失敗」——不會拋錯，只會靜默給出看似正常的錯誤結果。
 
 **與 `multi-tool-coordination` 的定位差異：**
 
 | 面向 | `ai-pair` | `multi-tool-coordination` |
 |---|---|---|
 | 類型 | 執行型（Agent 自動化） | 知識型（人工操作指南） |
-| 工具範圍 | Claude + GPT-4.1 + Gemini 2.5 Flash | Claude + Copilot + Codex + Gemini |
-| 操作模式 | Agent 間壓縮格式自動溝通 | 人工切換工具、手動傳遞上下文 |
+| 工具範圍 | Claude + Copilot CLI（GPT／Claude／Gemini／Grok／Kimi）+ agy | Claude + Copilot + Codex + Gemini |
+| 操作模式 | Agent 間結構化輸出自動溝通 | 人工切換工具、手動傳遞上下文 |
 | 適用情境 | 程式碼/內容的創作 + 三重 AI 審查 | 技術選型、多工具效率分配 |
 
 ### 13. figma-to-flutter ⚠️ 已退役歸檔（2026-06-23）

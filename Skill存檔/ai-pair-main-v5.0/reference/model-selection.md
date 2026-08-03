@@ -110,7 +110,7 @@ developer 外包 + 探索也外包後，**Team Lead 對實作結果沒有獨立�
 ## 新模型准入程序
 
 - ❌ 不得因第三方評測數據亮眼而直接升為預設
-- ✅ A/B：**相同 TASK file、相同 flags、只換 `--model`、隔離目錄各跑一次**（方法見 `reference/phase3-luna-kimi/`）
+- ✅ A/B：**相同 TASK file、相同 flags、只換 `--model`、隔離目錄各跑一次**（方法見 `reference/archive/phase3-luna-kimi/`）
 - 🔴 **重跑必須用全新空目錄**——殘留產物會讓後續 run 變成「review 既有程式碼」而非「從零實作」，扭曲 token 與品質評分
 - 🔴 **成本一律用 A/B 實測 credits，不可用 list price 推算**
 
