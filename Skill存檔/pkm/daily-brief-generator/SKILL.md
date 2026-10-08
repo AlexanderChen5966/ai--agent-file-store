@@ -8,7 +8,7 @@ description: |
 
   Trigger: daily-brief, 每日摘要, 今日簡報, brief, 知識庫狀況, vault status
 metadata:
-  version: 1.2.0
+  version: 1.5.0
 ---
 
 # daily-brief-generator
@@ -79,7 +79,13 @@ daily-brief
 
 ## 執行流程
 
-1. **掃描 `raw/`** — 列出所有未處理素材：`.md`（`status: inbox` 或無 frontmatter）與 `.pdf`（wiki/ 中無對應 `source_format: pdf` 條目者）
+1. **掃描 `raw/`** — 列出所有未處理素材：
+   - `.md`（v1.5.0 起**只看 frontmatter**）：`status: inbox`、`status: "inbox"` 或無 frontmatter / 無 `status:` 欄位
+     掃描指令：`for f in raw/*.md; do head -15 "$f" | grep -q '^status:.*inbox' && echo "$f"; done`
+     （舊制留下的 `.md` 旁車標記檔一律忽略，不具判斷效力）
+   - **非 `.md`**（.pdf / 圖片 / .srt / .csv 等）：raw/ 中**不存在**同名 `.processed` 標記檔者
+     掃描指令：`find raw/ -type f ! -name "*.md" ! -name "*.processed" | while read f; do [ ! -f "${f}.processed" ] && echo "$f"; done`
+     ⚠️ 不可省略 pipe 後的存在性檢查，否則會把已處理的非 md 素材全部誤報為積壓
 2. **掃描 `wiki/`** — 找出過去 7 天建立或修改的條目
 3. **掃描 `projects/`** — 列出進行中的專案與待實作任務
 4. **掃描 `tasks`** — 讀取 `wiki/b2b-manager/tasks.md` 的待實作項目
@@ -126,6 +132,16 @@ daily-brief
 ---
 
 ## Changelog
+
+### v1.5.0（2026-08-13）
+- 步驟 1 的 `.md` 判斷改為**只看 frontmatter**（廢止 v1.4.0 雙條件），對齊 `rules/inbox-detection-protocol.md` 分流制：`.md` 走 frontmatter、非 md 走旁車標記
+- 補上非 md 掃描指令遺漏的存在性檢查（原指令會把已處理的非 md 素材全部誤報為積壓）
+
+### v1.4.0（2026-07-08）
+- **制度統一（批次 C 健檢 C-1 修正）**：步驟 1 的 `.md` 判斷改**雙條件**（frontmatter inbox 且無 `.processed` 標記）——對齊 CLAUDE.md「raw/ .md 一律旁車標記」現行規則，修正誤報積壓
+
+### v1.3.0（2026-06-22）
+- 執行流程步驟 1：非 .md 素材的未處理判斷改用 `.processed` 標記檔（取代「wiki/ 中有無對應條目」），與 raw-pipeline v1.6.0 / knowledge-organizer v1.4.0 機制統一
 
 ### v1.2.0（2026-05-14）
 - 「今日建議行動」改用 SCQA 框架結構化輸出（S 現況 / C 衝突 / Q 核心問題 / A 行動）

@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-07-30 — ai-pair v5.0 上線）
+> 整理日期：2026-05-25（最後更新：2026-08-25 — 新增專案專屬新人導覽兩支：b2b-manager-onboarding v1.1.0、sanlong-pay-onboarding v1.0.0）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -24,6 +24,8 @@
   - [figma-to-requirements](#16-figma-to-requirements)
   - [zerospec-skills](#14-zerospec-skills)
   - [ai-pair-v4-test](#15-ai-pair-v4-test)
+  - [b2b-manager-onboarding](#17-b2b-manager-onboarding)
+  - [sanlong-pay-onboarding](#18-sanlong-pay-onboarding)
 - [通用類（general）](#通用類general)
   - [media-processor](#9-media-processor)
   - [sign-off-generator](#10-sign-off-generator)
@@ -815,6 +817,104 @@ ai-pair v4 的測試分支，在 v3.1.0 架構上套用 Pilot Suite 模型分配
 
 ---
 
+### 17. b2b-manager-onboarding
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `b2b-manager-onboarding` |
+| **版本** | `1.1.0` |
+| **路徑** | `dev/b2b-manager-onboarding/`（存檔）；**目前未安裝於任何作用中位置** |
+| **最後更新** | 2026-08-25 |
+
+**描述：**
+b2b-manager（山隆 B2B 智慧平台，Flutter Web）專案的新人快速上手導覽。仿 ECPay `ecpay-api-skill`
+的架構：SKILL.md 當**決策樹路由**，references 分層 progressive disclosure。
+定位是「路由器不是教科書」——專案已有 CLAUDE.md／AGENTS.md／DESIGN.md／docs/ 一大堆文件，
+新人的問題是不知道該讀哪份、什麼順序。
+
+**用途：**
+- 判斷來者卡在哪 → 給最短路徑 → 只載入必要的 reference（A 環境／B 地圖／C 食譜／D 地雷／E 名詞）
+- 三種入口：四小時一條龍（第一天）、十分鐘版（老手接手）、單點查詢（路由表）
+- 內建 10 題新人自我測試，答錯導回對應 reference
+- 硬性要求「絕不憑記憶回答，每個答案落地到檔案路徑或指令」
+
+**檔案結構：**
+```
+SKILL.md（118 行，決策樹）
+references/
+├── day1-setup.md          # 環境建置→登入成功；port 9001 原因、等帳號時的替代動作
+├── codebase-map.md        # 目錄地圖 + 車輛列表「垂直切片」6 檔案（附真實行號）
+├── first-task-recipes.md  # 七道食譜：API／頁面／列表頁／顏色／i18n／權限／送出前
+├── conventions-gotchas.md # 禁止事項、高風險區、表格 8 條硬規則、DataCell 游標
+└── glossary-domain.md     # 業務名詞、Authorities 權限模型、三環境、瀏覽器儲存
+```
+
+**觸發關鍵字：**
+「我是新人」、「剛接手 b2b-manager」、「怎麼開始」、「專案怎麼跑」、「程式碼在哪」、
+「幫我導覽專案」、「新增頁面/API 該從哪開始」
+
+**⚠️ 專案專屬，不可跨專案共用：** 內容價值全在「car 模組第 71 行傳 `isClear: true`」這種具體行號，
+抽象化後會退化成一般 Flutter 教學。其他專案請複製結構、重寫內容，命名沿用 `<repo 名>-onboarding`。
+
+**已知待釐清：** `car_drawer.dart:51` 傳 `isClear: false`，同行註解卻寫「批次大量刪除車子或大量加車，
+用舊的 page number 會錯」——註解與參數對不上，文件中已標記為勿當範本。
+
+---
+
+### 18. sanlong-pay-onboarding
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `sanlong-pay-onboarding` |
+| **版本** | `1.0.0` |
+| **路徑** | `dev/sanlong-pay-onboarding/`（存檔）；**目前未安裝於任何作用中位置** |
+| **最後更新** | 2026-08-25 |
+| **來源專案** | `app01-double`（sanlong／山隆 PAY），基準 **`main` 分支 `190038a9`** |
+
+**描述：**
+山隆 PAY（iOS + Android Flutter APP，加油站服務／儲值金／會員點數）的新人上手導覽。
+與 `b2b-manager-onboarding` 同架構（SKILL.md 決策樹路由 + references 分層），
+但**內容完全不同**——那支是 Flutter Web + Riverpod + GoRouter，這支是手機 APP +
+自製 SLRouter + 單一大型 SLController。
+
+**用途：**
+- A 環境／B 地圖／C 食譜／D 地雷／E 名詞五條路徑，只載入需要的那份
+- 三種入口：四小時一條龍、十分鐘版（六句話）、單點查詢
+- 10 題自我測試（已驗證答案全數落在 references 內）
+
+**檔案結構（857 行）：**
+```
+SKILL.md（130 行）
+references/
+├── day1-setup.md          # 147 行；六支入口檔、兩平台 flavor 名稱不一致、.venv 那三支 python
+├── codebase-map.md        # 154 行；UI→SLController→Repository 分層、「按下儲值」垂直切片
+├── first-task-recipes.md  # 224 行；十道食譜（畫面／API／顏色／文案／BottomSheet／Dialog／防重複／狀態同步／上架／送出前）
+├── conventions-gotchas.md # 114 行；NEVER 清單、UI 11 坑、Riverpod 同步六點
+└── glossary-domain.md     # 88 行；Screen enum 畫面地圖、環境、i18n key 規則
+```
+
+**這支收錄的專案特有地雷**（其他 Flutter 專案沒有）：
+- `pushMain` 的 `isDraggable: true` 會讓畫面**從底部彈出**而非側滑，參數名毫無暗示
+- 防重複提交擋在 **SLController**（`_loading.getLoading(SLAction.xxx)`），不是 UI disable 按鈕
+- 待支付檢查是 **APP 端本地 `isWaiting`**，不是 API 欄位（新人會去翻 API 文件白找）
+- **本專案無 screenutil**——同時碰 b2b-manager 的人照抄 `.w/.h/.sp` 會破壞版面
+- `FlavorConfig` 設了但**沒被讀**（`repository_api.dart` 那行是註解掉的），實際生效的是 `BASE_URL`
+- flavor 名稱兩平台不一致：staging → iOS `stage` / Android `staging`；正式 → iOS 預設 scheme `Runner`（不帶參數）/ Android `product`
+- `.run/` 的 `additionalArgs` **不可複製到命令列**：iOS 的 `--target dev` 會被後面的 `-t` 覆蓋（`--target` 就是 `-t` 的長名），IDE 內無害（scheme 來自 `buildFlavor` 欄位）但命令列照抄就靜默失去 scheme
+
+**測試紀錄（2026-08-25，由 app01-double session 協作驗證）：**
+- ✅ 手動叫用、frontmatter 解析、五條路徑檔案齊全
+- ✅ 事實正確性在 `main` 上逐條抽驗（入口檔／scheme／gradle 行號／垂直切片 10 個行號／CI job 順序／iOS 15.0）
+- ✅ 10 題自我測試答案覆蓋率全中
+- ⏸️ **自動觸發未驗**（需使用者親手打字，非 agent 自行叫用可證）
+- ⏸️ **實跑 flavor build 未驗**（無可用裝置／模擬器）
+- 🔧 過程中修掉一次過度擴大的判斷：原誤判「iOS run config 參數全壞」，實際只有「複製到命令列」才會出事
+
+**⚠️ 專案專屬，不可跨專案共用**：價值全在具體行號與專案慣例。其他專案請複製架構、重寫內容，
+命名沿用 `<repo 名>-onboarding`。
+
+---
+
 ## 通用類（general）
 
 ### 9. media-processor
@@ -1060,9 +1160,9 @@ Linux 專屬：`.directory`、`.Trash-*`
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `knowledge-organizer` |
-| **版本** | `1.1.0` |
+| **版本** | `1.6.1` |
 | **路徑** | `pkm/knowledge-organizer/` |
-| **最後更新** | 2026-05-14 |
+| **最後更新** | 2026-08-13 |
 
 **描述：**
 使用 TBRC 四層框架處理 `raw/` 中的原始素材，產出結構化 wiki 條目。封裝「整理一篇筆記」的完整判斷邏輯。支援 `.pdf` 輸入（≤10 頁讀全文，>10 頁節錄首尾）。
@@ -1082,9 +1182,9 @@ Linux 專屬：`.directory`、`.Trash-*`
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `daily-brief-generator` |
-| **版本** | `1.2.0` |
+| **版本** | `1.5.0` |
 | **路徑** | `pkm/daily-brief-generator/` |
-| **最後更新** | 2026-05-14 |
+| **最後更新** | 2026-08-13 |
 
 **描述：**
 掃描整個 Obsidian Vault，產出每日結構化簡報。涵蓋 raw/ 積壓狀況（.md/.pdf 分開計算）、wiki 最近更新、任務狀態、孤立筆記、Vault 統計。「今日建議行動」改用 SCQA 框架結構化輸出（S 現況 / C 衝突 / Q 核心問題 / A 行動）。
@@ -1104,12 +1204,12 @@ Linux 專屬：`.directory`、`.Trash-*`
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `wiki-health-check` |
-| **版本** | `1.6.0` |
+| **版本** | `1.8.0` |
 | **路徑** | `pkm/wiki-health-check/` |
-| **最後更新** | 2026-07-24 |
+| **最後更新** | 2026-09-03 |
 
 **描述：**
-每月知識庫健康檢查。掃描 wiki/ 找出七類品質問題：矛盾偵測、缺乏來源、知識缺口、連結品質（孤立/懸空）、過時內容、未處理素材（.processed 標記 + 幽靈標記偵測）、精粹過時偵測（比對 synthesis 的 source_count 與現況條目數）。報告末尾附 5A+ 階段評估（當前階段 + 理由 + 下一步建議）。
+每月知識庫健康檢查。掃描 wiki/ 找出七類品質問題：矛盾偵測、缺乏來源、知識缺口、連結品質（孤立/懸空）、過時內容、未處理素材（.processed 標記 + 幽靈標記偵測）、精粹過時偵測。報告末尾附 5A+ 階段評估（當前階段 + 理由 + 下一步建議）。v1.8.0 三項方法修正：精粹過時改用「來源清單集合差」（廢止 source_count vs glob 總數比大小，該法會假陰性）、連結掃描前須剝除程式碼區塊並解析路徑寫法、執行流程新增「先讀前一份報告」以免重複列出已判定的誤報且必須覆核前次矛盾是否已修。
 
 **用途：**
 - 每月一次維護執行
@@ -1126,12 +1226,12 @@ Linux 專屬：`.directory`、`.Trash-*`
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `raw-pipeline` |
-| **版本** | `1.1.0` |
+| **版本** | `1.9.1` |
 | **路徑** | `pkm/raw-pipeline/` |
-| **最後更新** | 2026-05-14 |
+| **最後更新** | 2026-08-13 |
 
 **描述：**
-軟編排型 Skill，調度三個子 Agent 協作批次處理 `raw/` 素材：Agent A 摘要、Agent B 分類打標、Agent C 建立 wiki 條目與更新索引。支援 7 種格式（.md .txt .html .pdf .png .jpg .jpeg .webp .gif .srt .vtt .ipynb .csv）。適合 raw/ 積壓 10 篇以上的場景。
+軟編排型 Skill，調度三個子 Agent 協作批次處理 `raw/` 素材：Agent A 摘要、Agent B 分類打標、Agent C 建立 wiki 條目與更新索引。支援 12 種格式（.md .txt .html .pdf .png .jpg .jpeg .webp .gif .srt .vtt .ipynb .csv）。適合 raw/ 積壓 10 篇以上的場景。v1.7.0 起 .md/非 .md 統一用 `.processed` 旁車標記制；v1.8.0 修正非 .md 掃描指令 bug + 新增處理報告「排除項目」滾動日誌區塊（區分刻意排除 vs 遺漏積壓）。
 
 **用途：**
 - raw/ 積壓 10 篇以上時的批次處理
@@ -1305,16 +1405,18 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **ai-pair** | **4.3.6** | **2026-06-26** | **dev** | **環境相容性：無 `TeamCreate`/`TeamDelete` 時改用 Bash 直呼 CLI + Agent subagent 等效流程（實測 PASS）；承 v4.3.5 Copilot `-p` 傳遞修正（存檔：`ai-pair-main-v4.3.6/`）** |
 | **ai-pair-v4-test** | **4.1.0** | **2026-05-14** | **dev** | **v4 測試分支（Phase 1 驗證中）；v4.1 校正誤判 2 項、新增缺口 4 項** |
 | **figma-to-flutter** | **1.0.0** | **2026-03-18** | **dev** | **Figma 截圖 → Flutter UI 代碼（B2B 專屬，路徑：`dev/figma-to-flutter/`）** |
+| **b2b-manager-onboarding** | **1.1.0** | **2026-08-25** | **dev** | **b2b-manager 新人上手導覽（決策樹路由 + 5 份 reference，仿 ECPay skill 架構）；專案專屬不可共用，存檔於 `dev/b2b-manager-onboarding/`，目前未安裝** |
+| **sanlong-pay-onboarding** | **1.0.0** | **2026-08-25** | **dev** | **sanlong（山隆 PAY，iOS+Android APP）新人上手導覽；同架構但內容全異（手機 APP／自製 SLRouter／單一大型 SLController）。基準 `main@190038a9`；事實面已逐條驗證，自動觸發與實跑 build 未驗。存檔於 `dev/sanlong-pay-onboarding/`，目前未安裝** |
 | media-processor | 2.0.0 | 2025-12-31 | general | |
 | sign-off-generator | 1.0.0 | 2026-01-06 | general | |
 | document-translator | 1.0.0 | 無記錄 | general | |
 | translategemma-translator | 1.1.0 | 無記錄 | general | |
 | discussion-organizer | 1.0.0 | 2026-03-12 | general | |
 | cross-platform-archive-agent | 1.0.0 | 2026-03-03 | general | |
-| **knowledge-organizer** | **1.1.0** | **2026-05-14** | **pkm** | **TBRC 四層框架、資產化價值公式；新增 PDF 支援** |
-| **daily-brief-generator** | **1.2.0** | **2026-05-14** | **pkm** | **五區塊每日簡報；今日建議行動改用 SCQA 框架** |
-| **wiki-health-check** | **1.6.0** | **2026-07-24** | **pkm** | **七項健康檢查；新增精粹過時偵測（比對 synthesis source_count）** |
-| **raw-pipeline** | **1.3.0** | **2026-05-22** | **pkm** | **三 Agent 軟編排；支援 12 種格式含 PDF/圖片** |
+| **knowledge-organizer** | **1.6.1** | **2026-08-13** | **pkm** | **TBRC 四層框架、資產化價值公式；.md 標記改回 frontmatter status** |
+| **daily-brief-generator** | **1.5.0** | **2026-08-13** | **pkm** | **五區塊每日簡報、SCQA 建議行動；raw .md 判斷改回只看 frontmatter** |
+| **wiki-health-check** | **1.8.0** | **2026-09-03** | **pkm** | **七項健康檢查；精粹過時改用來源清單集合差（廢止 glob 總數比大小／會假陰性）、連結掃描先剝程式碼區塊、須先讀前次報告並覆核舊矛盾** |
+| **raw-pipeline** | **1.9.1** | **2026-08-13** | **pkm** | **三 Agent 軟編排；標記制度改分流（.md frontmatter／非 md 旁車標記）** |
 | **knowledge-synthesizer** | **1.0.0** | **2026-05-13** | **pkm** | **CAVE 框架精粹（共識/視角/缺口/精華）；同主題 3 篇以上使用** |
 | **alignment-check** | **1.0.0** | **2026-05-22** | **pkm** | **wiki 補充資料段落歸屬對齊檢查；找出放錯位置的內容並建議搬移** |
 | **knowledge-elevation** | **1.1.0** | **2026-05-22** | **pkm** | **三層昇華：E 層加深 / meta-synthesis → wiki/concepts/** |

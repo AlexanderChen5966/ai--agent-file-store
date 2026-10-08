@@ -8,7 +8,7 @@ description: |
 
   Trigger: knowledge-organizer, 整理筆記, 處理raw, process raw, organize notes, 知識整理
 metadata:
-  version: 1.1.0
+  version: 1.6.1
 ---
 
 # knowledge-organizer
@@ -110,11 +110,14 @@ metadata:
 6. **建立整理後的筆記**（含完整 frontmatter + TBRC）
 7. **建立 wikilink** 到相關現有筆記
 8. **更新** `wiki/INDEX.md`
-9. **標記已處理**：若原始素材為 `raw/` 中的 `.md` 檔案，用 Edit 工具更新其 frontmatter：
-   - 若已有 `status:` 欄位（無論值是 `inbox`、`"inbox"` 或其他）→ 整行替換為 `status: processed`
-   - 若無 `status:` 欄位 → 在 frontmatter 結尾 `---` 前插入 `status: processed`
-   **注意**：一律寫入不帶引號的格式 `status: processed`，不要寫成 `status: "processed"`
-   （防止下次重複處理）
+9. **標記已處理**（v1.6.0 起依「能否承載 frontmatter」分流）：
+   - **`.md`**：用 Edit 把 frontmatter 的 `status:` 改為 `status: processed`
+     ⚠️ **只改 `status:` 這一行**，其餘 frontmatter 欄位與正文一律不得動（CLAUDE.md 唯讀例外的邊界）
+   - **非 `.md`**（PDF / 圖片 / 字幕等，無法承載 frontmatter）：用 Bash 建立同名 `.processed` 空標記檔
+     `touch 'raw/<原始檔名>.processed'`　例：`raw/report.pdf` → `touch 'raw/report.pdf.processed'`
+     ⚠️ 檔名一律用**單引號**——雙引號會讓 shell 展開 `$`，檔名含 `$` 時會產生破損的孤兒標記
+   - 判斷未處理：`.md` 看 frontmatter `status:.*inbox`（或無 status 欄位）；非 `.md` 看有無 `.processed` 標記
+   - 完整規則見 `my-knowledge-base/rules/inbox-detection-protocol.md`（唯一權威來源）
 
 ---
 
@@ -182,6 +185,20 @@ asset_value: [分數]
 ---
 
 ## Changelog
+
+### v1.6.1（2026-08-13）
+- 步驟 9 的 `touch` 檔名改用**單引號**：雙引號會讓 shell 展開 `$`，實際造成過一個破損的孤兒標記（`NT$15,680` → `NT,680`）
+
+### v1.6.0（2026-08-13）
+- 步驟 9 改分流制：`.md` 改回 Edit frontmatter `status`（僅此一行），非 `.md` 維持 `.processed` 旁車標記
+- 理由：旁車標記在 Obsidian / Dataview 端不可見，導致介面上所有 raw 檔恆顯示 inbox，與「完全沒處理」無法區分。全庫盤點發現 768 篇 raw .md 的兩種訊號完全反相，任一單一判準都會誤報約半數
+
+### v1.5.0（2026-07-08）
+- 步驟 9 制度統一：`.md` 素材改用 `.processed` 旁車標記（與非 .md 一致），**廢止 Edit frontmatter 舊制**——對齊 CLAUDE.md「raw/ 檔案不可修改」現行規則（批次 C 健檢 C-1 修正）
+- 未處理判斷改雙條件：frontmatter inbox（或缺欄位）且無 `.processed` 標記
+
+### v1.4.0（2026-06-22）
+- 步驟 9 拆分：非 .md 素材（PDF / 圖片等）改用 `touch "raw/<檔名>.processed"` 標記，與 raw-pipeline v1.6.0 機制保持一致
 
 ### v1.3.0（2026-05-28）
 - 步驟 9 修正：同時處理「有 status 欄位」與「無 status 欄位」兩種情況（Obsidian Web Clipper 下載的文章預設無 status）

@@ -9,7 +9,7 @@ description: |
 
   Trigger: raw-pipeline, 批次處理, batch process, pipeline, 自動整理流程
 metadata:
-  version: 1.3.0
+  version: 1.9.1
 ---
 
 # raw-pipeline
@@ -61,16 +61,14 @@ Team Lead（當前 Claude 工作階段）
 任務：讀取 my-knowledge-base/raw/ 中所有未處理的素材。
 
 支援格式與未處理判斷標準：
-- .md：以下任一情況視為未處理：
-  - 無 frontmatter
-  - 無 `status:` 欄位（Obsidian Web Clipper 舊版預設行為）
-  - `status: inbox`（標準格式）
-  - `status: "inbox"`（Web Clipper 模板加引號時的格式）
-- .txt / .html / .csv：尚未有對應的同名 .md 出現在 wiki/ 或 research/
-- .pdf：尚未有對應的同名 .md 出現在 wiki/ 或 research/
-- .png / .jpg / .jpeg / .webp / .gif：尚未有對應的同名 .md 出現在 wiki/ 或 research/
-- .srt / .vtt：尚未有對應的同名 .md 出現在 wiki/ 或 research/
-- .ipynb：尚未有對應的同名 .md 出現在 wiki/ 或 research/
+- .md（v1.8.0 起**只看 frontmatter**）：
+  frontmatter 為以下任一情況即為未處理：無 frontmatter / 無 `status:` 欄位 / `status: inbox` / `status: "inbox"`
+  掃描指令：`for f in raw/*.md; do head -15 "$f" | grep -q '^status:.*inbox' && echo "$f"; done`
+  （限 `head -15` 避免正文提到 inbox 造成誤報；舊制留下的 `.md` 旁車標記檔一律忽略，不具判斷效力）
+- 非 .md 格式（.pdf / .png / .jpg / .jpeg / .webp / .gif / .txt / .html / .csv / .srt / .vtt / .ipynb）：
+  raw/ 中**不存在**同名 `.processed` 標記檔即為未處理
+  例：`report.pdf` 未處理 → `report.pdf.processed` 不存在
+  掃描指令：`find raw/ -type f ! -name "*.md" ! -name "*.processed" | while read f; do [ ! -f "${f}.processed" ] && echo "$f"; done` 過濾出尚無 `.processed` 配對的檔案（⚠️ 不可省略 pipe 後的存在性檢查，否則會把已處理檔案也列出）
 - 其他格式（如 .mp4 / .mp3）：跳過，標注於報告
 
 讀取規則（依格式）：
@@ -183,13 +181,15 @@ wiki_filename: [kebab-case-name.md]
 
 完成所有條目後：
 6. 更新 my-knowledge-base/wiki/INDEX.md（新增條目列）
-7. 對本次所有來自 raw/ 的 .md 素材，用 Edit 工具更新其 frontmatter：
-   - 若已有 `status:` 欄位（無論值是 `inbox`、`"inbox"` 或其他）→ 整行替換為 `status: processed`
-   - 若無 `status:` 欄位 → 在 frontmatter 結尾 `---` 前插入 `status: processed`
-   **注意**：寫入時一律使用不帶引號的格式 `status: processed`，不要寫成 `status: "processed"`
-   （防止下次 Agent A 重複處理）
+7. 對本次所有來自 raw/ 的素材標記已處理（v1.8.0 起依檔案類型**分流**）：
+   - **`.md`**：用 Edit 把 frontmatter 的 `status:` 改為 `status: processed`
+     ⚠️ **只改 `status:` 這一行**，其餘 frontmatter 欄位與正文一律不得動
+   - **非 `.md`**（無法承載 frontmatter）：`touch 'raw/<原始檔名>.processed'`
+     例：`raw/report.pdf` → `touch 'raw/report.pdf.processed'`
+     ⚠️ 檔名一律用**單引號**——雙引號會讓 shell 展開 `$`，檔名含 `$` 時會產生破損的孤兒標記
+   - 兩者皆屬流程元資料，在 CLAUDE.md「NEVER modify raw/」的明確例外範圍內
 
-完成後回報：已建立 N 篇 wiki 條目，更新 INDEX.md，標記 N 篇 raw/ .md 為 processed。
+完成後回報：已建立 N 篇 wiki 條目，更新 INDEX.md，標記 N 篇 .md（frontmatter）＋ N 個非 md（旁車標記）。
 ```
 
 ---
@@ -220,6 +220,11 @@ wiki_filename: [kebab-case-name.md]
 |------|-----|-------------|
 | [[xxx]] | pkm/workflow | 75 |
 
+## 排除項目（非知識庫關注領域，刻意排除非遺漏）
+- 檔名：一句話說明排除理由（如「遊戲發行平台，非 AI/PKM/dev 焦點」）
+
+> 此區塊只列「Agent B 判定不屬於知識庫關注領域、僅標記 .processed 未建任何條目」的素材。與「歸入 archive/」不同——archive/ 是曾建立過 wiki 但後來停用的內容，這裡是從未建立條目。目的是讓未來回顧 raw/ 時能區分「刻意排除」與「真的遺漏積壓」，避免誤判。若本批次無排除項目，此區塊可省略。
+
 ## 耗時
 - Agent A（摘要）：~N 秒
 - Agent B（分類）：~N 秒
@@ -246,6 +251,29 @@ wiki_filename: [kebab-case-name.md]
 ---
 
 ## Changelog
+
+### v1.9.1（2026-08-13）
+- Agent C 的 `touch` 檔名改用**單引號**：雙引號會讓 shell 展開 `$`，實際造成過一個破損的孤兒標記（`NT$15,680` → `NT,680`）
+
+### v1.9.0（2026-08-13）
+- **標記制度改分流**：`.md` 改回 Edit frontmatter `status`（僅此一行），非 `.md` 維持 `.processed` 旁車標記
+- Agent A 掃描 `.md` 改為只看 frontmatter，並限 `head -15` 避免正文誤報
+- 理由：旁車標記在 Obsidian / Dataview 端不可見，介面上所有 raw 檔恆顯示 inbox。全庫盤點發現 768 篇 raw .md 的兩種訊號完全反相，任一單一判準都會誤報約半數
+
+### v1.8.0（2026-08-04）
+- **修正非 .md 掃描指令 bug**：v1.6.0 起沿用的 `find raw/ -type f ! -name "*.md" ! -name "*.processed"` 只排除標記檔本身，未過濾「已有配對 .processed」的原始檔，導致每次都把全部非 .md 素材誤報為積壓（2026-08 wiki-health-check 抓到）。補上 pipe 後的存在性檢查，對齊 `rules/inbox-detection-protocol.md` 的「通用完整掃描」正確版本
+- **新增「排除項目」滾動日誌習慣**：處理報告中明確列出本批次判定為「非知識庫關注領域，僅標記 .processed」的素材（如遊戲平台/音樂生成/通用資源目錄），與「遺漏未處理」區分，避免日後回顧時誤判為積壓
+
+### v1.7.0（2026-07-08）
+- **制度統一（批次 C 健檢 C-1 修正）**：raw/ `.md` 素材改用 `.processed` 旁車標記，廢止 Agent C「用 Edit 改 frontmatter」舊制——對齊 CLAUDE.md「raw/ 檔案不可修改」現行規則
+- Agent A 的 .md 未處理判斷改**雙條件**（frontmatter inbox 且無 `.processed` 標記），避免把已標記處理的 56 篇誤報為積壓
+- Agent C 步驟 7/8 合併為單一標記步驟（.md 與非 .md 一致）
+
+### v1.6.0（2026-06-22）
+- 非 .md 檔案的 inbox 判斷改為 `.processed` 標記檔機制（取代「同名 .md 是否存在」的脆弱判斷）
+- Agent A：掃描邏輯改為 `find raw/ -type f ! -name "*.md" ! -name "*.processed"` 過濾未處理的非 md 檔
+- Agent C：步驟 8 新增：非 .md 素材處理完後執行 `touch "raw/<檔名>.processed"` 建立標記
+- CLAUDE.md 同步新增「非 Markdown 檔案的 inbox 判斷規則」段落
 
 ### v1.5.0（2026-05-28）
 - Agent C 步驟 7 修正：同時處理「有 status 欄位」與「無 status 欄位」兩種情況（Obsidian Web Clipper 下載的文章預設無 status）
