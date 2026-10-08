@@ -14,7 +14,8 @@ import array
 import json
 from pathlib import Path
 
-from _common import (REVIEW_JSON, load_json, load_review, load_segments, require, run)
+from _common import (REVIEW_JSON, fingerprint, load_json, load_review, load_segments,
+                     require, run)
 
 PEAKS = 160
 
@@ -42,7 +43,7 @@ def main():
     require("ffmpeg")
     work = Path(a.work)
     data = load_segments(work)
-    review = load_review(work)
+    review = load_review(work, data, strict=False)
     assigned = {}
     if (work / "assignment.json").exists():
         for row in load_json(work / "assignment.json")["rows"]:
@@ -60,7 +61,8 @@ def main():
 
     html = TEMPLATE.replace("__TITLE__", a.title).replace(
         "__DATA__", json.dumps({"title": a.title, "source": data.get("source", ""),
-                                "review_file": REVIEW_JSON, "rows": rows},
+                                "review_file": REVIEW_JSON, "build": fingerprint(data),
+                                "rows": rows},
                                ensure_ascii=False).replace("</", "<\\/"))
     out = work / "review.html"
     out.write_text(html, encoding="utf-8")
@@ -122,7 +124,8 @@ kbd{border:1px solid var(--line);border-radius:3px;padding:0 4px;font-size:11px}
 <audio id="player" preload="none"></audio>
 <script>
 const D = __DATA__;
-const KEY = "pr-review:" + D.source;
+// 以切檔版本當 key：同一個原始音檔重切後，不會沿用上一版的暫存
+const KEY = "pr-review:" + D.build;
 let saved = {};
 try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
 for (const r of D.rows) Object.assign(r, saved[r.index] || {});
@@ -223,7 +226,7 @@ document.addEventListener("keydown", e => {
 $("#export").onclick = () => {
   const segments = {};
   for (const r of D.rows) segments[r.index] = {status: r.status, note: r.note, text: r.text};
-  const blob = new Blob([JSON.stringify({source: D.source, exported: new Date().toISOString(), segments}, null, 2)],
+  const blob = new Blob([JSON.stringify({source: D.source, build: D.build, exported: new Date().toISOString(), segments}, null, 2)],
                         {type: "application/json"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob); a.download = D.review_file; a.click();

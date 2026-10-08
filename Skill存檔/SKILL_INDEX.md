@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-08-25 — 新增專案專屬新人導覽兩支：b2b-manager-onboarding v1.1.0、sanlong-pay-onboarding v1.0.0）
+> 整理日期：2026-05-25（最後更新：2026-10-08 — 新增 point-reading-diy v0.3.2：卡米點讀筆 DIY 點讀包製作，開發中、未安裝）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -33,6 +33,7 @@
   - [translategemma-translator](#12-translategemma-translator)
   - [discussion-organizer](#13-discussion-organizer)
   - [cross-platform-archive-agent](#14-cross-platform-archive-agent)
+  - [point-reading-diy 🚧 開發中](#15-point-reading-diy--開發中)
 - [知識管理類（pkm）](#知識管理類pkm)
   - [knowledge-organizer](#1-knowledge-organizer)
   - [daily-brief-generator](#2-daily-brief-generator)
@@ -1153,6 +1154,60 @@ Linux 專屬：`.directory`、`.Trash-*`
 
 ---
 
+### 15. point-reading-diy 🚧 開發中
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `point-reading-diy` |
+| **版本** | `0.3.2` |
+| **路徑** | `point-reading-diy/`（存檔根目錄，尚未歸入 general/） |
+| **最後更新** | 2026-10-08 |
+| **狀態** | 開發中、**未安裝**；暫停於打包 DAB 前（等實體貼紙報碼） |
+
+**描述：**
+把整段錄音切成一句一檔，對應到卡米點讀筆「內容貼」的碼號，最後打包成 DAB 點讀包，讓沒有點讀碼的一般書變成點讀書。
+
+**用途：**
+- 書附 CD／自己錄的整段音檔 → 切成一句（或一頁）一檔
+- 有背景音樂、找不到靜音的錄音 → 改用 Whisper 時間點切
+- 產生本機審核網頁，人工逐段確認切點與內容
+- 依單字表模糊比對或照順序，對應內容貼碼號並改名
+- 無錄音時用 Mac `say` 從單字清單直接合成
+
+**觸發關鍵字：** 「點讀筆」、「卡米」、「內容貼」、「書名貼」、「點讀包」、「DAB」、「切音檔」、「一句一檔」
+
+**流程：**
+```
+原始音檔 → ① 切檔 → ② 語音辨識 → ③ 人工審核 → ④ 對應內容貼 → ⑤ 打包 DAB → 放進筆
+```
+
+**功能腳本清單：**
+
+| 腳本 | 功能 |
+|------|------|
+| `split.py` | ① 依靜音切檔（ffmpeg silencedetect），回報段數與疑似黏在一起的片段供調參 |
+| `split_asr.py` | ①' 依 Whisper 逐字時間點切檔，可把多句合成一段；切點取兩句間音量最低處 |
+| `transcribe.py` | ② 語音辨識（mlx-whisper／whisper.cpp），國語經 OpenCC 轉台灣繁體 |
+| `review.py` | ③ 產生單一 HTML 審核頁（波形、播放、標記、快捷鍵），匯出 `review.json` |
+| `assign.py` | ④ 照順序或單字表依序對齊（容忍多／少一段），輸出 `<碼號>.mp3` |
+| `synth.py` | Mac `say` 批次合成 |
+| `dab_tool.py` | ⑤ DAB 讀寫函式庫（AP4 → DAB 專案逆向所得），打包需搭配範本 DAB |
+
+**系統需求：** FFmpeg、mlx-whisper + OpenCC（venv：`~/.venvs/point-reading-diy`，Homebrew Python 不允許直接 pip install）
+
+**實測：** 《Dear Zoo》英文朗讀（含整段背景音樂）→ 靜音切檔無效，改 `split_asr.py` 切成 18 段，人工審核全數通過，輸出 `0001–0018.mp3`
+
+**待確認（回家報碼）：** 普通書名貼的碼號與 DAB 檔名前綴、內容貼「印刷號碼 → 實際碼號」換算、打包用的範本 DAB；詳見該 Skill 的 `規劃文件.md` 第 8、10 節
+
+**版本歷程：**
+- `v0.3.2`（2026-10-08）：放入 `dab_tool.py`；SKILL.md 步驟 ⑤ 改寫為 `write_dab()` 實際用法（需範本 DAB）
+- `v0.3.1`（2026-10-08）：審核結果綁定切檔版本識別碼，重切後拒用舊 review.json（修正審核頁沿用上一版暫存的 bug）
+- `v0.3.0`（2026-10-08）：`split_asr.py` 切點改取音量最低處；`assign.py --width` 補零檔名；新增翻翻書分段、重切前保存舊版等原則
+- `v0.2.0`（2026-10-08）：新增 `split_asr.py`（有背景音樂時）
+- `v0.1.0`（2026-10-06）：依規劃文件建立 SKILL.md 與 split／transcribe／review／assign／synth
+
+---
+
 ## 知識管理類（pkm）
 
 ### 1. knowledge-organizer
@@ -1413,6 +1468,7 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | translategemma-translator | 1.1.0 | 無記錄 | general | |
 | discussion-organizer | 1.0.0 | 2026-03-12 | general | |
 | cross-platform-archive-agent | 1.0.0 | 2026-03-03 | general | |
+| **point-reading-diy** | **0.3.2** | **2026-10-08** | **general** | **🚧 開發中、未安裝：卡米點讀筆 DIY 點讀包（切檔 → 辨識 → 審核 → 對應內容貼 → DAB）；Dear Zoo 已切好 18 段，暫停於打包前等報碼。存檔於 `point-reading-diy/`** |
 | **knowledge-organizer** | **1.6.1** | **2026-08-13** | **pkm** | **TBRC 四層框架、資產化價值公式；.md 標記改回 frontmatter status** |
 | **daily-brief-generator** | **1.5.0** | **2026-08-13** | **pkm** | **五區塊每日簡報、SCQA 建議行動；raw .md 判斷改回只看 frontmatter** |
 | **wiki-health-check** | **1.8.0** | **2026-09-03** | **pkm** | **七項健康檢查；精粹過時改用來源清單集合差（廢止 glob 總數比大小／會假陰性）、連結掃描先剝程式碼區塊、須先讀前次報告並覆核舊矛盾** |

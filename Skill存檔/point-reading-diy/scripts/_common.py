@@ -1,4 +1,5 @@
 """各腳本共用的小工具：碼號解析、JSON 讀寫、ffmpeg 呼叫。"""
+import hashlib
 import json
 import re
 import shutil
@@ -73,12 +74,32 @@ def save_segments(work_dir, data):
     save_json(Path(work_dir) / SEGMENTS_JSON, data)
 
 
-def load_review(work_dir):
-    """讀審核結果；沒有就回傳空 dict。key 為片段 index（字串）。"""
+def fingerprint(data):
+    """這一版切檔的識別碼：片段的檔名與起訖時間一變，識別碼就不同。"""
+    key = json.dumps([(s["file"], s["start"], s["end"]) for s in data["segments"]])
+    return hashlib.sha1(key.encode()).hexdigest()[:12]
+
+
+def load_review(work_dir, data=None, strict=True):
+    """讀審核結果；沒有就回傳空 dict。key 為片段 index（字串）。
+
+    給 data 時會比對 review.json 的 build 與目前切檔是否同一版：
+    strict 時不符就中止（避免把上一版的審核套到新片段），否則忽略舊結果。
+    """
     p = Path(work_dir) / REVIEW_JSON
     if not p.exists():
         return {}
-    return load_json(p).get("segments", {})
+    review = load_json(p)
+    if data is not None:
+        build = review.get("build")
+        if build is None:
+            print("⚠ review.json 沒有版本識別碼（舊版審核頁匯出），無法確認是否對應目前的切檔")
+        elif build != fingerprint(data):
+            if strict:
+                die("review.json 不是目前這一版切檔的審核結果（片段已重切）。"
+                    "請用新產生的 review.html 重新審核並匯出")
+            return {}
+    return review.get("segments", {})
 
 
 def to_traditional(text):

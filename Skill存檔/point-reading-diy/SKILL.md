@@ -7,7 +7,7 @@ description: |
 
   Trigger: 點讀筆, 卡米, 內容貼, 書名貼, 點讀包, DAB, 切音檔, 一句一檔, DIY 點讀, point reading
 metadata:
-  version: 0.1.0
+  version: 0.3.2
 ---
 
 # point-reading-diy
@@ -26,9 +26,18 @@ metadata:
 | ffmpeg / ffprobe | 切檔、轉檔、波形 | `brew install ffmpeg` |
 | mlx-whisper **或** whisper.cpp | 語音辨識（擇一） | `pip install mlx-whisper`／`brew install whisper-cpp` + 下載 ggml 模型 |
 | OpenCC（選用） | 國語辨識結果轉台灣繁體 | `pip install opencc` |
-| `dab_tool.py` | 打包 DAB | 從 AP4 → DAB 專案複製到 `scripts/`（見步驟 ⑤） |
+| `dab_tool.py` + 範本 DAB | 打包 DAB | `dab_tool.py` 已在 `scripts/`；範本 DAB 由使用者提供（見步驟 ⑤） |
 
-開始前先檢查：`which ffmpeg`、`python3 -c "import mlx_whisper"`、`ls scripts/dab_tool.py`。
+Homebrew 的 Python 不允許直接 `pip install`，請用專用 venv（本機已建立）：
+
+```bash
+python3 -m venv ~/.venvs/point-reading-diy
+~/.venvs/point-reading-diy/bin/pip install mlx-whisper opencc
+```
+
+之後**所有腳本都用 `~/.venvs/point-reading-diy/bin/python` 執行**（以下範例寫 `python3` 時請自行替換）。
+
+開始前先檢查：`which ffmpeg`、`~/.venvs/point-reading-diy/bin/python -c "import mlx_whisper"`、`ls scripts/dab_tool.py`。
 缺什麼先告訴使用者，不要默默略過步驟。
 
 ---
@@ -66,8 +75,31 @@ python3 scripts/split.py 錄音.mp3 --out work/ --expect 20             # 參數
 
 - 用 `--dry-run` 反覆試，通常 2～4 次可收斂；**不要一次改兩個參數**，否則看不出是哪個有效
 - 段數剛好相符不代表切點都對（可能一處黏住、另一處多切）——長度分布也要看
-- **有背景音樂的錄音切不開**，直接告訴使用者，建議改成自己錄或手動指定切點
+- **有背景音樂的錄音切不開** → 改用下方 ①' `split_asr.py`
+- 判斷方式：各種門檻試切都只切出 1～3 段，或 `ffmpeg -af volumedetect` 看到整段最低音量都在 -30～-45 dB（沒有真正的靜音）
 - 個別片段要手動修：用 ffmpeg 直接切 `work/seg_XXX.mp3`，並同步改 `segments.json`（index 重新連號、file 對應）
+
+### ①' 依辨識時間點切檔 — `split_asr.py`（有背景音樂時）
+
+用 Whisper 逐字時間點找切點，不依賴靜音。也適合「一頁一張貼」這種要把好幾句合成一段的情況。
+
+```bash
+python3 scripts/split_asr.py 錄音.mp3 --out work/ --lang en                    # 辨識並列出編號句子
+python3 scripts/split_asr.py 錄音.mp3 --out work/ --groups "1,2-5,6-8,9-11"   # 依分組切
+```
+
+- 第一次執行會辨識並快取到 `work/transcript.json`，改分組重切不必重新辨識
+- `--groups`：每個逗號一段，`2-5` 表示第 2～5 句合成一段；**沒列到的句子會被捨棄**（片頭片尾、YouTube 訂閱宣傳等）
+- 分組由 agent 依內容判斷後**先向使用者說明**：重複句型（如 "So they sent me a… X! He was too Y."）是很好的分段線索
+- **翻翻書（lift-the-flap）要把「翻開前的懸念句」和「翻開後的揭曉」分成兩段**：
+  例如 "So they sent me a…" 一張貼、"Giraffe! He was too tall…" 一張貼，因為兩句印在翻蓋的不同側。
+  不確定版面時，預設一句一段比一頁一段好——拆過頭只要重新分組，不必重新辨識
+- 兩句之間的切點取**音量最低處**（不是時間中點）：Whisper 常把拖長的 "a…" 和後面的停頓整段算進同一個字，
+  下一句的開始時間也跟著不準。句間的音效（翻開、動物叫聲）會完整留在其中一段
+- 頭尾會加淡入淡出（`--fade`），避免背景音樂突然出現；字頭字尾被吃掉時調大 `--pre`／`--post`
+- 輸出的 `segments.json` 已帶文字，**可跳過步驟 ②**
+- 驗證：把每段再辨識一次，比對開頭結尾是否完整
+- Whisper 在音檔結尾常產生幻覺句（重複的 "Bye."、"Oop!"），不要放進分組
 
 ### ② 語音辨識 — `transcribe.py`
 
@@ -97,6 +129,11 @@ open work/review.html
 - **刪除**：assign 自動跳過
 - **問題**：讀備註判斷——黏在一起 → 手動切開或整體重切；切到字 → 加大 `--pad` 重切；念錯 → 請使用者重錄該句
 - 處理完重新產生審核頁讓使用者確認修過的段落
+- **重切前先把上一版保存起來**（`seg_*.mp3`、`segments.json`、`review.html`、`review.json` 移到 `work/v1_<說明>/`），
+  重切會刪掉舊的 `seg_*.mp3`。保存後舊的審核頁在新資料夾裡仍可播放
+- review.json 帶有切檔版本識別碼（`build`）：重切後舊的 review.json 會被 `assign.py` 拒絕，必須用新審核頁重新審核。
+  沒有 `build` 的 review.json（舊版審核頁匯出）只會警告，此時要自行核對文字欄位是否對得上目前片段
+- `split_asr.py` 重切只要改 `--groups`；使用者的備註（「A 和 B 再切成兩句」）直接對照 `transcript.json` 的句子編號換算
 
 **切點準不準、念的對不對，最後一定要有人聽過。不要因為辨識文字看起來都對就跳過審核。**
 
@@ -113,6 +150,7 @@ python3 scripts/assign.py work/ --wordlist words.txt --codes 461-480 --dry-run
 ```
 
 - 碼號格式：`461-480`、`461-470,480-489`
+- 檔名要補零（如 `0001.mp3`）時加 `--width 4`
 - 單字表也可自帶碼號：每行 `461<Tab>apple`
 - 比對採「依序對齊」，能容忍少一段（念漏）或多一段（雜音），不會整串錯位
 - 分數 < 0.6 會標 ⚠，要逐一確認；國語同音字、單一個字特別容易低分或錯配
@@ -121,10 +159,18 @@ python3 scripts/assign.py work/ --wordlist words.txt --codes 461-480 --dry-run
 
 ### ⑤ 打包 DAB — `dab_tool.py`
 
-> `dab_tool.py` 沿用 AP4 → DAB 專案已實測的版本，**本資料夾尚未放入**。
-> 若 `scripts/dab_tool.py` 不存在，請使用者提供該檔案；**不要自行撰寫 DAB 格式**。
+> `dab_tool.py` 沿用 AP4 → DAB 專案逆向並實測的版本，**不要修改它的格式邏輯**，也不要自行撰寫 DAB 格式。
 
-拿到後先讀 `dab_tool.py` 的說明／參數，再以 `work/out/` 為輸入打包。檔名前綴依〈卡米規則〉。
+`dab_tool.py` 目前只有 `extract`／`roundtrip`／`swaptest` 指令，**沒有「從 MP3 打包」的 CLI**，要用它的 `write_dab()`：
+
+- `write_dab(path, book)` 的 `book` 需要 `header`（現成 DAB 的前 0x400 bytes，含不透明區）→ **必須有一個範本 DAB**，用 `read_dab()` 取得
+- `book["clips"] = {碼號: {"mp3": bytes}}`，碼號是**實際 OID**（報碼念出的數字），不是印刷號碼
+- `book["intro"]` 選用：選書時播放的介紹音檔
+- `start` 不給時取最小碼號；中間沒用到的碼號會自動填空格
+- 書名（0x0000 起的 GBK 字串）不會被 `write_dab` 改寫，沿用範本的
+
+打包前確認：範本 DAB 路徑、內容貼實際碼號、書名貼對應的檔名前綴（見〈卡米規則〉）。三者任一未確認就停下來問使用者。
+打包流程尚未包裝成腳本，第一次實作時請寫成 `scripts/pack.py` 並更新本節。
 
 ---
 
@@ -175,9 +221,10 @@ python3 scripts/synth.py words.txt --codes 461-480 --voice Samantha --rate 140 -
 | 腳本 | 步驟 | 輸入 → 輸出 |
 |---|---|---|
 | `split.py` | ① | 原始音檔 → `seg_XXX.mp3` + `segments.json` |
+| `split_asr.py` | ①' | 原始音檔 → `transcript.json`；加 `--groups` 後 → `seg_XXX.mp3` + `segments.json`（含文字） |
 | `transcribe.py` | ② | `segments.json` → 填入 `text` |
 | `review.py` | ③ | `segments.json` → `review.html`；使用者匯出 `review.json` |
 | `assign.py` | ④ | `segments.json` + `review.json` (+ 單字表) → `out/<碼號>.mp3` + `assignment.json` |
 | `synth.py` | 合成 | 單字表 → `out/<碼號>.mp3` |
-| `dab_tool.py` | ⑤ | `out/` → `.dab`（待放入） |
+| `dab_tool.py` | ⑤ | DAB 讀寫函式庫（`read_dab`／`write_dab`），打包需搭配範本 DAB |
 | `_common.py` | — | 共用函式 |

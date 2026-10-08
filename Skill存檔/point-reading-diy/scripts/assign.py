@@ -12,6 +12,7 @@ review.json 中標為「刪除」的片段會跳過；仍有「問題」未處�
   python3 assign.py work/ --wordlist words.txt --codes 461-480  # 單字表（每行一個詞）
   python3 assign.py work/ --wordlist words.tsv                  # 單字表自帶碼號（碼號<Tab>文字）
   python3 assign.py work/ --codes 461-480 --dry-run             # 只看對應表
+  python3 assign.py work/ --codes 1-18 --width 4                # 輸出 0001.mp3～0018.mp3
   python3 assign.py work/ --apply                               # 依手動修改過的 assignment.json 重新輸出
 
 單字表格式：每行「文字」或「碼號<Tab或逗號>文字」，# 開頭為註解。
@@ -116,7 +117,7 @@ def report(rows, segs, codes):
     return left_seg, left_code
 
 
-def write_out(work, rows, out):
+def write_out(work, rows, out, width=0):
     out.mkdir(parents=True, exist_ok=True)
     for old in out.glob("*.mp3"):
         old.unlink()
@@ -125,7 +126,7 @@ def write_out(work, rows, out):
         if r["code"] in seen:
             die(f"碼號 {r['code']} 重複指派，請檢查 assignment.json")
         seen.add(r["code"])
-        shutil.copy2(work / r["file"], out / f"{r['code']}.mp3")
+        shutil.copy2(work / r["file"], out / f"{r['code']:0{width}d}.mp3")
     print(f"已輸出 {len(rows)} 個檔案到 {out}/")
 
 
@@ -135,6 +136,7 @@ def main():
     ap.add_argument("--codes", help="內容貼碼號，如 461-480 或 461-470,480-489")
     ap.add_argument("--wordlist", help="單字表檔案（啟用模糊比對）")
     ap.add_argument("--out", help="輸出資料夾（預設 <work>/out）")
+    ap.add_argument("--width", type=int, default=0, help="檔名碼號補零位數，如 4 → 0001.mp3（預設不補）")
     ap.add_argument("--allow-problem", action="store_true", help="有未處理的「問題」段也繼續")
     ap.add_argument("--dry-run", action="store_true", help="只印對應表，不輸出")
     ap.add_argument("--apply", action="store_true", help="直接依 assignment.json 輸出")
@@ -147,11 +149,11 @@ def main():
         p = work / "assignment.json"
         if not p.exists():
             die("找不到 assignment.json，請先不加 --apply 執行一次")
-        write_out(work, load_json(p)["rows"], out)
+        write_out(work, load_json(p)["rows"], out, a.width)
         return
 
     data = load_segments(work)
-    review = load_review(work)
+    review = load_review(work, data)
     if not review:
         print("⚠ 尚未有 review.json（未經人工審核）。正式打包前一定要審核。")
 
@@ -190,7 +192,7 @@ def main():
     save_json(work / "assignment.json",
               {"mode": "wordlist" if words else "order", "rows": rows})
     print(f"對應表已存 {work / 'assignment.json'}（可手動修改後用 --apply 重新輸出）")
-    write_out(work, rows, out)
+    write_out(work, rows, out, a.width)
 
 
 if __name__ == "__main__":
