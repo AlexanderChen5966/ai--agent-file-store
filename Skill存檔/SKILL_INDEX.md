@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -27,6 +27,7 @@
   - [b2b-manager-onboarding](#17-b2b-manager-onboarding)
   - [sanlong-pay-onboarding](#18-sanlong-pay-onboarding)
   - [multiagent-handoff](#19-multiagent-handoff)
+  - [mattpocock-skills（外部）](#20-mattpocock-skills外部)
 - [通用類（general）](#通用類general)
   - [media-processor](#9-media-processor)
   - [sign-off-generator](#10-sign-off-generator)
@@ -113,9 +114,11 @@ Flutter + Riverpod（專屬版，限 B2B Manager 專案）
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `stack-review` |
-| **版本** | `1.4.0` |
+| **版本** | `1.5.0` |
 | **路徑** | `dev/stack-review/` |
-| **最後更新** | 2026-07-29（v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+| **最後更新** | 2026-11-09（v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+
+> 📌 作用中本體 `~/.agents/skills/stack-review/` 的檔頭先前一直停在 `1.1.0`（v1.3.0／v1.4.0 內容都在，只是沒改檔頭），2026-11-09 直接改為 `1.5.0`。
 
 > 📌 **版本號說明**：本條目原本檔頭寫 `1.1.0`，但下方功能段與其他章節的交叉引用（第 166、199 行）
 > 都已寫 `v1.2.0`（指 Step 7）——存檔原本即存在此不一致。故本次修訂編為 **1.3.0**，
@@ -173,7 +176,17 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 > ⚠️ 注意：**這次事故本身 review 抓不到**（前端零 diff），本節的價值在於**防止新增曝險**，
 > 而非修復既有漂移。
 
-**與 v2 的差異：** 新增 Step 7（v1.2.0）、Step 1 的 fetch 前置（v1.3.0）、common.md 跨服務契約檢查（v1.4.0），其餘審查邏輯與支援技術棧不變。
+**新增功能（v1.5.0，2026-11-09）：Step 4b 對照 spec 審查**（吸收 Matt Pocock `matt-code-review` 的 Spec 軸）
+
+- 有 `docs/shared/` 任務文件時，與 code-reviewer **同一則訊息平行派** spec subagent（general-purpose）
+- 找任務文件順序：使用者給的路徑 → `**分支編號：**` 對到分支／commit 的 Jira key → 狀態「進行中／待實作」且 `**影響路徑：**` 重疊；多份或找不到就問，使用者說沒有就跳過並在摘要註明
+- spec subagent 只看四件事：漏做／部分、多做（scope creep）、看似做了但行為不對、後端依賴／跨服務契約是否照文件處理；每項引任務文件原句＋ file:line
+- 摘要新增「Spec Check」一節，**不併入 🔴/🟡/🟢、不跨軸重排**（一軸過、另一軸不過時才看得出來）
+- 沒有 subagent 的 agent：先做完規範審查再做 spec 審查，兩份筆記分開
+
+> 🔎 **起因**：開發流程與 Matt Pocock 截長補短（桌面〈開發流程與MattPocock截長補短.md〉5.2）——原本 stack-review 只問「寫得好不好」，不問「是不是任務要的」。
+
+**與 v2 的差異：** 新增 Step 7（v1.2.0）、Step 1 的 fetch 前置（v1.3.0）、common.md 跨服務契約檢查（v1.4.0）、Step 4b spec 審查（v1.5.0），其餘審查邏輯與支援技術棧不變。
 
 **配合使用：** 建議搭配 `requirements` v1.0.0 和 `doc-update` v1.0.0 形成完整工作流程。
 
@@ -184,9 +197,9 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `requirements` |
-| **版本** | `1.4.0` |
+| **版本** | `1.5.0` |
 | **路徑** | `dev/requirements/` |
-| **最後更新** | 2026-07-30 |
+| **最後更新** | 2026-11-09 |
 
 > ⚠️ 本條目原記為 `1.1.0` / 2026-03-18，但 v1.2.0（2026-05-27，metadata header 格式統一）當時未同步至本索引。
 > 已於 2026-07-30 一併補正。
@@ -200,6 +213,16 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - 任務文件包含：背景說明、需求說明、影響範圍分析、實作任務（含 code snippet）、執行步驟（`[ ]` checklist）
 - 若 `docs/shared/` 不存在，自動建立目錄與 `readme.md`
 - 自動更新 `docs/shared/readme.md` 索引（新增「⏳ 待實作」條目）
+
+**新增功能（v1.5.0，2026-11-09）：需求模糊時叫 `grilling` 追問**
+
+- Step 1 新增觸發條件：5 項基本資訊有 2 項以上答不出或互相矛盾、有多種做法且選擇會改變影響範圍或任務拆法、只描述結果沒說誰在什麼情況觸發
+- **能查的先查，不拿去問人**：後端行為、既有程式、API 欄位走 Step 2a／2b；`grilling` 只問只有使用者能決定的事（範圍、優先順序、取捨、例外處理）
+- 追問結論必須寫進任務文件
+- 無 Skill tool 的 agent：讀 `~/.agents/skills/grilling/SKILL.md` 照做
+- 「與其他 skill 的關係」新增 `grilling`
+
+> 🔎 **起因**：截長補短 5.2——requirements 會查證但不會追問，需求不清楚就照猜的寫；Matt 的 grilling 會追問但不查程式碼。兩者合併。
 
 **新增功能（v1.4.0）：後端契約同步模式（非互動・供 hook 呼叫）**
 
@@ -250,7 +273,7 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - `references/task-doc-template.md`：標準任務文件模板
 - `references/readme-template.md`：`docs/shared/readme.md` 初始格式（v1.3.0 新增「契約依據」章節於 task-doc-template）
 
-**配合使用：** `project-documentation` v2.1.0（上游，提供參考依據）→ 本 skill → `stack-review` v1.4.0 或 `ai-pair dev` → `doc-update` v1.1.0
+**配合使用：** `project-documentation` v2.1.0（上游，提供參考依據）→ 本 skill（模糊時叫 `grilling`）→ `stack-review` v1.5.0 或 `ai-pair dev` → `doc-update` v1.1.0
 
 ---
 
@@ -962,6 +985,36 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 
 ---
 
+### 20. mattpocock-skills（外部）
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（7 個） |
+| **版本** | 上游 mattpocock/skills@5beb35b（plugin v1.3.1，2026-10-19），MIT |
+| **路徑** | `dev/mattpocock-skills/`（備份，含 `LICENSE-mattpocock`、`MATTPOCOCK-SOURCE.md`）；作用中本體 `~/.agents/skills/<name>/` |
+| **最後更新** | 2026-11-09 |
+
+**來源：** 2026-10-21 裝在 b2b-manager `.claude/skills/` 測試 Matt 整套流程；2026-11-09 依〈開發流程與MattPocock截長補短.md〉把不需 repo 設定的 7 個搬到共用位置，b2b-manager 的同名副本與 Matt `handoff` 已刪除（handoff 與 multiagent-handoff 重複）。
+
+**在主流程的位置：**
+
+| skill | 插在哪 | 怎麼叫 |
+|---|---|---|
+| `grilling`／`grill-me` | ① Jira 確認需求後 | requirements Step 1 需求模糊時自動叫；grill-me 只能手動 |
+| `diagnosing-bugs` | ④ 開發卡在 bug | 自動觸發或手動 |
+| `tdd` | ④ 新程式（如 `next/`） | 自動觸發或手動 |
+| `pr` | ⑥ doc-update 之後 | 手動，寫 MR 說明 |
+| `writing-for-agents` | 改 skill／AGENTS.md／CLAUDE.md | 自動觸發 |
+| `retro` | session 結束 | 只能手動；結論照三層記憶規則寫 |
+
+**本機修改：** `tdd` 叫 `codebase-design` 改為「repo 有才叫」；重構歸屬改指 `stack-review`（細節見 `MATTPOCOCK-SOURCE.md`）。
+
+**仍只在 b2b-manager 的 Matt skill：** to-tickets、implement、implement-spec、matt-code-review、to-spec、triage 等，React 遷移結束後回顧去留。ask-matt 內文仍提到 `/handoff`（未改）。
+
+**⚠️ 注意：** 同名 skill 不可再放進任何 repo 的 `.claude/skills/`，專案版會蓋過共用版。
+
+---
+
 ## 通用類（general）
 
 ### 9. media-processor
@@ -1462,12 +1515,12 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 
 | 位置 | 內容 | 哪些工具讀得到 |
 |------|------|------|
-| `~/.agents/skills/`（本體） | multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent（7 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；Claude Code、agy 經 symlink |
-| `~/.claude/skills/` | **ai-pair**（實體，Claude 專屬，刻意不共用）＋上述 7 個的 symlink | Claude Code |
-| `~/.gemini/config/skills/` | 上述 7 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
+| `~/.agents/skills/`（本體） | 自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；Claude Code、agy 經 symlink |
+| `~/.claude/skills/` | **ai-pair**（實體，Claude 專屬，刻意不共用）＋上述 14 個的 symlink | Claude Code |
+| `~/.gemini/config/skills/` | 上述 14 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
 | `~/.copilot/backups/code-review-20261020/` | Copilot 舊的 code-review（stack-review 2026-01 舊副本），已停用 | 無（不在讀取路徑） |
 
-- 六個工具皆實測：7 個共用 skill 各看到恰好 1 份
+- 六個工具皆實測：7 個共用 skill 各看到恰好 1 份（2026-11-09 新增的 Matt 7 個：Claude Code 已確認載入，其他工具未重測）
 - symlink 由 `~/.agents/link-skills.sh`（link／check／unlink）管理；安裝包快照與重建步驟見 b2b-manager `docs/agent-handoff/install/`
 - 搬移前備份：`~/.claude/backups/skills-20261020-pre-move.tar.gz`
 
@@ -1515,7 +1568,9 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **stack-review (原 code-review v3)** | **1.1.0** | **2026-05-25** | **dev** | **重命名避免內建衝突（`dev/stack-review/`）；輕量替代，適合單檔小改動** |
 | **stack-review** | **1.3.0** | **2026-07-29** | **dev** | **Step 1 補「必須先 fetch、用 `origin/main` 當 diff 基準、落後就先合併」；起因是實際發生 review 基準落後 7 週而漏看重複實作** |
 | **stack-review** | **1.4.0** | **2026-07-29** | **dev** | **`references/common.md` 新增「跨服務契約（enum / DTO）」檢查；並明確標示 review 的能力邊界——「後端新增值、前端零 diff」的漂移 review 抓不到，須靠契約測試或 fail-soft 解析** |
+| **stack-review** | **1.5.0** | **2026-11-09** | **dev** | **Step 4b：有 `docs/shared/` 任務文件時平行派 spec subagent（漏做／多做／做錯／契約），結果獨立一節不跨軸重排；吸收自 matt-code-review** |
 | **requirements** | **1.1.0** | **2026-03-18** | **dev** | **新增：同名文件檢查、已完成重開流程、Step 8 CHANGELOG** |
+| **requirements** | **1.5.0** | **2026-11-09** | **dev** | **Step 1 需求模糊叫 `grilling` 追問；能查的先查，只問只有人能決定的事；結論寫進任務文件** |
 | **doc-update** | **1.1.0** | **2026-03-18** | **dev** | **新增：支援「🔄 進行中」狀態** |
 | flutter-b2b-documentation | 1.0.0 | 無記錄 | dev | 已由 project-documentation 取代 |
 | **project-documentation** | **2.0.0** | **2026-04-28** | **dev** | **Spring Boot 完整支援；新增 Bug 修復紀錄、Widget 元件文件；kebab-case 命名；frontmatter 規範** |
@@ -1529,6 +1584,7 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **b2b-manager-onboarding** | **1.1.0** | **2026-08-25** | **dev** | **b2b-manager 新人上手導覽（決策樹路由 + 5 份 reference，仿 ECPay skill 架構）；專案專屬不可共用，存檔於 `dev/b2b-manager-onboarding/`，目前未安裝** |
 | **sanlong-pay-onboarding** | **1.0.0** | **2026-08-25** | **dev** | **sanlong（山隆 PAY，iOS+Android APP）新人上手導覽；同架構但內容全異（手機 APP／自製 SLRouter／單一大型 SLController）。基準 `main@190038a9`；事實面已逐條驗證，自動觸發與實跑 build 未驗。存檔於 `dev/sanlong-pay-onboarding/`，目前未安裝** |
 | **multiagent-handoff** | **0.6.0** | **2026-10-21** | **dev** | **跨 AI agent 接力（save／resume／delegate／report／review＋`--run`）；分派基準含未 commit 修改、以任務單狀態判斷成敗。實戰 SSGS-14167 通過（Copilot＋Codex 依序派工）。v0.5.0 由 handoff 改名。作用中本體 `~/.agents/skills/multiagent-handoff/`，備份 `dev/multiagent-handoff/`** |
+| **mattpocock-skills（外部）** | **上游 5beb35b** | **2026-11-09** | **dev** | **Matt Pocock 7 個（grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro）搬到 `~/.agents/skills/` 共用；MIT；tdd 有本機修改。備份 `dev/mattpocock-skills/`** |
 | media-processor | 2.0.0 | 2025-12-31 | general | |
 | sign-off-generator | 1.0.0 | 2026-01-06 | general | |
 | document-translator | 1.0.0 | 無記錄 | general | |

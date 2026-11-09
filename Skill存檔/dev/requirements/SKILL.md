@@ -1,7 +1,7 @@
 ---
 name: requirements
 metadata:
-  version: 1.4.0
+  version: 1.5.0
 description: 將模糊需求轉換為標準化任務文件，存入 docs/shared/。先讀既有架構／API 參考文件（含上游 repo）並判斷可信度，再翻原始碼補足；自動分析影響範圍（含跨服務 enum／DTO 契約）、拆解實作任務、確認風險清單，產出可直接交給 AI agent 實作的任務文件。觸發時機：/requirements、討論作法、需求分析、寫任務文件、規劃功能、我想要新增/修改功能時。只要使用者描述想做的功能變更，就應主動使用此 skill。
 ---
 
@@ -22,6 +22,20 @@ description: 將模糊需求轉換為標準化任務文件，存入 docs/shared/
 5. **邊界條件**：例外情況如何處理？（空值、錯誤狀態等）
 
 若需求已夠清楚，直接進入 Step 2a，不要不必要地多問。
+
+#### 需求模糊時：先叫 `grilling` 追問，不要自己猜
+
+符合任一情況，就先呼叫 Skill tool 叫 `grilling`，把模糊處問到沒有分歧再往下走：
+
+- 上面 5 項有 2 項以上答不出來，或使用者的回答彼此矛盾
+- 有多種合理做法，選哪一種會改變影響範圍或任務拆法（例：改既有頁面 vs. 開新頁面）
+- 需求只描述了結果，沒說誰、在什麼情況下觸發
+
+規則：
+
+- **能查的先查，不拿去問人**：後端行為、既有程式怎麼寫、API 欄位——這些走 Step 2a／2b 查證，`grilling` 只問「只有使用者能決定」的事（範圍、優先順序、取捨、例外怎麼處理）
+- 追問的結論要寫進任務文件（「需求確認」或對應章節），不能只留在對話裡
+- 沒有 Skill tool 的 agent（Codex、Copilot CLI 等）：讀 `~/.agents/skills/grilling/SKILL.md` 照做；讀不到就照它的精神，一輪列出所有能問的問題、每題附建議答案，等回覆再問下一輪
 
 ### Step 2a：先讀既有參考文件（讀比寫便宜）
 
@@ -104,7 +118,7 @@ grep -r "關鍵字" lib/page/[模組]/ --include="*.dart" -l
 
 ### Step 3：風險評估
 
-依照 CLAUDE.md 的風險清單，逐一確認：
+依照 CLAUDE.md（其他 agent 改讀 AGENTS.md）的風險清單，逐一確認：
 
 | 風險項目 | 是否影響 |
 |---------|---------|
@@ -328,6 +342,7 @@ ls docs/shared/[預定檔名].md 2>/dev/null
 |-------|------|
 | `project-documentation` | **上游**。產出本 skill Step 2a 讀取的架構／API／變更歷程文件（含上游 repo 的）。⚠️ 其產出為**描述性**文件，須依 Step 2a 判斷可信度後才可採用 |
 | `figma-to-requirements` | **上游**（UI 需求）。產出 UI 任務草稿後交棒本 skill |
+| `grilling` | **Step 1 內呼叫**。需求模糊時追問使用者，只問查不到、只有人能決定的事 |
 | `/stack-review`、`/ai-pair dev` | **下游**。實作完成後的品質保證 |
 | `/doc-update` | **下游**。填入完成日期、更新 readme 狀態 |
 

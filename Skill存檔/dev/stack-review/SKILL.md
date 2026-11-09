@@ -2,8 +2,8 @@
 name: stack-review
 description: Comprehensive code review for multiple tech stacks with automatic technology detection. Supports Flutter (Riverpod/Bloc), Java Spring Boot, and Android (Java/Kotlin). Use when the user requests code review (e.g., "/review", "review this code", "check my changes"), after completing feature development, or for pre-commit checks. Automatically detects project type and applies appropriate architectural standards, security checks, and best practices.
 metadata:
-  version: 1.1.0
-  last-updated: 2026-01-08
+  version: 1.5.0
+  last-updated: 2026-11-09
 ---
 
 # Code Review
@@ -130,7 +130,9 @@ See stack-specific checklists in `references/` for detailed focus areas.
 
 ### Step 4: Invoke Code-Reviewer Subagent
 
-Use the Task tool to launch the code-reviewer subagent for deep analysis:
+Use the Task tool to launch the code-reviewer subagent for deep analysis.
+
+> **Agents without a subagent/Task tool** (Codex, Copilot CLI, opencode, agy, Cursor): skip the launch and perform the same deep review yourself in the current session, using the prompt below as your checklist. Output format (Step 5) is unchanged.
 
 **Invocation Template**:
 ```
@@ -195,9 +197,52 @@ Context: Spring Boot 3.x, JPA/Hibernate, RESTful architecture
 Checklists: references/common.md, references/springboot.md
 ```
 
+### Step 4b: Spec Review (parallel, when a task document exists)
+
+The checklist review above answers "is the code written well?". It cannot answer "is this the code
+the task asked for?" — code can pass every checklist and still implement the wrong thing, skip a
+requirement, or add unrequested behaviour. A second subagent checks the diff against the task
+document.
+
+**Find the spec** (stop at the first hit):
+
+1. A path the user passed
+2. `docs/shared/*.md` whose `**分支編號：**` matches the Jira key in the branch name or commit messages (e.g. `SSGS-12345`)
+3. `docs/shared/*.md` with `**狀態：** 🔄 進行中` or `⏳ 待實作` whose `**影響路徑：**` overlaps the changed files
+4. Several candidates or none → ask the user. If they say there is no task document, skip this step and say so in the summary ("Spec: no task document, skipped")
+
+**Launch it in the same message as the Step 4 code-reviewer call**, so both run in parallel and
+neither pollutes the other's context:
+
+```
+Task(
+  subagent_type='general-purpose',
+  description='Spec review against task doc',
+  prompt='''
+    Compare a code change against its task document. Do not review code style or quality.
+
+    **Diff**: `git diff origin/<target>...HEAD` (commits: `git log --oneline origin/<target>..HEAD`)
+    **Task document**: docs/shared/<file>.md — read it in full, especially 需求說明, 契約依據, 實作任務 and the checklist in 執行步驟.
+
+    Report:
+    (a) Missing or partial: things the task document asks for that the diff does not do
+    (b) Scope creep: behaviour in the diff the task document did not ask for
+    (c) Implemented but looks wrong: matches a requirement in name, but the behaviour differs
+    (d) 後端依賴 / 跨服務契約: if the doc declares backend enums/DTOs, does the code handle them as the doc says?
+
+    Quote the task-document line for every finding, plus file:line in the diff.
+    If the task document itself is ambiguous on a point, say so instead of guessing.
+    Under 400 words.
+  '''
+)
+```
+
+> **Agents without a subagent/Task tool**: do the spec pass yourself *after* finishing the checklist
+> pass, and keep the two sets of notes separate.
+
 ### Step 5: Process Review Results
 
-After the code-reviewer subagent completes:
+After the code-reviewer subagent (and the spec subagent, if launched) completes:
 
 1. **Categorize Findings** by severity:
    - 🔴 **Critical**: Security, architecture violations, performance issues (N+1, memory leaks)
@@ -207,6 +252,10 @@ After the code-reviewer subagent completes:
 2. **Prioritize Issues**: Address critical first, group related issues, provide actionable fixes with code examples
 
 3. **Verify Against Checklists**: Cross-reference with stack-specific and common checklists
+
+4. **Keep spec findings separate**: do not merge them into the 🔴/🟡/🟢 lists or rerank them against
+   checklist findings. A change can pass one axis and fail the other; merging lets one mask the other.
+   Present them under their own heading (see Step 6).
 
 ### Step 6: Present Review Summary
 
@@ -228,6 +277,13 @@ After the code-reviewer subagent completes:
 
 ### Suggestions (🟢)
 [List optional improvements]
+
+### Spec Check (vs `docs/shared/<file>.md`)
+<!-- or: "Spec: no task document, skipped" -->
+- **Missing / partial**: [requirement quote] → [file:line or "not found"]
+- **Scope creep**: [file:line] — [what it does that wasn't asked]
+- **Looks wrong**: [requirement quote] vs [file:line]
+- **Contract**: [backend dependency handled as documented? yes / issue]
 
 ### Compliance Checklist
 - [x] Architecture pattern correct
@@ -332,8 +388,9 @@ To support a new stack:
 
 This skill integrates with:
 - **code-reviewer subagent** - Deep analysis
+- **Spec subagent** - Diff vs `docs/shared/` task document (Step 4b), reported separately
 - **Common checklist** - Universal checks
 - **Stack-specific checklists** - Specialized standards
-- **Project docs** (CLAUDE.md, architecture docs) - Project rules
+- **Project docs** (CLAUDE.md, or AGENTS.md for non-Claude agents; architecture docs) - Project rules
 
 Always reference both common and stack-specific checklists for comprehensive coverage.
