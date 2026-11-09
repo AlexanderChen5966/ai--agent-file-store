@@ -7,7 +7,7 @@ description: |
 
   Trigger: 點讀筆, 卡米, 內容貼, 書名貼, 點讀包, DAB, 切音檔, 一句一檔, DIY 點讀, point reading
 metadata:
-  version: 0.3.2
+  version: 0.4.0
 ---
 
 # point-reading-diy
@@ -26,7 +26,7 @@ metadata:
 | ffmpeg / ffprobe | 切檔、轉檔、波形 | `brew install ffmpeg` |
 | mlx-whisper **或** whisper.cpp | 語音辨識（擇一） | `pip install mlx-whisper`／`brew install whisper-cpp` + 下載 ggml 模型 |
 | OpenCC（選用） | 國語辨識結果轉台灣繁體 | `pip install opencc` |
-| `dab_tool.py` + 範本 DAB | 打包 DAB | `dab_tool.py` 已在 `scripts/`；範本 DAB 由使用者提供（見步驟 ⑤） |
+| `dab_tool.py` + 範本 DAB | 打包 DAB | 都已在 `scripts/`（`template_header.dab` 取自 535-高频词32.dab，已在舊卡米筆實測可用） |
 
 Homebrew 的 Python 不允許直接 `pip install`，請用專用 venv（本機已建立）：
 
@@ -45,10 +45,10 @@ python3 -m venv ~/.venvs/point-reading-diy
 ## 開始前要向使用者確認
 
 1. **音檔來源**：現成音檔／自己錄的一整段／只有單字清單（→ 走「語音合成」）
-2. **內容貼碼號**：要用哪幾張（如 461–480）。碼號必須是「實際碼號」，見下方〈卡米規則〉
+2. **內容貼號碼**：要用哪幾張（如 0001–0018）。這裡用貼紙上的**印刷號碼**即可，`pack.py` 打包時自動換算成實際碼號（+25000，見〈卡米規則〉）
 3. **有沒有單字表**：有 → 用比對模式；沒有或語言辨識弱（台語、客語、注音、兒歌）→ 照順序模式
 4. **錄音順序是否與貼紙順序一致**：照順序模式的前提
-5. **書名貼種類**：決定 DAB 檔名前綴
+5. **書名貼種類與號碼**：普通書名貼 → 檔名 `NNN-1-`；智能書名貼 → `NNN-`（見〈卡米規則〉）
 
 ---
 
@@ -140,18 +140,18 @@ open work/review.html
 ### ④ 對應內容貼 — `assign.py`
 
 ```bash
-# 照順序：第 1 段 → 461、第 2 段 → 462……
-python3 scripts/assign.py work/ --codes 461-480 --dry-run
+# 照順序：第 1 段 → 內容貼 0001、第 2 段 → 0002……
+python3 scripts/assign.py work/ --codes 1-18 --width 4 --dry-run
 
-# 單字表比對（words.txt 每行一個詞，順序與碼號對應）
-python3 scripts/assign.py work/ --wordlist words.txt --codes 461-480 --dry-run
+# 單字表比對（words.txt 每行一個詞，順序與號碼對應）
+python3 scripts/assign.py work/ --wordlist words.txt --codes 1-18 --width 4 --dry-run
 
-# 確認後去掉 --dry-run 正式輸出到 work/out/<碼號>.mp3
+# 確認後去掉 --dry-run 正式輸出到 work/out/0001.mp3…
 ```
 
-- 碼號格式：`461-480`、`461-470,480-489`
-- 檔名要補零（如 `0001.mp3`）時加 `--width 4`
-- 單字表也可自帶碼號：每行 `461<Tab>apple`
+- `--codes` 填內容貼的**印刷號碼**（不是實際碼號）；格式：`1-18`、`1-10,21-30`
+- `--width 4` 讓檔名補零成 `0001.mp3`，與貼紙上的印刷號碼一致、方便核對（`pack.py` 補不補零都讀得到）
+- 單字表也可自帶號碼：每行 `1<Tab>apple`
 - 比對採「依序對齊」，能容忍少一段（念漏）或多一段（雜音），不會整串錯位
 - 分數 < 0.6 會標 ⚠，要逐一確認；國語同音字、單一個字特別容易低分或錯配
 - 結果存在 `work/assignment.json`，可直接修改後 `--apply` 重新輸出
@@ -161,27 +161,42 @@ python3 scripts/assign.py work/ --wordlist words.txt --codes 461-480 --dry-run
 
 > `dab_tool.py` 沿用 AP4 → DAB 專案逆向並實測的版本，**不要修改它的格式邏輯**，也不要自行撰寫 DAB 格式。
 
-`dab_tool.py` 目前只有 `extract`／`roundtrip`／`swaptest` 指令，**沒有「從 MP3 打包」的 CLI**，要用它的 `write_dab()`：
+用 `scripts/pack.py` 打包（內部呼叫 `dab_tool.write_dab()`，打包後自動讀回逐段驗證）：
+
+```bash
+# 普通書名貼 001 + 內容貼 0001～：out/ 內檔名為印刷號碼（0001.mp3…），自動加 25000 → 碼 25001～
+python3 scripts/pack.py work/out --book-sticker 1 --title "Dear Zoo"      # → work/001-1-Dear_Zoo.dab
+
+# 智能書名貼：直接指定前綴
+python3 scripts/pack.py work/out --prefix 007 --title "書名"               # → work/007-書名.dab
+```
+
+- 檔名若已是實際碼號（如 `25001.mp3`），pack.py 會自動判斷，不再加 25000
+- `--intro` 可指定選書提示音，預設用最小號碼那一段
+- 範本預設 `scripts/template_header.dab`，書名會寫進檔頭
+
+`write_dab()` 的細節（需要自行呼叫時參考）：
 
 - `write_dab(path, book)` 的 `book` 需要 `header`（現成 DAB 的前 0x400 bytes，含不透明區）→ **必須有一個範本 DAB**，用 `read_dab()` 取得
 - `book["clips"] = {碼號: {"mp3": bytes}}`，碼號是**實際 OID**（報碼念出的數字），不是印刷號碼
 - `book["intro"]` 選用：選書時播放的介紹音檔
 - `start` 不給時取最小碼號；中間沒用到的碼號會自動填空格
-- 書名（0x0000 起的 GBK 字串）不會被 `write_dab` 改寫，沿用範本的
+- 書名（0x0004 起的 GBK 字串）`write_dab` 不會改寫，`pack.py` 會代為寫入
 
-打包前確認：範本 DAB 路徑、內容貼實際碼號、書名貼對應的檔名前綴（見〈卡米規則〉）。三者任一未確認就停下來問使用者。
-打包流程尚未包裝成腳本，第一次實作時請寫成 `scripts/pack.py` 並更新本節。
+打包前確認：書名貼種類與號碼、內容貼號碼。使用者提供的貼紙種類不在〈卡米規則〉已確認範圍內時，停下來請他報碼。
+
+放進筆：複製到筆的 `EBOOK` 資料夾 → `dot_clean -m /Volumes/<筆>` 並刪除 `._*` → 退出、重新開機 → 先點書名貼再點內容貼。
 
 ---
 
 ## 語音合成（無錄音時）— `synth.py`
 
-適合單字卡、簡單句子，跳過 ①②③ 的切檔與辨識，直接產生 `<碼號>.mp3`：
+適合單字卡、簡單句子，跳過 ①②③ 的切檔與辨識，直接產生 `<號碼>.mp3`（`--codes` 同樣填印刷號碼），再接 ⑤ 打包：
 
 ```bash
 python3 scripts/synth.py --list-voices zh                                    # 查語音
-python3 scripts/synth.py words.txt --codes 461-480 --voice Meijia --out work/out/
-python3 scripts/synth.py words.txt --codes 461-480 --voice Samantha --rate 140 --out work/out/
+python3 scripts/synth.py words.txt --codes 1-20 --voice Meijia --out work/out/
+python3 scripts/synth.py words.txt --codes 1-20 --voice Samantha --rate 140 --out work/out/
 ```
 
 常用語音：Meijia（國語・台灣）、Samantha（英文）、Sinji（粵語）、Kyoko（日文）。台語無內建語音。
@@ -194,13 +209,14 @@ python3 scripts/synth.py words.txt --codes 461-480 --voice Samantha --rate 140 -
 - 先點書名貼（入口碼）選書，再點內容貼；未選書直接點內容會說「不對應的文件」
 - 入口碼 60001–65000：檔名前綴取末四碼（60309 → `0309-…dab`）
 - 智能書名貼 001 → 檔名前綴 `001-`（已實測）
-- 普通書名貼用 `001-` 前綴**沒有反應**，命名規則**尚未確認**
-- 內容貼「印刷號碼 → 實際碼號」換算**尚未確認**
+- **普通書名貼 N = 碼 56000+N → 檔名 `NNN-1-書名.dab`**（2026-10-10 實測：001 = 56001，`001-1-DearZoo.dab` 成功；少了 `-1` 不會反應）
+- 入口碼 56xxx 的通則：取末三碼 + `-1-`
+- **內容貼 N = 碼 25000+N**（2026-10-10 實測：0001 = 25001，0001～0018 全部成功）
 - DAB 支援任意碼號（上限 65535）
 
-**未確認的規則不要用猜的。** 使用者要用普通書名貼或不確定內容貼碼號時，請他用筆的報碼功能點一下貼紙，
+**未確認的規則不要用猜的。** 遇到上面沒列的貼紙或書（例如別款貼紙冊），請使用者用筆的報碼功能點一下，
 記下印刷號碼與念出的數字（內容貼請點兩張號碼相差較遠的），再依結果決定前綴與碼號。
-確認後更新本節與 `規劃文件.md` 第 8 節。
+確認後更新本節與 `規劃文件.md`。
 
 ---
 
@@ -226,5 +242,7 @@ python3 scripts/synth.py words.txt --codes 461-480 --voice Samantha --rate 140 -
 | `review.py` | ③ | `segments.json` → `review.html`；使用者匯出 `review.json` |
 | `assign.py` | ④ | `segments.json` + `review.json` (+ 單字表) → `out/<碼號>.mp3` + `assignment.json` |
 | `synth.py` | 合成 | 單字表 → `out/<碼號>.mp3` |
-| `dab_tool.py` | ⑤ | DAB 讀寫函式庫（`read_dab`／`write_dab`），打包需搭配範本 DAB |
+| `pack.py` | ⑤ | `out/<號碼>.mp3` → `NNN-1-書名.dab`（自動讀回驗證） |
+| `dab_tool.py` | ⑤ | DAB 讀寫函式庫（`read_dab`／`write_dab`） |
+| `template_header.dab` | ⑤ | 範本檔頭（已實測可用） |
 | `_common.py` | — | 共用函式 |

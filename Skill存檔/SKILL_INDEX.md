@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-10-08 — 新增 point-reading-diy v0.3.2：卡米點讀筆 DIY 點讀包製作，開發中、未安裝）
+> 整理日期：2026-05-25（最後更新：2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -26,6 +26,7 @@
   - [ai-pair-v4-test](#15-ai-pair-v4-test)
   - [b2b-manager-onboarding](#17-b2b-manager-onboarding)
   - [sanlong-pay-onboarding](#18-sanlong-pay-onboarding)
+  - [multiagent-handoff](#19-multiagent-handoff)
 - [通用類（general）](#通用類general)
   - [media-processor](#9-media-processor)
   - [sign-off-generator](#10-sign-off-generator)
@@ -33,7 +34,7 @@
   - [translategemma-translator](#12-translategemma-translator)
   - [discussion-organizer](#13-discussion-organizer)
   - [cross-platform-archive-agent](#14-cross-platform-archive-agent)
-  - [point-reading-diy 🚧 開發中](#15-point-reading-diy--開發中)
+  - [point-reading-diy ✅ 可用（測試版）](#15-point-reading-diy--可用測試版)
 - [知識管理類（pkm）](#知識管理類pkm)
   - [knowledge-organizer](#1-knowledge-organizer)
   - [daily-brief-generator](#2-daily-brief-generator)
@@ -44,6 +45,7 @@
   - [knowledge-elevation](#7-knowledge-elevation)
   - [obsidian-second-brain](#8-obsidian-second-brain)
   - [scientific-brainstorming](#9-scientific-brainstorming)
+- [作用中安裝位置（2026-10-20 起）](#作用中安裝位置2026-10-20-起)
 - [系統內建 Skill（Claude Code 提供）](#系統內建-skillclaude-code-提供)
 
 ---
@@ -722,7 +724,7 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 |------|------|
 | **名稱** | `figma-to-requirements` |
 | **版本** | `1.0.1` |
-| **路徑** | `dev/figma-to-requirements/`（備份）；作用中安裝於**全域** `~/.claude/skills/figma-to-requirements/` |
+| **路徑** | `dev/figma-to-requirements/`（備份）；作用中本體於**跨工具共用** `~/.agents/skills/figma-to-requirements/`（2026-10-20 自 `~/.claude/skills/` 搬入） |
 | **最後更新** | 2026-06-23 |
 
 **描述：**
@@ -913,6 +915,50 @@ references/
 
 **⚠️ 專案專屬，不可跨專案共用**：價值全在具體行號與專案慣例。其他專案請複製架構、重寫內容，
 命名沿用 `<repo 名>-onboarding`。
+
+---
+
+### 19. multiagent-handoff
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `multiagent-handoff`（v0.5.0 前為 `handoff`） |
+| **版本** | `0.6.0` |
+| **路徑** | `dev/multiagent-handoff/`（備份）；作用中本體 `~/.agents/skills/multiagent-handoff/`（六個工具共用，見下方「作用中安裝位置」） |
+| **最後更新** | 2026-10-21 |
+
+**v0.6.0（2026-10-21）：** save 交接檔與 report 任務單加「建議記憶」；其他 agent 不直接寫長期記憶，由 Claude 在 resume／review 判斷層級、給使用者看過後寫入。
+
+**改名：** v0.5.0（2026-10-21）由 `handoff` 改名為 `multiagent-handoff`，避免與 Matt Pocock 的 `/handoff`（b2b-manager 專案層 `.claude/skills/handoff/`）撞名。`.handoff/`、`refs/handoff/`、`handoff.py` 沿用舊名，既有交接檔與任務單不受影響。
+
+**描述：**
+跨 AI agent 的專案接力：存狀態、接手、分派任務、回報、驗收。適用 Claude Code、Codex、Copilot CLI、opencode、agy、Cursor
+等任何能讀檔與執行 shell 的 agent。**狀態以 git 為準，交接檔只補 git 看不出來的部分**（意圖、決定、下一步）。
+
+**用途：**
+- **換手**：`save`（交出方寫 `.handoff/CURRENT.md`）→ `resume`（接手方比對 diff；找不到交接檔時從 Claude Code／Codex／agy 本機對話紀錄還原）
+- **分派**：`delegate` 開任務單並記錄**分派基準**（`git stash create`，含當下未 commit 的修改，存成 `refs/handoff/<id>`）→ 對方 `report` → 主 agent `review`（列出實際變動、自動標 🟡 範圍外／🔴 禁止範圍）
+- **`--run`**：以非互動模式叫起指定 agent（codex／agy／copilot／opencode／cursor），**以任務單是否變成「已回報」判斷成敗，不看 exit code**（防假成功）
+
+**檔案結構：**
+```
+SKILL.md              # 154 行，給 agent 執行的流程
+README.md             # 267 行，給人看的使用說明（含安裝位置、各 agent 實測表）
+scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／sessions／log
+```
+
+**觸發關鍵字：**
+「/multiagent-handoff」、「交接」、「換手」、「接手」、「額度快用完」、「交給 Codex／Copilot 繼續」、「分派給其他 agent」、「驗收」、「resume」
+
+**測試紀錄：**
+- ✅ scratch repo：五個 agent 的 `--run` 全數通過（opencode 須指定模型——預設模型會重複讀任務單直到逾時）
+- ✅ **實戰 SSGS-14167（2026-10-20）**：拆兩張單依序派給 Copilot（claude-sonnet-5.5，50 秒）與 Codex（gpt-5.6-terra，35 秒），皆驗收通過、使用者 UI 實測通過；派第 ② 張時第 ① 張的 9 檔未 commit，review 仍只列 Codex 的 2 檔（分派基準機制成立）
+- 🔧 實戰抓到並修正：Codex `workspace-write` sandbox 跑不了 `flutter analyze` → Flutter 專案自動 `--add-dir` SDK `bin/cache`、`~/.dart-tool`、`~/.pub-cache`
+- ⏸️ `save → resume` 換手尚未實戰；`AGENTS.md` 尚未加交接規則
+
+**與 ai-pair 的邊界：** 要多模型交叉 review 或自動重試 → ai-pair；換手、或只要某個 agent 做完給我驗收 → multiagent-handoff（`--run` 只叫起一次、不重試）。
+
+**規劃文件：** b2b-manager `docs/agent-handoff/agent-handoff-規劃.md`；安裝包快照 `docs/agent-handoff/install/`
 
 ---
 
@@ -1154,15 +1200,15 @@ Linux 專屬：`.directory`、`.Trash-*`
 
 ---
 
-### 15. point-reading-diy 🚧 開發中
+### 15. point-reading-diy ✅ 可用（測試版）
 
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `point-reading-diy` |
-| **版本** | `0.3.2` |
+| **版本** | `0.4.0` |
 | **路徑** | `point-reading-diy/`（存檔根目錄，尚未歸入 general/） |
-| **最後更新** | 2026-10-08 |
-| **狀態** | 開發中、**未安裝**；暫停於打包 DAB 前（等實體貼紙報碼） |
+| **最後更新** | 2026-10-21 |
+| **狀態** | 可用（0.x 測試版）、**未安裝**；打包流程完成、Dear Zoo 實測成功。升 1.0 前待驗：`pack.py` 實際打包上筆、單字表比對／國語台語／`synth.py`／智能書名貼等情境 |
 
 **描述：**
 把整段錄音切成一句一檔，對應到卡米點讀筆「內容貼」的碼號，最後打包成 DAB 點讀包，讓沒有點讀碼的一般書變成點讀書。
@@ -1191,15 +1237,18 @@ Linux 專屬：`.directory`、`.Trash-*`
 | `review.py` | ③ 產生單一 HTML 審核頁（波形、播放、標記、快捷鍵），匯出 `review.json` |
 | `assign.py` | ④ 照順序或單字表依序對齊（容忍多／少一段），輸出 `<碼號>.mp3` |
 | `synth.py` | Mac `say` 批次合成 |
-| `dab_tool.py` | ⑤ DAB 讀寫函式庫（AP4 → DAB 專案逆向所得），打包需搭配範本 DAB |
+| `pack.py` | ⑤ `out/<號碼>.mp3` → `NNN-1-書名.dab`；印刷號碼自動 +25000、寫入書名、打包後讀回逐段驗證 |
+| `dab_tool.py` | ⑤ DAB 讀寫函式庫（AP4 → DAB 專案逆向所得） |
+| `template_header.dab` | ⑤ 範本檔頭（取自 535-高频词32.dab，舊卡米筆實測可用） |
 
 **系統需求：** FFmpeg、mlx-whisper + OpenCC（venv：`~/.venvs/point-reading-diy`，Homebrew Python 不允許直接 pip install）
 
-**實測：** 《Dear Zoo》英文朗讀（含整段背景音樂）→ 靜音切檔無效，改 `split_asr.py` 切成 18 段，人工審核全數通過，輸出 `0001–0018.mp3`
+**實測：** 《Dear Zoo》英文朗讀（含整段背景音樂）→ 靜音切檔無效，改 `split_asr.py` 切成 18 段，人工審核全數通過，輸出 `0001–0018.mp3` → 打包成 `001-1-DearZoo.dab`，放進筆實測 0001～0018 全部成功
 
-**待確認（回家報碼）：** 普通書名貼的碼號與 DAB 檔名前綴、內容貼「印刷號碼 → 實際碼號」換算、打包用的範本 DAB；詳見該 Skill 的 `規劃文件.md` 第 8、10 節
+**卡米規則（2026-10-10 報碼實測）：** 普通書名貼 N = 碼 56000+N，檔名 `NNN-1-書名.dab`（少 `-1` 不反應）；內容貼 N = 碼 25000+N；智能書名貼 001 → `001-`
 
 **版本歷程：**
+- `v0.4.0`（2026-10-21）：新增 `pack.py` 打包腳本與 `template_header.dab` 範本；寫入卡米規則實測結果（普通書名貼 `NNN-1-`、內容貼 +25000）；`--codes` 範例改為印刷號碼（`1-18 --width 4`）
 - `v0.3.2`（2026-10-08）：放入 `dab_tool.py`；SKILL.md 步驟 ⑤ 改寫為 `write_dab()` 實際用法（需範本 DAB）
 - `v0.3.1`（2026-10-08）：審核結果綁定切檔版本識別碼，重切後拒用舊 review.json（修正審核頁沿用上一版暫存的 bug）
 - `v0.3.0`（2026-10-08）：`split_asr.py` 切點改取音量最低處；`assign.py --width` 補零檔名；新增翻翻書分段、重切前保存舊版等原則
@@ -1407,6 +1456,23 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 
 ---
 
+## 作用中安裝位置（2026-10-20 起）
+
+自訂 skill 的**作用中**位置已改為跨工具共用。本索引其他段落的「路徑」欄皆指**本存檔資料夾內的備份位置**。
+
+| 位置 | 內容 | 哪些工具讀得到 |
+|------|------|------|
+| `~/.agents/skills/`（本體） | multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent（7 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；Claude Code、agy 經 symlink |
+| `~/.claude/skills/` | **ai-pair**（實體，Claude 專屬，刻意不共用）＋上述 7 個的 symlink | Claude Code |
+| `~/.gemini/config/skills/` | 上述 7 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
+| `~/.copilot/backups/code-review-20261020/` | Copilot 舊的 code-review（stack-review 2026-01 舊副本），已停用 | 無（不在讀取路徑） |
+
+- 六個工具皆實測：7 個共用 skill 各看到恰好 1 份
+- symlink 由 `~/.agents/link-skills.sh`（link／check／unlink）管理；安裝包快照與重建步驟見 b2b-manager `docs/agent-handoff/install/`
+- 搬移前備份：`~/.claude/backups/skills-20261020-pre-move.tar.gz`
+
+---
+
 ## 系統內建 Skill（Claude Code 提供）
 
 以下為 Claude Code 平台提供的內建 Skill，非本地自訂版本：
@@ -1462,13 +1528,14 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **figma-to-flutter** | **1.0.0** | **2026-03-18** | **dev** | **Figma 截圖 → Flutter UI 代碼（B2B 專屬，路徑：`dev/figma-to-flutter/`）** |
 | **b2b-manager-onboarding** | **1.1.0** | **2026-08-25** | **dev** | **b2b-manager 新人上手導覽（決策樹路由 + 5 份 reference，仿 ECPay skill 架構）；專案專屬不可共用，存檔於 `dev/b2b-manager-onboarding/`，目前未安裝** |
 | **sanlong-pay-onboarding** | **1.0.0** | **2026-08-25** | **dev** | **sanlong（山隆 PAY，iOS+Android APP）新人上手導覽；同架構但內容全異（手機 APP／自製 SLRouter／單一大型 SLController）。基準 `main@190038a9`；事實面已逐條驗證，自動觸發與實跑 build 未驗。存檔於 `dev/sanlong-pay-onboarding/`，目前未安裝** |
+| **multiagent-handoff** | **0.6.0** | **2026-10-21** | **dev** | **跨 AI agent 接力（save／resume／delegate／report／review＋`--run`）；分派基準含未 commit 修改、以任務單狀態判斷成敗。實戰 SSGS-14167 通過（Copilot＋Codex 依序派工）。v0.5.0 由 handoff 改名。作用中本體 `~/.agents/skills/multiagent-handoff/`，備份 `dev/multiagent-handoff/`** |
 | media-processor | 2.0.0 | 2025-12-31 | general | |
 | sign-off-generator | 1.0.0 | 2026-01-06 | general | |
 | document-translator | 1.0.0 | 無記錄 | general | |
 | translategemma-translator | 1.1.0 | 無記錄 | general | |
 | discussion-organizer | 1.0.0 | 2026-03-12 | general | |
 | cross-platform-archive-agent | 1.0.0 | 2026-03-03 | general | |
-| **point-reading-diy** | **0.3.2** | **2026-10-08** | **general** | **🚧 開發中、未安裝：卡米點讀筆 DIY 點讀包（切檔 → 辨識 → 審核 → 對應內容貼 → DAB）；Dear Zoo 已切好 18 段，暫停於打包前等報碼。存檔於 `point-reading-diy/`** |
+| **point-reading-diy** | **0.4.0** | **2026-10-21** | **general** | **✅ 可用（測試版）、未安裝：卡米點讀筆 DIY 點讀包（切檔 → 辨識 → 審核 → 對應內容貼 → `pack.py` 打包 DAB）；打包流程完成、Dear Zoo 實測成功（`001-1-DearZoo.dab`，18 段全數可點）。存檔於 `point-reading-diy/`** |
 | **knowledge-organizer** | **1.6.1** | **2026-08-13** | **pkm** | **TBRC 四層框架、資產化價值公式；.md 標記改回 frontmatter status** |
 | **daily-brief-generator** | **1.5.0** | **2026-08-13** | **pkm** | **五區塊每日簡報、SCQA 建議行動；raw .md 判斷改回只看 frontmatter** |
 | **wiki-health-check** | **1.8.0** | **2026-09-03** | **pkm** | **七項健康檢查；精粹過時改用來源清單集合差（廢止 glob 總數比大小／會假陰性）、連結掃描先剝程式碼區塊、須先讀前次報告並覆核舊矛盾** |
