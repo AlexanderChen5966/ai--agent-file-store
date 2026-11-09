@@ -2,7 +2,7 @@
 name: stack-review
 description: Comprehensive code review for multiple tech stacks with automatic technology detection. Supports Flutter (Riverpod/Bloc), Java Spring Boot, and Android (Java/Kotlin). Use when the user requests code review (e.g., "/review", "review this code", "check my changes"), after completing feature development, or for pre-commit checks. Automatically detects project type and applies appropriate architectural standards, security checks, and best practices.
 metadata:
-  version: 1.5.0
+  version: 1.6.0
   last-updated: 2026-11-09
 ---
 
@@ -373,6 +373,20 @@ User: "Review all my changes"
 4. Generate two review reports
 ```
 
+## Common Excuses（常見藉口）
+
+Before skipping a step, check this table:
+
+| Excuse | Why it doesn't hold |
+|---|---|
+| 「本地 main 應該是新的，不用 fetch」 | 2026-07-29 b2b-manager：本地 main 落後 7 週，上游 13 天前已合併的任務被重複實作，review 乾淨通過，最後在 MR 才以合併衝突浮現 |
+| 「diff 很小，看一下就好，不用跑完整流程」 | 小 diff 一樣會改到 enum／DTO 契約；前端零 diff 的契約漂移本來就抓不到，能抓的更不能放 |
+| 「沒有任務文件，spec 審查跳過就好」 | 先照 Step 4b 的順序找；真的沒有才跳過，而且摘要要寫 `Spec: no task document, skipped` |
+| 「code-reviewer 說沒問題，就是沒問題」 | reviewer 也會漏也會錯；它的發現要對照程式原文再分類，0 個發現時至少自己看過高風險檔案 |
+| 「順手改的格式不影響行為，不用提」 | 它讓 diff 變大、遮住真正的修改；照 `common.md`「最小化變更」列出來 |
+| 「這個框架用法看起來沒問題」 | 看起來對的舊版寫法最難發現；沒有出處就要求標未驗證 |
+| 「spec 和規範的發現合在一起排比較清楚」 | 合併會讓一軸蓋掉另一軸；兩邊分開列 |
+
 ## Adding New Tech Stacks
 
 To support a new stack:
@@ -389,6 +403,7 @@ To support a new stack:
 This skill integrates with:
 - **code-reviewer subagent** - Deep analysis
 - **Spec subagent** - Diff vs `docs/shared/` task document (Step 4b), reported separately
+- **doubt-check** - In-flight adversarial check for single high-risk decisions during development; stack-review is the after-the-fact gate on the whole diff
 - **Common checklist** - Universal checks
 - **Stack-specific checklists** - Specialized standards
 - **Project docs** (CLAUDE.md, or AGENTS.md for non-Claude agents; architecture docs) - Project rules

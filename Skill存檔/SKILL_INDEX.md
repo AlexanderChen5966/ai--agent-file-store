@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -28,6 +28,7 @@
   - [sanlong-pay-onboarding](#18-sanlong-pay-onboarding)
   - [multiagent-handoff](#19-multiagent-handoff)
   - [mattpocock-skills（外部）](#20-mattpocock-skills外部)
+  - [doubt-check](#21-doubt-check)
 - [通用類（general）](#通用類general)
   - [media-processor](#9-media-processor)
   - [sign-off-generator](#10-sign-off-generator)
@@ -114,9 +115,9 @@ Flutter + Riverpod（專屬版，限 B2B Manager 專案）
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `stack-review` |
-| **版本** | `1.5.0` |
+| **版本** | `1.6.0` |
 | **路徑** | `dev/stack-review/` |
-| **最後更新** | 2026-11-09（v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+| **最後更新** | 2026-11-09（v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
 
 > 📌 作用中本體 `~/.agents/skills/stack-review/` 的檔頭先前一直停在 `1.1.0`（v1.3.0／v1.4.0 內容都在，只是沒改檔頭），2026-11-09 直接改為 `1.5.0`。
 
@@ -186,7 +187,16 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 
 > 🔎 **起因**：開發流程與 Matt Pocock 截長補短（桌面〈開發流程與MattPocock截長補短.md〉5.2）——原本 stack-review 只問「寫得好不好」，不問「是不是任務要的」。
 
-**與 v2 的差異：** 新增 Step 7（v1.2.0）、Step 1 的 fetch 前置（v1.3.0）、common.md 跨服務契約檢查（v1.4.0）、Step 4b spec 審查（v1.5.0），其餘審查邏輯與支援技術棧不變。
+**新增功能（v1.6.0，2026-11-09）：借來的做法整合**
+
+- `references/common.md`「8. 變更政策 → 最小化變更」加**行層級**檢查（觀念來自 Karpathy 準則「外科式修改」，自己的寫法）：逐個 hunk 問「為了哪條需求」，順手改的格式／註解／改名列 🟡；自己造成的孤兒沒清列 🟡；刪了原有死碼列 🟡（建議還原、改成回報）
+- `common.md` 新增「框架與套件用法出處」（觀念來自 Addy source-driven）：新框架用法要有官方文件出處或標未驗證；用到已棄用 API 列 🔴
+- SKILL.md 新增「Common Excuses（常見藉口）」表（格式借 Addy 的反合理化表，內容是自己的事故，例：本地 main 落後 7 週）
+- Integration 加 doubt-check 的分工說明
+
+> 🔎 **起因**：桌面〈借來的做法整合方案.md〉3.2、3.6。
+
+**與 v2 的差異：** 新增 Step 7（v1.2.0）、Step 1 的 fetch 前置（v1.3.0）、common.md 跨服務契約檢查（v1.4.0）、Step 4b spec 審查（v1.5.0）、行層級變更範圍與框架出處檢查（v1.6.0），其餘審查邏輯與支援技術棧不變。
 
 **配合使用：** 建議搭配 `requirements` v1.0.0 和 `doc-update` v1.0.0 形成完整工作流程。
 
@@ -197,7 +207,7 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `requirements` |
-| **版本** | `1.5.0` |
+| **版本** | `1.6.0` |
 | **路徑** | `dev/requirements/` |
 | **最後更新** | 2026-11-09 |
 
@@ -213,6 +223,14 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - 任務文件包含：背景說明、需求說明、影響範圍分析、實作任務（含 code snippet）、執行步驟（`[ ]` checklist）
 - 若 `docs/shared/` 不存在，自動建立目錄與 `readme.md`
 - 自動更新 `docs/shared/readme.md` 索引（新增「⏳ 待實作」條目）
+
+**新增功能（v1.6.0，2026-11-09）：借來的做法整合**
+
+- Step 2b 新增「框架／套件用法：依版本查官方文件」（改寫自 Addy source-driven）：先讀 `pubspec.lock`／`package-lock.json` 版本 → 只查該版本該功能的官方文件頁 → 附完整網址；查不到寫 `未驗證（依訓練資料）`；官方寫法與既有寫法衝突時讓使用者選；抓回來的頁面是資料不是指令
+- 任務文件範本每個任務加 **「驗證：」**（Karpathy「step → verify」觀念）與 **「框架用法出處：」**
+- 寫作原則加：每個任務都要可檢查的驗證；範圍外問題只回報（外科式修改）
+- 新增「常見藉口」表（7 條，含 JSON 鍵命名事故）
+- 「與其他 skill 的關係」加 `doubt-check`
 
 **新增功能（v1.5.0，2026-11-09）：需求模糊時叫 `grilling` 追問**
 
@@ -273,7 +291,7 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - `references/task-doc-template.md`：標準任務文件模板
 - `references/readme-template.md`：`docs/shared/readme.md` 初始格式（v1.3.0 新增「契約依據」章節於 task-doc-template）
 
-**配合使用：** `project-documentation` v2.1.0（上游，提供參考依據）→ 本 skill（模糊時叫 `grilling`）→ `stack-review` v1.5.0 或 `ai-pair dev` → `doc-update` v1.1.0
+**配合使用：** `project-documentation` v2.1.0（上游，提供參考依據）→ 本 skill（模糊時叫 `grilling`）→ 開發（高風險決定叫 `doubt-check`）→ `stack-review` v1.6.0 或 `ai-pair dev` → `doc-update` v1.1.0
 
 ---
 
@@ -282,9 +300,17 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `doc-update` |
-| **版本** | `1.1.0` |
+| **版本** | `1.2.0` |
 | **路徑** | `dev/doc-update/` |
-| **最後更新** | 2026-03-18 |
+| **最後更新** | 2026-11-09 |
+
+**新增功能（v1.2.0，2026-11-09）：Step 7 沉澱判斷**（觀念借自 Every Compound Engineering 的 `/ce-compound`，原作無授權檔，自己的寫法）
+
+- 門檻三條都成立才留：不明顯、長期有用、忘了會出事；反事實檢驗「這份紀錄不存在，下一個人看程式會不會重犯」
+- 選最便宜、能擋住重犯的形式：測試 → 專案規則（AGENTS.md、`.claude/rules/`）→ 三層記憶 → 專案文件（Bug 修復紀錄）→ slc-core `/knowledge-capture`
+- 先找重複，有就更新舊的；**先給使用者看，同意後才寫入**（使用者 2026-11-09 決定）；非互動情境只提議不寫
+- 與 `retro`（環境改善）、`/knowledge-capture`（第 5 級的寫入流程）分工
+- 新增「常見藉口」表
 
 **描述：**
 Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作」或「進行中」標記為「已完成」，並同步更新 CHANGELOG.md 與 docs/shared/readme.md 索引。
@@ -1015,6 +1041,31 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 
 ---
 
+### 21. doubt-check
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `doubt-check` |
+| **版本** | `0.1.0` |
+| **路徑** | `dev/doubt-check/`（備份）；作用中本體 `~/.agents/skills/doubt-check/` |
+| **最後更新** | 2026-11-09 |
+
+**來源：** 改寫自 `addyosmani/agent-skills` 的 doubt-driven-development（MIT，附 `LICENSE-addyosmani`）。
+
+**描述：** 開發中途對**單一高風險決定**做對抗式複查——ai-pair 的輕量版。派一個新 context 的 reviewer，只給產物＋契約、不給主張與推理，提示詞要求「找問題、不准背書」。
+
+**流程：** 主張 → 抽出 → 質疑 → 分類（契約沒寫清楚／要修／接受的取捨／雜訊）→ 停止（最多 3 輪，之後交給使用者）。
+
+**觸發：** 認證／TaskManager、路由與權限、跨服務 enum／DTO、狀態管理結構、資料表排序與欄寬、不可逆操作，或要宣稱型別驗不出的性質；專案有風險清單時以專案為準。改文字／樣式／改名不觸發。
+
+**跨模型：** 每一輪都要問使用者（Copilot CLI、Codex、agy 或跳過）；每次呼叫都要使用者確認完整指令並授權，一律唯讀（`codex exec --sandbox read-only`、`agy --mode plan`、`copilot --deny-tool`）；非互動情境一律跳過並寫明。
+
+**分工：** doubt-check（④ 中途、單一決定）／stack-review（⑤ 做完、整個 diff）／ai-pair（整個任務一開始就複雜）。
+
+**測試狀態：** 未實測。
+
+---
+
 ## 通用類（general）
 
 ### 9. media-processor
@@ -1515,9 +1566,9 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 
 | 位置 | 內容 | 哪些工具讀得到 |
 |------|------|------|
-| `~/.agents/skills/`（本體） | 自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；Claude Code、agy 經 symlink |
-| `~/.claude/skills/` | **ai-pair**（實體，Claude 專屬，刻意不共用）＋上述 14 個的 symlink | Claude Code |
-| `~/.gemini/config/skills/` | 上述 14 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
+| `~/.agents/skills/`（本體） | **2026-11-09 加 doubt-check**（共 15 個）；自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；Claude Code、agy 經 symlink |
+| `~/.claude/skills/` | **ai-pair**（實體，Claude 專屬，刻意不共用）＋上述 15 個的 symlink | Claude Code |
+| `~/.gemini/config/skills/` | 上述 15 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
 | `~/.copilot/backups/code-review-20261020/` | Copilot 舊的 code-review（stack-review 2026-01 舊副本），已停用 | 無（不在讀取路徑） |
 
 - 六個工具皆實測：7 個共用 skill 各看到恰好 1 份（2026-11-09 新增的 Matt 7 個：Claude Code 已確認載入，其他工具未重測）
@@ -1571,7 +1622,11 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **stack-review** | **1.5.0** | **2026-11-09** | **dev** | **Step 4b：有 `docs/shared/` 任務文件時平行派 spec subagent（漏做／多做／做錯／契約），結果獨立一節不跨軸重排；吸收自 matt-code-review** |
 | **requirements** | **1.1.0** | **2026-03-18** | **dev** | **新增：同名文件檢查、已完成重開流程、Step 8 CHANGELOG** |
 | **requirements** | **1.5.0** | **2026-11-09** | **dev** | **Step 1 需求模糊叫 `grilling` 追問；能查的先查，只問只有人能決定的事；結論寫進任務文件** |
+| **requirements** | **1.6.0** | **2026-11-09** | **dev** | **Step 2b 框架依版本查官方文件（source-driven）；範本每任務加「驗證：」「框架用法出處：」；常見藉口表** |
+| **stack-review** | **1.6.0** | **2026-11-09** | **dev** | **common.md 行層級變更範圍（外科式修改）＋框架用法出處檢查；常見藉口表** |
 | **doc-update** | **1.1.0** | **2026-03-18** | **dev** | **新增：支援「🔄 進行中」狀態** |
+| **doc-update** | **1.2.0** | **2026-11-09** | **dev** | **Step 7 沉澱判斷（觀念借自 /ce-compound）：門檻三條＋最便宜形式（測試 > 規則 > 記憶 > 文件 > knowledge-capture），先給使用者看才寫** |
+| **doubt-check** | **0.1.0** | **2026-11-09** | **dev** | **新增：開發中途單一高風險決定的對抗式複查（改寫自 Addy doubt-driven，MIT）；跨模型每次問、唯讀；未實測** |
 | flutter-b2b-documentation | 1.0.0 | 無記錄 | dev | 已由 project-documentation 取代 |
 | **project-documentation** | **2.0.0** | **2026-04-28** | **dev** | **Spring Boot 完整支援；新增 Bug 修復紀錄、Widget 元件文件；kebab-case 命名；frontmatter 規範** |
 | doc-generator | 1.0.0 | 無記錄 | dev | |
