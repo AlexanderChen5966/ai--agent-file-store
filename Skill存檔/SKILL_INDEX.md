@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -115,9 +115,9 @@ Flutter + Riverpod（專屬版，限 B2B Manager 專案）
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `stack-review` |
-| **版本** | `1.6.0` |
+| **版本** | `1.7.1` |
 | **路徑** | `dev/stack-review/` |
-| **最後更新** | 2026-11-09（v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+| **最後更新** | 2026-11-11（v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
 
 > 📌 作用中本體 `~/.agents/skills/stack-review/` 的檔頭先前一直停在 `1.1.0`（v1.3.0／v1.4.0 內容都在，只是沒改檔頭），2026-11-09 直接改為 `1.5.0`。
 
@@ -185,7 +185,14 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - 摘要新增「Spec Check」一節，**不併入 🔴/🟡/🟢、不跨軸重排**（一軸過、另一軸不過時才看得出來）
 - 沒有 subagent 的 agent：先做完規範審查再做 spec 審查，兩份筆記分開
 
-> 🔎 **起因**：開發流程與 Matt Pocock 截長補短（桌面〈開發流程與MattPocock截長補短.md〉5.2）——原本 stack-review 只問「寫得好不好」，不問「是不是任務要的」。
+> 🔎 **起因**：開發流程與 Matt Pocock 截長補短（桌面〈開發流程升級_2026-11-09/開發流程與MattPocock截長補短.md〉5.2）——原本 stack-review 只問「寫得好不好」，不問「是不是任務要的」。
+
+**新增功能（v1.7.0，2026-11-11）：檢查 doubt-check 紀錄**
+
+- Step 4b spec subagent 加 (e)：任務文件標了「需 doubt-check：是」的任務，「實作注意事項」有沒有複查結果；沒有、或程式和複查的版本不同就回報
+- 摘要的 Spec Check 加「Doubt-check」一行
+
+> 🔎 **起因**：2026-11-10 操作紀錄 02 實測，agent 沒有自己觸發 doubt-check（先寫後審）。見桌面〈開發流程升級_2026-11-09/v3實測報告_02-log-drawer.md〉第 6 節。
 
 **新增功能（v1.6.0，2026-11-09）：借來的做法整合**
 
@@ -194,7 +201,7 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - SKILL.md 新增「Common Excuses（常見藉口）」表（格式借 Addy 的反合理化表，內容是自己的事故，例：本地 main 落後 7 週）
 - Integration 加 doubt-check 的分工說明
 
-> 🔎 **起因**：桌面〈借來的做法整合方案.md〉3.2、3.6。
+> 🔎 **起因**：桌面〈開發流程升級_2026-11-09/借來的做法整合方案.md〉3.2、3.6。
 
 **與 v2 的差異：** 新增 Step 7（v1.2.0）、Step 1 的 fetch 前置（v1.3.0）、common.md 跨服務契約檢查（v1.4.0）、Step 4b spec 審查（v1.5.0）、行層級變更範圍與框架出處檢查（v1.6.0），其餘審查邏輯與支援技術棧不變。
 
@@ -207,9 +214,9 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `requirements` |
-| **版本** | `1.6.0` |
+| **版本** | `1.7.2` |
 | **路徑** | `dev/requirements/` |
-| **最後更新** | 2026-11-09 |
+| **最後更新** | 2026-11-11 |
 
 > ⚠️ 本條目原記為 `1.1.0` / 2026-03-18，但 v1.2.0（2026-05-27，metadata header 格式統一）當時未同步至本索引。
 > 已於 2026-07-30 一併補正。
@@ -223,6 +230,26 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - 任務文件包含：背景說明、需求說明、影響範圍分析、實作任務（含 code snippet）、執行步驟（`[ ]` checklist）
 - 若 `docs/shared/` 不存在，自動建立目錄與 `readme.md`
 - 自動更新 `docs/shared/readme.md` 索引（新增「⏳ 待實作」條目）
+
+**新增功能（v1.7.2，2026-11-11）：風險清單加「共用元件／全站樣式」**
+
+- Step 3 風險表加一列：改共用元件（design-system、共用 widget）或全站樣式（globals.css、theme、token）時，列出受影響的已上線頁面；是「是」就會標需 doubt-check
+
+> 🔎 **起因**：2026-11-11 操作紀錄票 03 改了全站字型／字距、共用 SLSelect／Drawer，影響 4 頁，卻沒跑 doubt-check。
+
+**新增功能（v1.7.1，2026-11-11）：source-driven 補兩條**
+
+- 官方文件不完整或互相矛盾時，以 lock 版本 `node_modules` 的型別／原始碼為準（Flutter 讀 pub-cache 或 external_libs），出處寫檔案與行號
+- 官方範例只證明那種寫法可行；要判斷非照範例不可，用編譯器實測
+
+> 🔎 **起因**：2026-11-10 操作紀錄 02 實測，antd `styles.wrapper` 官方文件自相矛盾；查文件的 agent 照範例建議補泛型，tsc 實測不需要。使用者 2026-11-11 決定採用。
+
+**新增功能（v1.7.0，2026-11-11）：標「需 doubt-check」**
+
+- Step 3 風險評估任一項為「是」，對應實作任務填 `**需 doubt-check：**`＋要複查的決定（一句話）；已在寫文件時複查過的註明日期與草稿版本，實作偏離就重審
+- 任務文件範本每個任務加「需 doubt-check：」；「實作注意事項」放複查結果
+
+> 🔎 **起因**：doubt-check 要對付過度自信，但原本靠實作的 agent 自己判斷要不要觸發；2026-11-10 實測果然沒觸發。見〈開發流程與MattPocock截長補短.md〉9.2 第 4 點。
 
 **新增功能（v1.6.0，2026-11-09）：借來的做法整合**
 
@@ -300,9 +327,15 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `doc-update` |
-| **版本** | `1.2.0` |
+| **版本** | `1.3.0` |
 | **路徑** | `dev/doc-update/` |
-| **最後更新** | 2026-11-09 |
+| **最後更新** | 2026-11-11（v1.3.0 Step 8 退場追蹤） |
+
+**新增功能（v1.3.0，2026-11-11）：Step 8 退場追蹤**
+
+- 結案時在桌面〈開發流程升級_2026-11-09/v3實測報告_02-log-drawer.md〉第 8 節的四張表各補一列（doubt-check、source-driven、沉澱判斷、藉口表）；沒用到寫「不適用」；表滿後照條件判斷、交使用者決定，不自行移除
+
+> 🔎 **起因**：〈開發流程與MattPocock截長補短.md〉9.2 第 3 點「只加不減」，使用者 2026-11-11 決定四個機制都加退場條件。
 
 **新增功能（v1.2.0，2026-11-09）：Step 7 沉澱判斷**（觀念借自 Every Compound Engineering 的 `/ce-compound`，原作無授權檔，自己的寫法）
 
@@ -1020,7 +1053,7 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 | **路徑** | `dev/mattpocock-skills/`（備份，含 `LICENSE-mattpocock`、`MATTPOCOCK-SOURCE.md`）；作用中本體 `~/.agents/skills/<name>/` |
 | **最後更新** | 2026-11-09 |
 
-**來源：** 2026-10-21 裝在 b2b-manager `.claude/skills/` 測試 Matt 整套流程；2026-11-09 依〈開發流程與MattPocock截長補短.md〉把不需 repo 設定的 7 個搬到共用位置，b2b-manager 的同名副本與 Matt `handoff` 已刪除（handoff 與 multiagent-handoff 重複）。
+**來源：** 2026-10-21 裝在 b2b-manager `.claude/skills/` 測試 Matt 整套流程；2026-11-09 依〈開發流程升級_2026-11-09/開發流程與MattPocock截長補短.md〉把不需 repo 設定的 7 個搬到共用位置，b2b-manager 的同名副本與 Matt `handoff` 已刪除（handoff 與 multiagent-handoff 重複）。
 
 **在主流程的位置：**
 
@@ -1046,9 +1079,9 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `doubt-check` |
-| **版本** | `0.1.0` |
+| **版本** | `0.3.2` |
 | **路徑** | `dev/doubt-check/`（備份）；作用中本體 `~/.agents/skills/doubt-check/` |
-| **最後更新** | 2026-11-09 |
+| **最後更新** | 2026-11-11 |
 
 **來源：** 改寫自 `addyosmani/agent-skills` 的 doubt-driven-development（MIT，附 `LICENSE-addyosmani`）。
 
@@ -1058,11 +1091,17 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 
 **觸發：** 認證／TaskManager、路由與權限、跨服務 enum／DTO、狀態管理結構、資料表排序與欄寬、不可逆操作，或要宣稱型別驗不出的性質；專案有風險清單時以專案為準。改文字／樣式／改名不觸發。
 
-**跨模型：** 每一輪都要問使用者（Copilot CLI、Codex、agy 或跳過）；每次呼叫都要使用者確認完整指令並授權，一律唯讀（`codex exec --sandbox read-only`、`agy --mode plan`、`copilot --deny-tool`）；非互動情境一律跳過並寫明。
+**v0.3.1（2026-11-11）：** 加退場條件：從 0.2.0 起算接下來 3 張標記的卡都沒找到要修的問題、或標記規則沒發揮作用，就移除並把檢查點併進 stack-review；追蹤表在桌面〈v3實測報告〉。
+
+**v0.3.0（2026-11-11）：** 觸發條件加「改共用元件或全站樣式」：主張寫成「不會讓 A、B、C 頁壞掉」、契約附受影響頁面；不負責判斷畫面是否與設計稿／舊版一致（那要實際量測）。「不要用」改成單一頁面的文字或樣式。
+
+**v0.2.0（2026-11-11）：** 任務文件標了「需 doubt-check」的任務一定要跑，時機是寫程式之前（用草稿當產物），不要做完才補審；文件註明已複查的，實作偏離就重審。跨模型改成每次叫用只在第 1 輪後問一次（原本每輪都問）。
+
+**跨模型：** 每次叫用問使用者一次（Copilot CLI、Codex、agy 或跳過）；每次呼叫都要使用者確認完整指令並授權，一律唯讀（`codex exec --sandbox read-only`、`agy --mode plan`、`copilot --deny-tool`）；非互動情境一律跳過並寫明。
 
 **分工：** doubt-check（④ 中途、單一決定）／stack-review（⑤ 做完、整個 diff）／ai-pair（整個任務一開始就複雜）。
 
-**測試狀態：** 未實測。
+**測試狀態：** 2026-11-10 用操作紀錄 02 實測兩次（草稿、成品），都找到問題；agent 沒有自己觸發，促成 v0.2.0。
 
 ---
 
@@ -1626,7 +1665,17 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **stack-review** | **1.6.0** | **2026-11-09** | **dev** | **common.md 行層級變更範圍（外科式修改）＋框架用法出處檢查；常見藉口表** |
 | **doc-update** | **1.1.0** | **2026-03-18** | **dev** | **新增：支援「🔄 進行中」狀態** |
 | **doc-update** | **1.2.0** | **2026-11-09** | **dev** | **Step 7 沉澱判斷（觀念借自 /ce-compound）：門檻三條＋最便宜形式（測試 > 規則 > 記憶 > 文件 > knowledge-capture），先給使用者看才寫** |
+| **doc-update** | **1.3.0** | **2026-11-11** | **dev** | **Step 8：結案時補四個 v3 機制（doubt-check、source-driven、沉澱判斷、藉口表）的退場追蹤表（桌面〈v3實測報告〉第 8 節），表滿後判斷交給使用者** |
+| **doubt-check** | **0.3.2** | **2026-11-11** | **dev** | **退場追蹤改由 doc-update Step 8 補** |
 | **doubt-check** | **0.1.0** | **2026-11-09** | **dev** | **新增：開發中途單一高風險決定的對抗式複查（改寫自 Addy doubt-driven，MIT）；跨模型每次問、唯讀；未實測** |
+| **requirements** | **1.7.0** | **2026-11-11** | **dev** | **Step 3 碰到風險的任務標「需 doubt-check」；範本每任務加該欄位** |
+| **stack-review** | **1.7.0** | **2026-11-11** | **dev** | **spec 審查檢查標了「需 doubt-check」的任務有沒有複查紀錄** |
+| **doubt-check** | **0.2.0** | **2026-11-11** | **dev** | **任務文件標記時必跑、寫程式之前跑；跨模型改成每次叫用問一次** |
+| **requirements** | **1.7.1** | **2026-11-11** | **dev** | **source-driven：文件不全或矛盾時以 lock 版本 node_modules 型別為準；範例不等於唯一寫法，用編譯器實測** |
+| **stack-review** | **1.7.1** | **2026-11-11** | **dev** | **common.md 框架出處：文件矛盾時出處須為 node_modules 檔案行號** |
+| **requirements** | **1.7.2** | **2026-11-11** | **dev** | **風險清單加「共用元件／全站樣式」** |
+| **doubt-check** | **0.3.0** | **2026-11-11** | **dev** | **觸發條件加共用元件／全站樣式；不判斷畫面是否一致** |
+| **doubt-check** | **0.3.1** | **2026-11-11** | **dev** | **退場條件：3 張標記的卡都沒找到要修的問題就移除、併進 stack-review** |
 | flutter-b2b-documentation | 1.0.0 | 無記錄 | dev | 已由 project-documentation 取代 |
 | **project-documentation** | **2.0.0** | **2026-04-28** | **dev** | **Spring Boot 完整支援；新增 Bug 修復紀錄、Widget 元件文件；kebab-case 命名；frontmatter 規範** |
 | doc-generator | 1.0.0 | 無記錄 | dev | |

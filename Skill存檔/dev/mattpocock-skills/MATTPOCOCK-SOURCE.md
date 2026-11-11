@@ -1,7 +1,7 @@
 # Matt Pocock skills 來源與本機修改
 
 - 來源：mattpocock/skills@5beb35b（2026-10-19）plugin v1.3.1，MIT 授權，授權全文見同目錄 `LICENSE-mattpocock`
-- 2026-11-09 從 b2b-manager `.claude/skills/` 搬到這裡共用（依桌面〈開發流程與MattPocock截長補短.md〉第 6 節）
+- 2026-11-09 從 b2b-manager `.claude/skills/` 搬到這裡共用（依桌面〈開發流程升級_2026-11-09/開發流程與MattPocock截長補短.md〉第 6 節）
 - 共用的 7 個：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro
 - 其他 Matt skill（to-tickets、implement、matt-code-review、codebase-design 等）仍只在 b2b-manager，待 React 遷移結束後回顧
 
