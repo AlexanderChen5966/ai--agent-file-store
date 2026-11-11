@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -115,9 +115,9 @@ Flutter + Riverpod（專屬版，限 B2B Manager 專案）
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `stack-review` |
-| **版本** | `1.7.1` |
+| **版本** | `1.8.0` |
 | **路徑** | `dev/stack-review/` |
-| **最後更新** | 2026-11-11（v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+| **最後更新** | 2026-11-11（v1.8.0 加 iOS 與 React Native 清單；v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
 
 > 📌 作用中本體 `~/.agents/skills/stack-review/` 的檔頭先前一直停在 `1.1.0`（v1.3.0／v1.4.0 內容都在，只是沒改檔頭），2026-11-09 直接改為 `1.5.0`。
 
@@ -186,6 +186,16 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 - 沒有 subagent 的 agent：先做完規範審查再做 spec 審查，兩份筆記分開
 
 > 🔎 **起因**：開發流程與 Matt Pocock 截長補短（桌面〈開發流程升級_2026-11-09/開發流程與MattPocock截長補短.md〉5.2）——原本 stack-review 只問「寫得好不好」，不問「是不是任務要的」。
+
+**新增功能（v1.8.0，2026-11-11）：iOS 與 React Native 清單**
+
+- 新增 `references/ios.md`（Swift、Objective-C；SwiftUI 與 UIKit）：循環引用、Swift Concurrency、狀態擁有者、Keychain、權限用途說明、Privacy Manifest 等 14 節
+- 新增 `references/react-native.md`（含 Expo）：Hooks 與清理、store selector、導覽、列表效能、安全儲存、兩平台權限、OTA 更新與原生變更等 13 節
+- SKILL.md Step 2 加兩種偵測條件，並註明**先判斷跨平台**：Flutter、React Native 專案內的 `android/`、`ios/` 不算原生專案，diff 動到原生程式才加看 `android.md`／`ios.md`
+- Step 3 加兩種技術棧的審查重點
+- ⚠️ 兩份清單依通用做法撰寫，還沒在實際專案跑過
+
+> 🔎 **起因**：角色切換的 App 工程師要能處理原生 iOS 與 React Native（`tms-driver-app`）；2026-11-11 plugin 試裝時 stack-review 對 React 回報沒有專用清單。見桌面〈開發流程升級_2026-11-09/角色分類草案.md〉第 7 節第 12、13 項。
 
 **新增功能（v1.7.0，2026-11-11）：檢查 doubt-check 紀錄**
 
@@ -1673,6 +1683,7 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **doubt-check** | **0.2.0** | **2026-11-11** | **dev** | **任務文件標記時必跑、寫程式之前跑；跨模型改成每次叫用問一次** |
 | **requirements** | **1.7.1** | **2026-11-11** | **dev** | **source-driven：文件不全或矛盾時以 lock 版本 node_modules 型別為準；範例不等於唯一寫法，用編譯器實測** |
 | **stack-review** | **1.7.1** | **2026-11-11** | **dev** | **common.md 框架出處：文件矛盾時出處須為 node_modules 檔案行號** |
+| **stack-review** | **1.8.0** | **2026-11-11** | **dev** | **新增 `ios.md`、`react-native.md` 清單；偵測先判斷跨平台專案** |
 | **requirements** | **1.7.2** | **2026-11-11** | **dev** | **風險清單加「共用元件／全站樣式」** |
 | **doubt-check** | **0.3.0** | **2026-11-11** | **dev** | **觸發條件加共用元件／全站樣式；不判斷畫面是否一致** |
 | **doubt-check** | **0.3.1** | **2026-11-11** | **dev** | **退場條件：3 張標記的卡都沒找到要修的問題就移除、併進 stack-review** |

@@ -1,8 +1,8 @@
 ---
 name: stack-review
-description: Comprehensive code review for multiple tech stacks with automatic technology detection. Supports Flutter (Riverpod/Bloc), Java Spring Boot, and Android (Java/Kotlin). Use when the user requests code review (e.g., "/review", "review this code", "check my changes"), after completing feature development, or for pre-commit checks. Automatically detects project type and applies appropriate architectural standards, security checks, and best practices.
+description: Comprehensive code review for multiple tech stacks with automatic technology detection. Supports Flutter (Riverpod/Bloc), Java Spring Boot, Android (Java/Kotlin), iOS (Swift/Objective-C), and React Native (Expo). Use when the user requests code review (e.g., "/review", "review this code", "check my changes"), after completing feature development, or for pre-commit checks. Automatically detects project type and applies appropriate architectural standards, security checks, and best practices.
 metadata:
-  version: 1.7.1
+  version: 1.8.0
   last-updated: 2026-11-11
 ---
 
@@ -18,6 +18,8 @@ This skill provides comprehensive code reviews for various technology stacks:
 - **Flutter + Bloc** - Bloc/Cubit patterns, event handling, state design
 - **Java Spring Boot** - Bean management, JPA/Hibernate, REST API, security
 - **Android (Java/Kotlin)** - MVVM, Jetpack components, Coroutines, performance
+- **iOS (Swift/Objective-C)** - Retain cycles, Swift Concurrency, SwiftUI/UIKit, privacy
+- **React Native (Expo)** - Hooks, state, navigation, lists, native permissions, OTA updates
 
 **Key Features**:
 1. Automatic project type detection
@@ -85,6 +87,10 @@ Based on project indicators, automatically determine the tech stack:
 | **Flutter + Bloc** | `pubspec.yaml` + `flutter_bloc` dependency | [flutter-bloc.md](references/flutter-bloc.md) |
 | **Spring Boot** | `pom.xml` or `build.gradle` + `@SpringBootApplication` | [springboot.md](references/springboot.md) |
 | **Android (Java/Kotlin)** | `build.gradle` (app module) + Android SDK | [android.md](references/android.md) |
+| **iOS (Swift/Objective-C)** | `*.xcodeproj` / `*.xcworkspace` / `Package.swift` at the project root | [ios.md](references/ios.md) |
+| **React Native (Expo)** | `package.json` + `react-native` dependency | [react-native.md](references/react-native.md) |
+
+**Check cross-platform first.** Flutter and React Native projects contain `android/` and `ios/` folders, so they also match the Android and iOS criteria. If `pubspec.yaml` or a `react-native` dependency exists, the project is Flutter or React Native; add `android.md` / `ios.md` only when the diff touches native code inside those folders.
 
 **Detection Commands**:
 ```bash
@@ -99,6 +105,12 @@ grep "@SpringBootApplication" -r src/
 # Check for Android
 ls app/build.gradle
 grep "com.android.application" -r .
+
+# Check for iOS
+ls -d *.xcodeproj *.xcworkspace Package.swift
+
+# Check for React Native
+grep '"react-native"\|"expo"' package.json
 ```
 
 **Multiple Stacks**: If the project contains multiple stacks (e.g., Flutter + Spring Boot backend), review each stack separately with its appropriate checklist.
@@ -125,6 +137,18 @@ Based on changed files and detected stack, identify review focus areas:
 - **ViewModels** - State management, LiveData/StateFlow
 - **Repositories** - Data layer, Room/Retrofit
 - **UI** (XML/Compose) - Layout optimization, Composables
+
+**iOS**:
+- **Views/ViewControllers** (SwiftUI/UIKit) - State ownership, lifecycle, main-thread UI updates
+- **ViewModels/Services** - Retain cycles, concurrency (`@MainActor`, `Task`, `Sendable`)
+- **Networking/Models** - `Codable`, error handling, token refresh
+- **Project settings** (`Info.plist`, entitlements, `project.pbxproj`) - Permissions, privacy manifest, unrelated churn
+
+**React Native**:
+- **Screens/Components** - Hooks dependencies, effect cleanup, lists
+- **Stores/Hooks** - Selectors, derived state, reset on logout
+- **Navigation** (React Navigation / Expo Router) - Params, guards, focus refresh
+- **Native & config** (`android/`, `ios/`, `app.config.js`, `eas.json`, `patches/`) - Permissions, OTA vs store release
 
 See stack-specific checklists in `references/` for detailed focus areas.
 
@@ -325,6 +349,16 @@ After the code-reviewer subagent (and the spec subagent, if launched) completes:
 **Checklist**: [references/android.md](references/android.md)
 
 **Key checks**: MVVM/MVI, ViewModel/LiveData/StateFlow, memory leaks, Jetpack Compose, Coroutines
+
+### iOS (Swift/Objective-C)
+**Checklist**: [references/ios.md](references/ios.md)
+
+**Key checks**: Retain cycles (`[weak self]`, delegates), Swift Concurrency (`@MainActor`, cancellation, `Sendable`), SwiftUI state ownership, UIKit cell reuse, Keychain, `Info.plist` usage strings, privacy manifest
+
+### React Native (Expo)
+**Checklist**: [references/react-native.md](references/react-native.md)
+
+**Key checks**: Hooks rules and effect cleanup, store selectors, navigation params and guards, FlatList performance, secure storage, permissions on both platforms, OTA updates vs native changes
 
 ## Common Checks (All Stacks)
 
