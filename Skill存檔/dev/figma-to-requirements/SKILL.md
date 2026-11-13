@@ -1,7 +1,7 @@
 ---
 name: figma-to-requirements
 metadata:
-  version: 1.0.0
+  version: 1.0.2
 description: 把 Figma 設計截圖轉成「精確的 UI 任務需求草稿」，存入 docs/shared/。讀取本專案 DESIGN.md，將截圖元素對應到既有設計 token（顏色/文字/間距/元件），產出 token 對應表 + 狀態矩陣 + 待新增 token 清單，再交棒 requirements 補完功能面。通用設計（讀本專案 DESIGN.md，可跨 Flutter 專案使用）。觸發時機：截圖轉需求、Figma 轉需求、設計稿轉任務、把截圖變成需求文件、UI 需求分析、依設計稿寫需求。
 ---
 
@@ -90,7 +90,7 @@ metadata header **與 requirements 完全一致**：
 
 > ✅ UI 規格草稿已建立於 `docs/shared/<功能>_task.md`。
 > 下一步請補充功能面需求（觸發條件 / API / 業務規則 / 邊界），
-> 接著執行 **requirements** 補完：影響範圍探索、風險評估、工程任務拆解。
+> 接著執行 **requirements**（個人 plugin 版名稱 `dev:requirements`）補完：影響範圍探索、風險評估、工程任務拆解。
 
 **不要**自己做風險評估或寫程式碼——那是 requirements 與實作階段的職責。
 
@@ -167,7 +167,7 @@ metadata header **與 requirements 完全一致**：
 ## 通用性說明
 
 本 skill 讀「**截圖所屬 repo 根目錄的 DESIGN.md**」（見 Step 1，非當前 CWD），因此跨 Flutter 專案通用（b2b-manager / app01-double 各自的 token 不同，由各自 DESIGN.md 提供）。skill 安裝位置與素材所屬專案可以不同。
-若要在其他專案使用：複製本資料夾到該專案 `.claude/skills/`，或移到 `~/.claude/skills/` 全域共用。前提：該專案根目錄需有 DESIGN.md。
+若要在其他專案使用：複製本資料夾到該專案 `.claude/skills/`，或移到 `~/.agents/skills/` 跨工具全域共用（再執行 `~/.agents/link-skills.sh`）。前提：該專案根目錄需有 DESIGN.md。
 
 ## 注意事項
 

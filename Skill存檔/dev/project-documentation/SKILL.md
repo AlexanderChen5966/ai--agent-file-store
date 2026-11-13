@@ -8,8 +8,8 @@ description: >-
   觸發關鍵字："產出文件"、"記錄功能"、"建立架構文件"、"整理 API"、
   "bug 紀錄"、"修復紀錄"、"widget 文件"、"元件文件"、"變更歷程"、"更新文件"。
 metadata:
-  version: 2.2.1
-  last-updated: 2026-08-03
+  version: 2.2.2
+  last-updated: 2026-11-11
 ---
 
 # Project Documentation
@@ -245,7 +245,7 @@ API 總覽依 Controller／資源分檔（如 `api/car.md`、`api/order.md` + `a
 
 ### 專案架構文件
 
-1. 讀取 [stack-context/flutter.md](references/stack-context/flutter.md) 和 `CLAUDE.md`
+1. 讀取 [stack-context/flutter.md](references/stack-context/flutter.md) 和 `CLAUDE.md`（其他 agent 改讀 `AGENTS.md`）
 2. 探索關鍵檔案：
    - `lib/api/connector/task_manager.dart`
    - `lib/page/page_route.dart`

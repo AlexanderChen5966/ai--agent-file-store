@@ -1,8 +1,8 @@
 ---
 name: stack-review
-description: Comprehensive code review for multiple tech stacks with automatic technology detection. Supports Flutter (Riverpod/Bloc), Java Spring Boot, Android (Java/Kotlin), iOS (Swift/Objective-C), and React Native (Expo). Use when the user requests code review (e.g., "/review", "review this code", "check my changes"), after completing feature development, or for pre-commit checks. Automatically detects project type and applies appropriate architectural standards, security checks, and best practices.
+description: Comprehensive code review for multiple tech stacks with automatic technology detection. Supports Flutter (Riverpod/Bloc), Java Spring Boot, Android (Java/Kotlin), iOS (Swift/Objective-C), React Native (Expo), and React web (Next.js/Vite). Use when the user requests code review (e.g., "/review", "review this code", "check my changes"), after completing feature development, or for pre-commit checks. Automatically detects project type and applies appropriate architectural standards, security checks, and best practices.
 metadata:
-  version: 1.8.0
+  version: 1.9.0
   last-updated: 2026-11-11
 ---
 
@@ -89,6 +89,7 @@ Based on project indicators, automatically determine the tech stack:
 | **Android (Java/Kotlin)** | `build.gradle` (app module) + Android SDK | [android.md](references/android.md) |
 | **iOS (Swift/Objective-C)** | `*.xcodeproj` / `*.xcworkspace` / `Package.swift` at the project root | [ios.md](references/ios.md) |
 | **React Native (Expo)** | `package.json` + `react-native` dependency | [react-native.md](references/react-native.md) |
+| **React web (Next.js/Vite)** | `package.json` + `react` dependency, **no** `react-native` | [react-web.md](references/react-web.md) |
 
 **Check cross-platform first.** Flutter and React Native projects contain `android/` and `ios/` folders, so they also match the Android and iOS criteria. If `pubspec.yaml` or a `react-native` dependency exists, the project is Flutter or React Native; add `android.md` / `ios.md` only when the diff touches native code inside those folders.
 
@@ -111,9 +112,12 @@ ls -d *.xcodeproj *.xcworkspace Package.swift
 
 # Check for React Native
 grep '"react-native"\|"expo"' package.json
+
+# Check for React web (only when there is no react-native dependency)
+grep '"react"\|"next"\|"vite"' package.json
 ```
 
-**Multiple Stacks**: If the project contains multiple stacks (e.g., Flutter + Spring Boot backend), review each stack separately with its appropriate checklist.
+**Multiple Stacks**: If the project contains multiple stacks (e.g., Flutter + Spring Boot backend), review each stack separately with its appropriate checklist. A stack can live in a subfolder (e.g., a Flutter repo with a React web app in `next/`): run the detection in the nearest folder above each changed file that has `package.json`／`pubspec.yaml`, not only at the repo root.
 
 ### Step 3: Determine Review Scope
 
@@ -154,7 +158,7 @@ See stack-specific checklists in `references/` for detailed focus areas.
 
 ### Step 4: Invoke Code-Reviewer Subagent
 
-Use the Task tool to launch the code-reviewer subagent for deep analysis.
+Use the Task tool to launch the code-reviewer subagent for deep analysis. When the agent is installed through the personal Claude Code plugin, its name is `dev:code-reviewer`; use the name shown in the available agent list.
 
 > **Agents without a subagent/Task tool** (Codex, Copilot CLI, opencode, agy, Cursor): skip the launch and perform the same deep review yourself in the current session, using the prompt below as your checklist. Output format (Step 5) is unchanged.
 
@@ -359,6 +363,11 @@ After the code-reviewer subagent (and the spec subagent, if launched) completes:
 **Checklist**: [references/react-native.md](references/react-native.md)
 
 **Key checks**: Hooks rules and effect cleanup, store selectors, navigation params and guards, FlatList performance, secure storage, permissions on both platforms, OTA updates vs native changes
+
+### React web (Next.js/Vite)
+**Checklist**: [references/react-web.md](references/react-web.md)
+
+**Key checks**: Hooks rules and effect cleanup, query keys and stale `keepPreviousData` results, cache reset on logout or company switch, client vs server components, secrets in `NEXT_PUBLIC_*`, shared component blast radius, side-by-side comparison for migrated pages
 
 ## Common Checks (All Stacks)
 

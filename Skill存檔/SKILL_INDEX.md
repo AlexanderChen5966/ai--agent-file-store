@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -29,6 +29,7 @@
   - [multiagent-handoff](#19-multiagent-handoff)
   - [mattpocock-skills（外部）](#20-mattpocock-skills外部)
   - [doubt-check](#21-doubt-check)
+  - [flutter-ui-compare](#22-flutter-ui-compare)
 - [通用類（general）](#通用類general)
   - [media-processor](#9-media-processor)
   - [sign-off-generator](#10-sign-off-generator)
@@ -115,9 +116,9 @@ Flutter + Riverpod（專屬版，限 B2B Manager 專案）
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `stack-review` |
-| **版本** | `1.8.0` |
+| **版本** | `1.9.0` |
 | **路徑** | `dev/stack-review/` |
-| **最後更新** | 2026-11-11（v1.8.0 加 iOS 與 React Native 清單；v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+| **最後更新** | 2026-11-11（v1.9.0 加 React web 清單 `react-web.md`、子資料夾技術棧偵測、註明 plugin 版 agent 名稱 `dev:code-reviewer`；v1.8.0 加 iOS 與 React Native 清單；v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
 
 > 📌 作用中本體 `~/.agents/skills/stack-review/` 的檔頭先前一直停在 `1.1.0`（v1.3.0／v1.4.0 內容都在，只是沒改檔頭），2026-11-09 直接改為 `1.5.0`。
 
@@ -224,9 +225,9 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `requirements` |
-| **版本** | `1.7.2` |
+| **版本** | `1.7.3` |
 | **路徑** | `dev/requirements/` |
-| **最後更新** | 2026-11-11 |
+| **最後更新** | 2026-11-11（v1.7.3 叫 grilling 時註明 plugin 名稱 `core:grilling`） |
 
 > ⚠️ 本條目原記為 `1.1.0` / 2026-03-18，但 v1.2.0（2026-05-27，metadata header 格式統一）當時未同步至本索引。
 > 已於 2026-07-30 一併補正。
@@ -337,9 +338,9 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `doc-update` |
-| **版本** | `1.3.0` |
+| **版本** | `1.3.1` |
 | **路徑** | `dev/doc-update/` |
-| **最後更新** | 2026-11-11（v1.3.0 Step 8 退場追蹤） |
+| **最後更新** | 2026-11-11（v1.3.1 註明 retro 只能由使用者手動叫；v1.3.0 Step 8 退場追蹤） |
 
 **新增功能（v1.3.0，2026-11-11）：Step 8 退場追蹤**
 
@@ -415,9 +416,9 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `project-documentation` |
-| **版本** | `2.2.1` |
+| **版本** | `2.2.2` |
 | **路徑** | `dev/project-documentation/` |
-| **最後更新** | 2026-08-03 |
+| **最後更新** | 2026-11-11（v2.2.2 bug-record 範本補必填的 `updated`、`source-commit`，原本和 frontmatter-spec 矛盾） |
 
 **描述：**
 多技術棧可擴展文件產出系統，為 `flutter-b2b-documentation` 的通用化進化版。v2.0.0 新增 Spring Boot 完整支援、Bug 修復紀錄與 Widget 元件文件兩種新類型。**v2.1.0 為可信度強化版**：加入「不得產出流程未要求的內容」硬約束、`⚠️ 推導未驗證` 標記規範、`source-commit` 必填、wire 契約推導階段、更新（非覆蓋）流程與產出自檢，並新增「變更歷程文件」類型。**v2.2.0 補上專案自有版本／日期慣例的處理**：部分專案（如 b2b-backend）文件不用 YAML frontmatter，而是自己的「文件版本」／「最後更新」footer + 版本總覽表；Step 0 新增判斷規則（視為 frontmatter 等價物，需找出所有出現位置同步更新），Step 5 自檢明確要求日期用**文件實際撰寫當下**、不可誤用最後一個 commit 的日期。
@@ -815,9 +816,9 @@ Code review 通過後，將 `docs/shared/` 的任務文件狀態從「待實作�
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `figma-to-requirements` |
-| **版本** | `1.0.1` |
-| **路徑** | `dev/figma-to-requirements/`（備份）；作用中本體於**跨工具共用** `~/.agents/skills/figma-to-requirements/`（2026-10-20 自 `~/.claude/skills/` 搬入） |
-| **最後更新** | 2026-06-23 |
+| **版本** | `1.0.2` |
+| **路徑** | `dev/figma-to-requirements/`（備份）；作用中本體於**跨工具共用** `~/.agents/skills/figma-to-requirements/`（2026-10-20 自 `~/.claude/skills/` 搬入）；2026-11-11 起 Claude Code 由個人 plugin `dev-app` 載入 |
+| **最後更新** | 2026-11-11（v1.0.2 交棒時註明 plugin 名稱 `dev:requirements`） |
 
 **描述：**
 把一組 Figma 設計截圖轉成「精確的 UI 任務需求草稿」，作為 `requirements` 的前處理階段。取代已退役的 figma-to-flutter。
@@ -1061,7 +1062,7 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 | **名稱** | grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（7 個） |
 | **版本** | 上游 mattpocock/skills@5beb35b（plugin v1.3.1，2026-10-19），MIT |
 | **路徑** | `dev/mattpocock-skills/`（備份，含 `LICENSE-mattpocock`、`MATTPOCOCK-SOURCE.md`）；作用中本體 `~/.agents/skills/<name>/` |
-| **最後更新** | 2026-11-09 |
+| **最後更新** | 2026-11-11（tdd 加「新測試一寫就綠不算紅燈」的處理） |
 
 **來源：** 2026-10-21 裝在 b2b-manager `.claude/skills/` 測試 Matt 整套流程；2026-11-09 依〈開發流程升級_2026-11-09/開發流程與MattPocock截長補短.md〉把不需 repo 設定的 7 個搬到共用位置，b2b-manager 的同名副本與 Matt `handoff` 已刪除（handoff 與 multiagent-handoff 重複）。
 
@@ -1112,6 +1113,25 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 **分工：** doubt-check（④ 中途、單一決定）／stack-review（⑤ 做完、整個 diff）／ai-pair（整個任務一開始就複雜）。
 
 **測試狀態：** 2026-11-10 用操作紀錄 02 實測兩次（草稿、成品），都找到問題；agent 沒有自己觸發，促成 v0.2.0。
+
+---
+
+### 22. flutter-ui-compare
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `flutter-ui-compare` |
+| **版本** | `0.1.1` |
+| **路徑** | `dev/flutter-ui-compare/`（備份）；作用中本體 `~/.agents/claude-only/skills/flutter-ui-compare/`（Claude 專屬，其他 agent 不讀），由個人 plugin `dev-web` 載入 |
+| **最後更新** | 2026-11-11 |
+
+**描述：** 網頁畫面（React 等）與 Flutter Web 並排量測比對。用使用者的 Chrome（Claude in Chrome）真實點擊；React 用 DOM 量，Flutter（canvas）用已知元素換算截圖比例。`SKILL.md` 8 步、每步有完成條件；`KNOWN-CAUSES.md` 收 12 種已知差異（症狀、原因、驗算、修法）。
+
+**來源：** 跨專案記憶〈reference_flutter_web_ui_compare〉與 b2b-manager 遷移回顧文件；只收跨專案成立的做法，專案專屬數值沒收。
+
+**v0.1.1（2026-11-11）：** 第 1 步的畫面清單一定要包含頁面外框（標題列、側選單、標誌、帳號選單）。起因：推薦紀錄頁實跑時漏比外框，由使用者發現。
+
+**測試狀態：** 2026-11-11 推薦紀錄頁首次實跑，8 步走完、KNOWN-CAUSES 用上「行高」；擴充功能對 localhost 的點擊與 zoom 時好時壞，hover 沒驗到。
 
 ---
 
@@ -1615,8 +1635,10 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 
 | 位置 | 內容 | 哪些工具讀得到 |
 |------|------|------|
-| `~/.agents/skills/`（本體） | **2026-11-09 加 doubt-check**（共 15 個）；自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；Claude Code、agy 經 symlink |
-| `~/.claude/skills/` | **ai-pair**（實體，Claude 專屬，刻意不共用）＋上述 15 個的 symlink | Claude Code |
+| `~/.agents/skills/`（本體） | **2026-11-09 加 doubt-check**（共 15 個）；自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；agy 經 symlink；Claude Code 經個人 plugin（2026-11-11 起） |
+| `~/.claude/skills/` | **2026-11-11 起不再放自訂 skill**：15 個 symlink 拿掉、ai-pair 移走（備份 `~/.claude/backups/plugin-switch-20261111-141317/`） | — |
+| `~/.agents/claude-only/` | **2026-11-11 新增**：Claude 專屬本體 ai-pair、flutter-ui-compare（`skills/`）、code-reviewer（`agents/`） | 其他 agent 不讀；Claude Code 經個人 plugin |
+| `~/Desktop/開發流程升級_2026-11-09/alexanderchen5966-marketplace/` | **2026-11-11 起 Claude Code 從這裡載入**：個人 plugin core／dev／dev-app／dev-web，是上面兩處本體的複本；本體改完跑 `scripts/sync-plugins.sh sync`、`check` | Claude Code（名稱帶前綴，例如 `dev:requirements`；依資料夾啟用） |
 | `~/.gemini/config/skills/` | 上述 15 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
 | `~/.copilot/backups/code-review-20261020/` | Copilot 舊的 code-review（stack-review 2026-01 舊副本），已停用 | 無（不在讀取路徑） |
 
@@ -1687,6 +1709,12 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **requirements** | **1.7.2** | **2026-11-11** | **dev** | **風險清單加「共用元件／全站樣式」** |
 | **doubt-check** | **0.3.0** | **2026-11-11** | **dev** | **觸發條件加共用元件／全站樣式；不判斷畫面是否一致** |
 | **doubt-check** | **0.3.1** | **2026-11-11** | **dev** | **退場條件：3 張標記的卡都沒找到要修的問題就移除、併進 stack-review** |
+| **stack-review** | **1.9.0** | **2026-11-11** | **dev** | **新增 `react-web.md`（React web／Next.js 清單）；子資料夾技術棧偵測；註明 plugin 版 `dev:code-reviewer`。起因：plugin 補測時 React 頁面只能用 common＋react-native 湊** |
+| **requirements** | **1.7.3** | **2026-11-11** | **dev** | **叫 grilling 時註明 plugin 名稱 `core:grilling`** |
+| **doc-update** | **1.3.1** | **2026-11-11** | **dev** | **註明 retro 只能由使用者手動叫（disable-model-invocation）** |
+| **project-documentation** | **2.2.2** | **2026-11-11** | **dev** | **bug-record 範本補必填的 `updated`、`source-commit`** |
+| **figma-to-requirements** | **1.0.2** | **2026-11-11** | **dev** | **交棒時註明 plugin 名稱 `dev:requirements`** |
+| **flutter-ui-compare** | **0.1.1** | **2026-11-11** | **dev** | **新增（0.1.0）：網頁與 Flutter Web 並排量測比對；0.1.1 畫面清單要含頁面外框。Claude 專屬，備份 `dev/flutter-ui-compare/`** |
 | flutter-b2b-documentation | 1.0.0 | 無記錄 | dev | 已由 project-documentation 取代 |
 | **project-documentation** | **2.0.0** | **2026-04-28** | **dev** | **Spring Boot 完整支援；新增 Bug 修復紀錄、Widget 元件文件；kebab-case 命名；frontmatter 規範** |
 | doc-generator | 1.0.0 | 無記錄 | dev | |
