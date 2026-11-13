@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-13 — 流程 v5（借 slc marketplace 的做法）：requirements v1.8.0、stack-review v1.10.0 改薄入口（細節移到 references/），doc-update v1.4.0 加提議編號、記憶附查證、單向門判準；新增設計類 3 個：anti-ai-look v0.1.0、design-review v0.1.0、design-md-init v0.1.0；個人 plugin 新增 design／research／teaching，marketplace 搬到 `~/.agents/marketplace/`，見「作用中安裝位置」；2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -48,6 +48,10 @@
   - [knowledge-elevation](#7-knowledge-elevation)
   - [obsidian-second-brain](#8-obsidian-second-brain)
   - [scientific-brainstorming](#9-scientific-brainstorming)
+- [設計類（design）](#設計類design)
+  - [anti-ai-look](#1-anti-ai-look)
+  - [design-review](#2-design-review)
+  - [design-md-init](#3-design-md-init)
 - [作用中安裝位置（2026-10-20 起）](#作用中安裝位置2026-10-20-起)
 - [系統內建 Skill（Claude Code 提供）](#系統內建-skillclaude-code-提供)
 
@@ -116,9 +120,15 @@ Flutter + Riverpod（專屬版，限 B2B Manager 專案）
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `stack-review` |
-| **版本** | `1.9.0` |
+| **版本** | `1.10.0` |
 | **路徑** | `dev/stack-review/` |
-| **最後更新** | 2026-11-11（v1.9.0 加 React web 清單 `react-web.md`、子資料夾技術棧偵測、註明 plugin 版 agent 名稱 `dev:code-reviewer`；v1.8.0 加 iOS 與 React Native 清單；v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+| **最後更新** | 2026-11-13（v1.10.0 SKILL.md 改薄入口：457→257 行，reviewer 呼叫範本、spec 提示、摘要格式、技術棧範例移到 `references/`）；2026-11-11（v1.9.0 加 React web 清單 `react-web.md`、子資料夾技術棧偵測、註明 plugin 版 agent 名稱 `dev:code-reviewer`；v1.8.0 加 iOS 與 React Native 清單；v1.7.1 common.md 框架出處：文件矛盾時要求 node_modules 檔案行號；v1.7.0 spec 審查檢查 doubt-check 紀錄；v1.6.0 變更範圍與框架出處檢查、常見藉口表；v1.5.0 加 spec 審查；v1.3.0 Step 1 fetch 前置；v1.4.0 common.md 補跨服務契約檢查）|
+
+**新增功能（v1.10.0，2026-11-13）：薄入口**
+
+- 新增 `references/code-reviewer-call.md`、`spec-review-prompt.md`、`summary-format.md`、`stack-notes.md`；SKILL.md 保留各步驟要做什麼與必填欄位
+
+> 🔎 **起因**：同 requirements v1.8.0（slc 借鑒 #3）。
 
 > 📌 作用中本體 `~/.agents/skills/stack-review/` 的檔頭先前一直停在 `1.1.0`（v1.3.0／v1.4.0 內容都在，只是沒改檔頭），2026-11-09 直接改為 `1.5.0`。
 
@@ -225,9 +235,15 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `requirements` |
-| **版本** | `1.7.3` |
+| **版本** | `1.8.0` |
 | **路徑** | `dev/requirements/` |
-| **最後更新** | 2026-11-11（v1.7.3 叫 grilling 時註明 plugin 名稱 `core:grilling`） |
+| **最後更新** | 2026-11-13（v1.8.0 SKILL.md 改薄入口：387→309 行，可信度判斷細節、框架用法、後端契約同步模式移到 `references/`，底線規則留在 SKILL.md）；2026-11-11（v1.7.3 叫 grilling 時註明 plugin 名稱 `core:grilling`） |
+
+**新增功能（v1.8.0，2026-11-13）：薄入口**
+
+- 新增 `references/reference-credibility.md`、`framework-docs.md`、`backend-contract-sync.md`；SKILL.md 只留步驟與沒讀細節也要守的底線（JSON 鍵不採信文件、沒有 `source-commit` 視為未驗證）
+
+> 🔎 **起因**：借 slc marketplace 的「SKILL.md 薄入口、大檔放同目錄」（〈plugin分組草案〉第 11 節 #3）。workflow-bench v5：14/14、附屬檔實際被讀到；費用沒有下降（$4.77），保留理由是好維護。
 
 > ⚠️ 本條目原記為 `1.1.0` / 2026-03-18，但 v1.2.0（2026-05-27，metadata header 格式統一）當時未同步至本索引。
 > 已於 2026-07-30 一併補正。
@@ -338,9 +354,17 @@ diff 動到「會從 API 回應解析的 enum 或 DTO 欄位」時檢查：
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `doc-update` |
-| **版本** | `1.3.1` |
+| **版本** | `1.4.0` |
 | **路徑** | `dev/doc-update/` |
-| **最後更新** | 2026-11-11（v1.3.1 註明 retro 只能由使用者手動叫；v1.3.0 Step 8 退場追蹤） |
+| **最後更新** | 2026-11-13（v1.4.0 沉澱判斷：提議編號、記憶附查證、單向門判準）；2026-11-11（v1.3.1 註明 retro 只能由使用者手動叫；v1.3.0 Step 8 退場追蹤） |
+
+**新增功能（v1.4.0，2026-11-13）：提議編號與單向門**
+
+- 每個沉澱提議編號 `S-YYYYMMDD-n`，下次先查上一次的結論；被否決過的不再提
+- 寫成記憶時結尾附 `（驗證：哪天、在哪、跑了什麼、看到什麼）`，沒驗證過寫 `uncertain`
+- 改到「煞車本身」（hook、權限、禁止 commit、檢查項、風險清單）、或放寬／移除規則，一律先問使用者
+
+> 🔎 **起因**：借 slc marketplace 的知識標準與定期回顧（〈plugin分組草案〉第 11 節 #5、#7、#8）。workflow-bench v5 實測出現編號 `S-20261113-1`。
 
 **新增功能（v1.3.0，2026-11-11）：Step 8 退場追蹤**
 
@@ -1629,16 +1653,61 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 
 ---
 
+## 設計類（design）
+
+2026-11-13 新增。UI/UX 設計師角色用，在個人 plugin `design`；作用中本體在 `~/.agents/skills/`。三個都是**試用中**：清單初稿來自〈角色分類草案〉第 5 節，還沒用真實畫面試過。
+
+### 1. anti-ai-look
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `anti-ai-look` |
+| **版本** | `0.1.0` |
+| **路徑** | `design/anti-ai-look/`（備份）；作用中本體 `~/.agents/skills/anti-ai-look/` |
+| **最後更新** | 2026-11-13 |
+
+**描述：** 檢查畫面、icon、文案有沒有沒經過選擇的 AI 預設值：視覺、第二層 AI 味（奶油底加赤陶色等）、真實性、文案、一致性五組清單，逐條寫成立／不成立／沒法判斷；做 icon 加看 `references/icon-spec.md`。
+
+> 🔎 **起因**：〈角色分類草案〉第 5 節「去 AI 味」清單，原註明之後做成規則檔或小 skill。
+
+### 2. design-review
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `design-review` |
+| **版本** | `0.1.0` |
+| **路徑** | `design/design-review/`（備份）；作用中本體 `~/.agents/skills/design-review/` |
+| **最後更新** | 2026-11-13 |
+
+**描述：** 唯讀的畫面 review：找 DESIGN.md、實際開頁截圖看各狀態，規格／去 AI 味／使用三軸分開列，每個發現要有證據；不改任何檔案，要修的交給開發角色。
+
+> 🔎 **起因**：〈角色分類草案〉第 9 節第 2 項，使用者決定 UI/UX 角色新增「畫面 review」用法（唯讀）。
+
+### 3. design-md-init
+
+| 欄位 | 內容 |
+|------|------|
+| **名稱** | `design-md-init` |
+| **版本** | `0.1.0` |
+| **路徑** | `design/design-md-init/`（備份）；作用中本體 `~/.agents/skills/design-md-init/` |
+| **最後更新** | 2026-11-13 |
+
+**描述：** 專案或作品還沒有 DESIGN.md 時，先讀既有素材，只問人能決定的事（一次一個、附具體選項），依 `references/design-md-template.md` 寫出色彩、字型、間距、圓角、元件、icon 規格；已有就不覆蓋。
+
+> 🔎 **起因**：〈角色分類草案〉的 uiux-designer 角色規定「還沒有 DESIGN.md 先建一份再開始畫」。
+
+---
+
 ## 作用中安裝位置（2026-10-20 起）
 
 自訂 skill 的**作用中**位置已改為跨工具共用。本索引其他段落的「路徑」欄皆指**本存檔資料夾內的備份位置**。
 
 | 位置 | 內容 | 哪些工具讀得到 |
 |------|------|------|
-| `~/.agents/skills/`（本體） | **2026-11-09 加 doubt-check**（共 15 個）；自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；agy 經 symlink；Claude Code 經個人 plugin（2026-11-11 起） |
+| `~/.agents/skills/`（本體） | **2026-11-13 加設計類 3 個**：anti-ai-look、design-review、design-md-init（共 18 個）；**2026-11-09 加 doubt-check**（共 15 個）；自訂 7 個：multiagent-handoff、stack-review、requirements、doc-update、project-documentation、figma-to-requirements、cross-platform-archive-agent；**2026-11-09 加 Matt Pocock 7 個**：grilling、grill-me、diagnosing-bugs、tdd、pr、writing-for-agents、retro（共 14 個） | Codex、Copilot CLI、opencode、Cursor 原生讀取；agy 經 symlink；Claude Code 經個人 plugin（2026-11-11 起） |
 | `~/.claude/skills/` | **2026-11-11 起不再放自訂 skill**：15 個 symlink 拿掉、ai-pair 移走（備份 `~/.claude/backups/plugin-switch-20261111-141317/`） | — |
 | `~/.agents/claude-only/` | **2026-11-11 新增**：Claude 專屬本體 ai-pair、flutter-ui-compare（`skills/`）、code-reviewer（`agents/`） | 其他 agent 不讀；Claude Code 經個人 plugin |
-| `~/Desktop/開發流程升級_2026-11-09/alexanderchen5966-marketplace/` | **2026-11-11 起 Claude Code 從這裡載入**：個人 plugin core／dev／dev-app／dev-web，是上面兩處本體的複本；本體改完跑 `scripts/sync-plugins.sh sync`、`check` | Claude Code（名稱帶前綴，例如 `dev:requirements`；依資料夾啟用） |
+| `~/.agents/marketplace/` | **2026-11-13 起 Claude Code 從這裡載入**（從桌面〈開發流程升級_2026-11-09〉複製過來，桌面那份不再載入）：個人 plugin core／dev／dev-app／dev-web／design 是上面兩處本體的複本，本體改完跑 `scripts/sync-plugins.sh sync`、`check`；**research／teaching 的本體是 `~/Desktop/紀錄文件資料夾/` 的 notebooklm-v2.1.2-kit 與 notebooklm-teaching-v1.1-kit**，改完跑 `scripts/sync-kits.sh sync`、`check` | Claude Code（名稱帶前綴，例如 `dev:requirements`；依資料夾啟用） |
 | `~/.gemini/config/skills/` | 上述 15 個的 symlink | agy 1.4.2（⚠️ 官方網頁寫的 `~/.gemini/antigravity-cli/skills/` 實測讀不到） |
 | `~/.copilot/backups/code-review-20261020/` | Copilot 舊的 code-review（stack-review 2026-01 舊副本），已停用 | 無（不在讀取路徑） |
 
@@ -1715,6 +1784,12 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **project-documentation** | **2.2.2** | **2026-11-11** | **dev** | **bug-record 範本補必填的 `updated`、`source-commit`** |
 | **figma-to-requirements** | **1.0.2** | **2026-11-11** | **dev** | **交棒時註明 plugin 名稱 `dev:requirements`** |
 | **flutter-ui-compare** | **0.1.1** | **2026-11-11** | **dev** | **新增（0.1.0）：網頁與 Flutter Web 並排量測比對；0.1.1 畫面清單要含頁面外框。Claude 專屬，備份 `dev/flutter-ui-compare/`** |
+| **requirements** | **1.8.0** | **2026-11-13** | **dev** | **薄入口：可信度判斷、框架用法、後端契約同步移到 `references/`（slc 借鑒 #3）** |
+| **stack-review** | **1.10.0** | **2026-11-13** | **dev** | **薄入口：reviewer 呼叫範本、spec 提示、摘要格式、技術棧範例移到 `references/`** |
+| **doc-update** | **1.4.0** | **2026-11-13** | **dev** | **沉澱提議編號 `S-YYYYMMDD-n`、記憶附查證、單向門判準（slc 借鑒 #5、#7、#8）** |
+| **anti-ai-look** | **0.1.0** | **2026-11-13** | **design** | **新增：去 AI 味檢查清單（含 icon 規格）；試用中** |
+| **design-review** | **0.1.0** | **2026-11-13** | **design** | **新增：唯讀畫面 review，規格／去 AI 味／使用三軸；試用中** |
+| **design-md-init** | **0.1.0** | **2026-11-13** | **design** | **新增：建立 DESIGN.md（色彩、字型、間距、圓角、元件、icon）；試用中** |
 | flutter-b2b-documentation | 1.0.0 | 無記錄 | dev | 已由 project-documentation 取代 |
 | **project-documentation** | **2.0.0** | **2026-04-28** | **dev** | **Spring Boot 完整支援；新增 Bug 修復紀錄、Widget 元件文件；kebab-case 命名；frontmatter 規範** |
 | doc-generator | 1.0.0 | 無記錄 | dev | |
