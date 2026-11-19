@@ -14,5 +14,6 @@
 | 停用的按鈕 Flutter 仍有 tooltip | Flutter `IconButton` 有 tooltip 時停用也會顯示 | 在 Flutter 上 hover 停用的按鈕 | 網頁停用狀態保留 tooltip |
 | 下拉選單可見高度差很多 | UI 套件的選單高度上限和 Flutter 元件不同（antd Select 預設 256） | 讀 Flutter 下拉元件的上限 | 設定網頁元件的選單高度 |
 | icon 粗細或形狀略有不同 | 兩邊 icon 字型版本不同（例：FontAwesome Pro 對免費版） | 比對兩邊載入的字型檔 | 由使用者決定 |
+| icon 後面的文字左右偏移幾 px | Flutter `FaIcon` 的寬度＝字形寬（不是正方形，`font_awesome_flutter/lib/src/fa_icon.dart`）；Pro icon 換成免費 icon 時字形寬不同（例：`solidMemoCircleInfo` 576/512×24＝27、`faFileLines` 384/512×24＝18） | 查兩個 icon 的 viewBox 寬度 ×（icon 大小／512），相減等於偏移量 | 網頁 icon 外包一層，寬度設成 Pro 字形的寬（b2b-manager 是 `IconLabel` 的 `iconWidth`） |
 | 粗體字筆畫不同 | Flutter 打包了各字重的字型檔，網頁只宣告 Regular、粗體由瀏覽器合成 | 查網頁 `@font-face` 宣告了哪些字重 | 由使用者決定 |
 | 日期在某些瀏覽器顯示錯誤 | 後端回 `yyyy-MM-dd HH:mm:ss`（空白分隔），Safari 的 `new Date()` 不接受 | 看實際回應的日期字串 | 解析前轉成 ISO 格式 |

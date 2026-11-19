@@ -2,8 +2,8 @@
 name: flutter-ui-compare
 description: 把網頁畫面（React 等 DOM 畫面）與 Flutter Web 的同一頁並排量測比對，產出逐元素的座標對照表與差異清單。用在 Flutter 頁面改寫成網頁後要驗證「與 Flutter 畫面一致」、使用者說畫面跟 Flutter 不一樣、或改了共用元件／全站樣式後要重比已遷移的頁面時。只比畫面，程式對不對由 stack-review 負責。觸發詞：並排比對、跟 Flutter 比、與 Flutter 一致、畫面比對。
 metadata:
-  version: 0.1.1
-  last-updated: 2026-11-11
+  version: 0.1.2
+  last-updated: 2026-11-19
   source: 整理自 b2b-manager React 遷移的實測（跨專案記憶 reference_flutter_web_ui_compare）
 ---
 
