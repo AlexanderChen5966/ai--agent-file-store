@@ -9,7 +9,7 @@ description: |
 
   Trigger: raw-pipeline, 批次處理, batch process, pipeline, 自動整理流程
 metadata:
-  version: 1.9.1
+  version: 1.10.0
 ---
 
 # raw-pipeline
@@ -41,14 +41,39 @@ Team Lead（當前 Claude 工作階段）
   │
   ├── Agent B：classifier（分類 Agent）
   │     輸入：/tmp/raw-summaries.md
-  │     任務：依 tag-taxonomy 分配 tag，判斷歸屬資料夾，計算 asset_value
+  │     任務：依 tag-taxonomy 分配 tag，判斷歸屬資料夾，計算 asset_value，
+  │           標出同主題群組（共用 wiki_filename）與可補充的既有條目（merge_target）
   │     輸出：/tmp/raw-classifications.md
   │
+  │   Team Lead：依「建條目三條路徑」判定每篇走哪條路（含待合併清單的跨批合計）
+  │
   └── Agent C：indexer（索引 Agent）
-        輸入：/tmp/raw-classifications.md + 現有 wiki/
-        任務：建立 wiki 條目（含 TBRC）、建立 wikilink、更新 INDEX.md
-        輸出：wiki/ 中的新 .md 檔案 + 更新後的 INDEX.md
+        輸入：Team Lead 的判定結果 + /tmp/raw-classifications.md + 現有 wiki/
+        任務：建立獨立／合併 wiki 條目（含 TBRC）、補充既有條目、建立 wikilink、更新 INDEX.md
+        輸出：wiki/ 中的新 .md 檔案 + 補充過的既有條目 + 更新後的 INDEX.md
 ```
+
+---
+
+## 建條目三條路徑（v1.10.0）
+
+只看單篇分數會讓單篇新聞類素材幾乎全部只標記、內容流失（2026-11 連續三批各 10 篇 0 條目）。
+Team Lead 在 Agent B 完成後，依序判定每篇素材走哪條路：
+
+| 路徑 | 條件 | 動作 |
+|------|------|------|
+| ① 獨立條目 | 單篇 asset_value ≥ 50 | 建一個獨立 wiki 條目（原規則） |
+| ② 合併條目 | 同主題多篇（共用 `wiki_filename`）各自 < 50，但**合計 ≥ 50**（可跨批，見待合併清單） | 合併建一個條目，所有篇列為來源（`source`、`source_2`、`source_3`…），`asset_value` 寫合計 |
+| ③ 補充既有條目 | 低分素材與**既有** wiki／research 條目同主題（Agent B 填了 `merge_target`） | 有新內容才補進該條目「補充資料」段；只有重複資訊就不補 |
+| — 只標記 | 以上皆不符合，或 `excluded` | 只標 processed；非 excluded 的低分素材記入待合併清單 |
+
+判定順序：① → ③ → ②。單篇已過門檻的不拿去合併；能補進既有條目的優先補，不另開近似條目。
+
+**待合併清單**：`my-knowledge-base/outputs/raw-pipeline-pending.md`
+- 每批結束時，把走「只標記」路徑、且非 excluded 的素材追加進去（一行一篇：`wiki_filename｜asset_value｜raw 檔名｜一句重點｜批次日期`）
+- 下一批判定路徑 ② 時，把清單中同 `wiki_filename` 的分數一起合計；合併建條目後，從清單刪掉那幾行（用 Edit 字串比對）
+- 為什麼要落地成檔案：分類結果原本只存在 /tmp，換日或重開 session 就消失，跨批合計做不了
+- 該檔是流程元資料，不是知識條目，不進 INDEX.md
 
 ---
 
@@ -132,17 +157,23 @@ summary: [1-2 句話核心論點或內容描述]
 
 對每一篇：
 1. 分配 1-3 個 tag
-2. 判斷歸屬：ideas / research / projects / wiki
-3. 計算 asset_value（頻率 × 耗時 × 複雜度，各 1-5 分）
-4. 建議 wiki 條目的英文 kebab-case 檔名
+2. 判斷歸屬：ideas / research / projects / wiki；明顯不屬知識庫關注方向者標 excluded 並寫一句理由
+3. 計算 asset_value：頻率、耗時、複雜度**逐項**各給 1-5 分再相乘，寫出 `score: 頻率x耗時x複雜度`（不可只憑印象給總分）
+4. 建議 wiki 條目的英文 kebab-case 檔名；**同主題、同系列或同一產品的多篇共用同一個 wiki_filename**（各自打分），在 note 寫明合併關係
+5. 先讀 my-knowledge-base/outputs/raw-pipeline-pending.md，主題相同的沿用清單中的 wiki_filename
+6. 用 grep 查 wiki/、research/ 有沒有同主題的既有條目；有的話填 merge_target（該條目路徑）
 
 輸出格式（存入 /tmp/raw-classifications.md）：
 ---
 file: [原始檔名]
 tags: [tag1, tag2]
-folder: [ideas|research|projects|wiki]
+folder: [ideas|research|projects|wiki|excluded]
+score: [頻率x耗時x複雜度]
 asset_value: [分數]
 wiki_filename: [kebab-case-name.md]
+merge_target: [既有條目路徑；沒有就留空]
+note: [系列／合併關係、文末業配等提醒]
+reason: [僅 excluded 填]
 ---
 
 處理完所有檔案後回報：已完成 N 篇分類。
@@ -154,9 +185,22 @@ wiki_filename: [kebab-case-name.md]
 
 ```
 你是 raw-pipeline 的 indexer。
-任務：根據 /tmp/raw-classifications.md 建立 wiki 條目並更新索引。
+任務：根據 Team Lead 的路徑判定與 /tmp/raw-classifications.md，建立／補充 wiki 條目並更新索引。
 
-對每一個素材（asset_value ≥ 50 才建立完整 wiki 條目）：
+依路徑處理（見「建條目三條路徑」）：
+- 路徑 ① 獨立條目：照下方步驟 1-5 建立
+- 路徑 ② 合併條目：先讀完該組所有篇（含待合併清單中前幾批的 raw 原檔）再寫一個條目；
+  多來源寫法沿用既有條目慣例（`source` 主要一篇，其餘 `source_2`、`source_3`…），asset_value 寫合計
+- 路徑 ③ 補充既有條目：
+  a. 讀目標條目的 T（核心論點），主題一致才補；不一致就找更接近的條目，都沒有就不補並回報
+  b. 先比對目標條目已寫了什麼，**只補新內容**；只有重複資訊就不補，回報「無新增」
+  c. 用 Edit 在「補充資料」段追加（沒有該段就在「相關連結」前新增 `## 補充資料`），
+     每則以「**YYYY-MM-DD 補充（來源：標題＋網址）**」開頭，3-8 行重點，二手整理／未核對的數字要標明
+  d. 目標條目有 source_N 慣例時，同時追加一個 source_N
+  e. 在 INDEX.md 該條目那一列描述末尾加「📎 補充：關鍵字」（Edit 單行，不新增列）
+- 每個條目建立前都要先查重複：既有條目已涵蓋核心論點 → 改走路徑 ③ 或回報 Team Lead
+
+建立條目（路徑 ①②）的步驟：
 
 1. 讀取原始 raw/ 檔案內容（依格式使用對應讀取規則，同 Agent A）
 
@@ -189,17 +233,20 @@ wiki_filename: [kebab-case-name.md]
      ⚠️ 檔名一律用**單引號**——雙引號會讓 shell 展開 `$`，檔名含 `$` 時會產生破損的孤兒標記
    - 兩者皆屬流程元資料，在 CLAUDE.md「NEVER modify raw/」的明確例外範圍內
 
-完成後回報：已建立 N 篇 wiki 條目，更新 INDEX.md，標記 N 篇 .md（frontmatter）＋ N 個非 md（旁車標記）。
+完成後回報：已建立 N 篇 wiki 條目（獨立 N／合併 N）、補充 N 篇既有條目，更新 INDEX.md，標記 N 篇 .md（frontmatter）＋ N 個非 md（旁車標記）。
 ```
 
 ---
 
 ## Team Lead 執行流程
 
-1. 確認 `raw/` 有素材（> 0 篇）
-2. 依序啟動 Agent A → 等待完成 → Agent B → 等待完成 → Agent C
-3. 確認三個 Agent 都完成後，清除 `/tmp/raw-summaries.md` 和 `/tmp/raw-classifications.md`
-4. 產出處理報告（格式見下方）
+1. 確認 `raw/` 有素材（> 0 篇）；檔名以「 1.md」結尾且同名原檔存在者是重複剪存，不排入批次（回報給使用者決定是否移入 archive/）
+2. 依序啟動 Agent A → 等待完成 → Agent B → 等待完成
+3. 讀 `/tmp/raw-classifications.md` 與待合併清單，依「建條目三條路徑」判定每篇的路徑
+4. 有路徑 ①②③ 的素材 → 啟動 Agent C；全部只標記 → Team Lead 自行標記 processed（只改 status 一行，binary 模式保留換行）
+5. 把本批走「只標記」且非 excluded 的素材追加進待合併清單；已合併的從清單刪除
+6. 確認都完成後，清除 `/tmp/raw-summaries.md` 和 `/tmp/raw-classifications.md`
+7. 產出處理報告（格式見下方）
 
 ---
 
@@ -210,15 +257,23 @@ wiki_filename: [kebab-case-name.md]
 
 ## 處理結果
 - 輸入：N 篇原始素材
-- 產出 wiki 條目：N 篇（asset_value ≥ 50）
-- 歸入 research/：N 篇
-- 歸入 ideas/：N 篇
+- 產出 wiki 條目：N 篇（獨立 N／合併 N）
+- 補充既有條目：N 篇
+- 只標記：N 篇（記入待合併清單 N 篇）
 - 歸入 archive/：N 篇
 
 ## 新增 wiki 條目
-| 條目 | Tag | Asset Value |
-|------|-----|-------------|
-| [[xxx]] | pkm/workflow | 75 |
+| 條目 | 路徑 | 來源篇數 | Tag | Asset Value |
+|------|------|---------|-----|-------------|
+| [[xxx]] | ① 獨立 | 1 | pkm/workflow | 75 |
+| [[yyy]] | ② 合併 | 3 | ai/claude | 132（合計） |
+
+## 補充既有條目
+| 素材 | 補進條目 | 補了什麼（或為何不補） |
+|------|---------|----------------------|
+
+## 待合併清單變動
+- 新增 N 篇；本批合併後移除 N 篇；清單中目前累計最高的主題：xxx（合計 N 分）
 
 ## 排除項目（非知識庫關注領域，刻意排除非遺漏）
 - 檔名：一句話說明排除理由（如「遊戲發行平台，非 AI/PKM/dev 焦點」）
@@ -239,7 +294,8 @@ wiki_filename: [kebab-case-name.md]
 |------|----------|
 | Agent A 失敗 | 中止，回報失敗的檔案，其餘繼續 |
 | Agent B 分類不確定 | 預設歸入 `research/`，asset_value 設 30 |
-| Agent C 發現重複條目 | 詢問使用者是否合併或跳過 |
+| Agent C 發現重複條目 | 既有條目已涵蓋核心論點 → 改走路徑 ③ 補充；若新素材角度明顯不同、或補充會讓條目偏離 T 層，回報 Team Lead 詢問使用者 |
+| 目標條目不在 wiki/、research/（如只在 ideas/） | 不補，記入待合併清單並在報告中列出 |
 | raw/ 為空 | 直接回報「raw/ 無待處理素材」 |
 | PDF 讀取失敗 | 跳過該檔案，在報告中標注「PDF 讀取失敗，請手動處理」|
 | PDF 超過 100 頁 | 僅讀取前 5 頁 + 後 2 頁，在摘要標注「大型 PDF，僅節錄」|
@@ -251,6 +307,14 @@ wiki_filename: [kebab-case-name.md]
 ---
 
 ## Changelog
+
+### v1.10.0（2026-11-19）
+- **建條目改三條路徑**：① 單篇 ≥ 50 獨立建；② 同主題合計 ≥ 50 合併建（可跨批）；③ 低分但與既有條目同主題 → 有新內容才補進「補充資料」
+- 新增**待合併清單** `outputs/raw-pipeline-pending.md`：讓跨批合計可行（/tmp 分類結果換日即消失）
+- Agent B：asset_value 改逐項打分並寫出 `score`；同主題共用 wiki_filename；新增 `merge_target`、`note`、`excluded` 欄位
+- Agent C：新增合併條目與補充既有條目的處理步驟（T 層對齊、只補新內容、日期標頭、INDEX 列尾「📎 補充」）
+- Team Lead：Agent B 後先判定路徑；全部只標記時不派 Agent C；「 1.md」重複剪存不排入批次
+- 起因：2026-11 連續三批各 10 篇 0 條目，Managed Agents（48）、ADK（36）等有具體觀點的內容只標記就流失；同主題（Whiteboards／Sheets 5 篇、AI 做 UI 驗收 4 篇、雲端排程 3 篇）合起來價值明顯過門檻
 
 ### v1.9.1（2026-08-13）
 - Agent C 的 `touch` 檔名改用**單引號**：雙引號會讓 shell 展開 `$`，實際造成過一個破損的孤兒標記（`NT$15,680` → `NT,680`）

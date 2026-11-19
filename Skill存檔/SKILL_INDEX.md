@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-19 — flutter-ui-compare v0.1.2：KNOWN-CAUSES 補「icon 後面的文字左右偏移」（FaIcon 寬度＝字形寬，Pro 換免費 icon 會偏移）；2026-11-13 — 流程 v5（借 slc marketplace 的做法）：requirements v1.8.0、stack-review v1.10.0 改薄入口（細節移到 references/），doc-update v1.4.0 加提議編號、記憶附查證、單向門判準；新增設計類 3 個：anti-ai-look v0.1.0、design-review v0.1.0、design-md-init v0.1.0；個人 plugin 新增 design／research／teaching，marketplace 搬到 `~/.agents/marketplace/`，見「作用中安裝位置」；2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-19 — raw-pipeline v1.10.0：建條目改三條路徑（單篇 ≥50 獨立建／同主題合計 ≥50 合併建／低分補進既有條目），新增待合併清單 outputs/raw-pipeline-pending.md；2026-11-19 — flutter-ui-compare v0.1.2：KNOWN-CAUSES 補「icon 後面的文字左右偏移」（FaIcon 寬度＝字形寬，Pro 換免費 icon 會偏移）；2026-11-13 — 流程 v5（借 slc marketplace 的做法）：requirements v1.8.0、stack-review v1.10.0 改薄入口（細節移到 references/），doc-update v1.4.0 加提議編號、記憶附查證、單向門判準；新增設計類 3 個：anti-ai-look v0.1.0、design-review v0.1.0、design-md-init v0.1.0；個人 plugin 新增 design／research／teaching，marketplace 搬到 `~/.agents/marketplace/`，見「作用中安裝位置」；2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -1529,12 +1529,19 @@ Linux 專屬：`.directory`、`.Trash-*`
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `raw-pipeline` |
-| **版本** | `1.9.1` |
+| **版本** | `1.10.0` |
 | **路徑** | `pkm/raw-pipeline/` |
-| **最後更新** | 2026-08-13 |
+| **最後更新** | 2026-11-19 |
 
 **描述：**
 軟編排型 Skill，調度三個子 Agent 協作批次處理 `raw/` 素材：Agent A 摘要、Agent B 分類打標、Agent C 建立 wiki 條目與更新索引。支援 12 種格式（.md .txt .html .pdf .png .jpg .jpeg .webp .gif .srt .vtt .ipynb .csv）。適合 raw/ 積壓 10 篇以上的場景。v1.7.0 起 .md/非 .md 統一用 `.processed` 旁車標記制；v1.8.0 修正非 .md 掃描指令 bug + 新增處理報告「排除項目」滾動日誌區塊（區分刻意排除 vs 遺漏積壓）。
+
+**v1.10.0 新增（2026-11-19）：**
+- 建條目改三條路徑：① 單篇 asset_value ≥ 50 獨立建；② 同主題多篇合計 ≥ 50 合併建一個條目（可跨批）；③ 低分但與既有 wiki／research 條目同主題 → 讀 T 層對齊、只補新內容進「補充資料」
+- 新增待合併清單 `my-knowledge-base/outputs/raw-pipeline-pending.md`，讓跨批合計可行
+- Agent B 改逐項打分（`score: 頻率x耗時x複雜度`），同主題共用 wiki_filename，新增 `merge_target`／`note`／`excluded`
+- Team Lead 在 Agent B 後判定路徑；全部只標記時不派 Agent C；「 1.md」重複剪存不排入批次
+- 起因：2026-11 連續三批各 10 篇 0 條目，單篇新聞難過 50，有具體觀點的內容只標記就流失；同主題合起來價值明顯過門檻
 
 **用途：**
 - raw/ 積壓 10 篇以上時的批次處理
@@ -1816,7 +1823,7 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **knowledge-organizer** | **1.6.1** | **2026-08-13** | **pkm** | **TBRC 四層框架、資產化價值公式；.md 標記改回 frontmatter status** |
 | **daily-brief-generator** | **1.5.0** | **2026-08-13** | **pkm** | **五區塊每日簡報、SCQA 建議行動；raw .md 判斷改回只看 frontmatter** |
 | **wiki-health-check** | **1.8.0** | **2026-09-03** | **pkm** | **七項健康檢查；精粹過時改用來源清單集合差（廢止 glob 總數比大小／會假陰性）、連結掃描先剝程式碼區塊、須先讀前次報告並覆核舊矛盾** |
-| **raw-pipeline** | **1.9.1** | **2026-08-13** | **pkm** | **三 Agent 軟編排；標記制度改分流（.md frontmatter／非 md 旁車標記）** |
+| **raw-pipeline** | **1.10.0** | **2026-11-19** | **pkm** | **三 Agent 軟編排；建條目三條路徑（獨立／同主題合計合併／補進既有條目）＋待合併清單；標記制度分流（.md frontmatter／非 md 旁車標記）** |
 | **knowledge-synthesizer** | **1.0.0** | **2026-05-13** | **pkm** | **CAVE 框架精粹（共識/視角/缺口/精華）；同主題 3 篇以上使用** |
 | **alignment-check** | **1.0.0** | **2026-05-22** | **pkm** | **wiki 補充資料段落歸屬對齊檢查；找出放錯位置的內容並建議搬移** |
 | **knowledge-elevation** | **1.1.0** | **2026-05-22** | **pkm** | **三層昇華：E 層加深 / meta-synthesis → wiki/concepts/** |
