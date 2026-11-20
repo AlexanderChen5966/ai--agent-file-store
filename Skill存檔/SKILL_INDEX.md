@@ -1,6 +1,6 @@
 # Skill 索引總覽
 
-> 整理日期：2026-05-25（最後更新：2026-11-19 — raw-pipeline v1.10.0：建條目改三條路徑（單篇 ≥50 獨立建／同主題合計 ≥50 合併建／低分補進既有條目），新增待合併清單 outputs/raw-pipeline-pending.md；2026-11-19 — flutter-ui-compare v0.1.2：KNOWN-CAUSES 補「icon 後面的文字左右偏移」（FaIcon 寬度＝字形寬，Pro 換免費 icon 會偏移）；2026-11-13 — 流程 v5（借 slc marketplace 的做法）：requirements v1.8.0、stack-review v1.10.0 改薄入口（細節移到 references/），doc-update v1.4.0 加提議編號、記憶附查證、單向門判準；新增設計類 3 個：anti-ai-look v0.1.0、design-review v0.1.0、design-md-init v0.1.0；個人 plugin 新增 design／research／teaching，marketplace 搬到 `~/.agents/marketplace/`，見「作用中安裝位置」；2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
+> 整理日期：2026-05-25（最後更新：2026-11-20 — flutter-ui-compare v0.1.3：KNOWN-CAUSES 補「多行輸入框第一行文字比 Flutter 高約 20px」（Flutter 輸入元件空 title 仍佔一行）；2026-11-19 — raw-pipeline v1.10.0：建條目改三條路徑（單篇 ≥50 獨立建／同主題合計 ≥50 合併建／低分補進既有條目），新增待合併清單 outputs/raw-pipeline-pending.md；2026-11-19 — flutter-ui-compare v0.1.2：KNOWN-CAUSES 補「icon 後面的文字左右偏移」（FaIcon 寬度＝字形寬，Pro 換免費 icon 會偏移）；2026-11-13 — 流程 v5（借 slc marketplace 的做法）：requirements v1.8.0、stack-review v1.10.0 改薄入口（細節移到 references/），doc-update v1.4.0 加提議編號、記憶附查證、單向門判準；新增設計類 3 個：anti-ai-look v0.1.0、design-review v0.1.0、design-md-init v0.1.0；個人 plugin 新增 design／research／teaching，marketplace 搬到 `~/.agents/marketplace/`，見「作用中安裝位置」；2026-11-11 — plugin 補測後修正：stack-review v1.9.0 加 React web 清單、requirements v1.7.3、doc-update v1.3.1、figma-to-requirements v1.0.2、project-documentation v2.2.2、tdd 本機修改、新增 flutter-ui-compare v0.1.1；Claude Code 改由個人 plugin 載入，見「作用中安裝位置」；2026-11-11 — stack-review v1.8.0 加 iOS 與 React Native 清單；2026-11-11 — 四個 v3 機制加退場條件：doc-update v1.3.0 Step 8 結案補追蹤、doubt-check v0.3.2；2026-11-11 — doubt-check v0.3.1 加退場條件；2026-11-11 — 共用元件／全站樣式納入 doubt-check：requirements v1.7.2、doubt-check v0.3.0；2026-11-11 — source-driven 補「官方文件不全以 lock 版本型別為準」：requirements v1.7.1、stack-review v1.7.1；2026-11-11 — doubt-check 改由任務文件標記觸發：requirements v1.7.0、stack-review v1.7.0、doubt-check v0.2.0；2026-11-09 — 借來的做法整合（流程 v3）：requirements v1.6.0、stack-review v1.6.0、doc-update v1.2.0、新增 doubt-check v0.1.0；2026-11-09 — Matt Pocock 截長補短：新增 mattpocock-skills（7 個共用）；requirements v1.5.0 需求模糊叫 grilling；stack-review v1.5.0 加 spec 審查；2026-10-21 — point-reading-diy v0.4.0：打包流程完成、Dear Zoo 實測成功；multiagent-handoff v0.6.0 加「建議記憶」（銜接長期記憶 `~/.agents/memory/`）；handoff 改名為 multiagent-handoff v0.5.0；2026-10-20 新增 handoff v0.4.1：跨 AI agent 專案接力；7 個自訂 skill 改為跨工具共用安裝於 `~/.agents/skills/`，ai-pair 留在 Claude，見「作用中安裝位置」）
 > 說明：本文件整理所有自訂 Skill 的名稱、描述、用途與版本號
 
 ---
@@ -1145,17 +1145,19 @@ scripts/handoff.py    # 565 行：init／snapshot／new-task／run／review／se
 | 欄位 | 內容 |
 |------|------|
 | **名稱** | `flutter-ui-compare` |
-| **版本** | `0.1.2` |
+| **版本** | `0.1.3` |
 | **路徑** | `dev/flutter-ui-compare/`（備份）；作用中本體 `~/.agents/claude-only/skills/flutter-ui-compare/`（Claude 專屬，其他 agent 不讀），由個人 plugin `dev-web` 載入 |
-| **最後更新** | 2026-11-19 |
+| **最後更新** | 2026-11-20 |
 
-**描述：** 網頁畫面（React 等）與 Flutter Web 並排量測比對。用使用者的 Chrome（Claude in Chrome）真實點擊；React 用 DOM 量，Flutter（canvas）用已知元素換算截圖比例。`SKILL.md` 8 步、每步有完成條件；`KNOWN-CAUSES.md` 收 13 種已知差異（症狀、原因、驗算、修法）。
+**描述：** 網頁畫面（React 等）與 Flutter Web 並排量測比對。用使用者的 Chrome（Claude in Chrome）真實點擊；React 用 DOM 量，Flutter（canvas）用已知元素換算截圖比例。`SKILL.md` 8 步、每步有完成條件；`KNOWN-CAUSES.md` 收 14 種已知差異（症狀、原因、驗算、修法）。
 
 **來源：** 跨專案記憶〈reference_flutter_web_ui_compare〉與 b2b-manager 遷移回顧文件；只收跨專案成立的做法，專案專屬數值沒收。
 
 **v0.1.1（2026-11-11）：** 第 1 步的畫面清單一定要包含頁面外框（標題列、側選單、標誌、帳號選單）。起因：推薦紀錄頁實跑時漏比外框，由使用者發現。
 
 **v0.1.2（2026-11-19）：** `KNOWN-CAUSES.md` 補「icon 後面的文字左右偏移幾 px」：Flutter `FaIcon` 的寬度＝字形寬（不是正方形），Pro icon 換成免費 icon 時字形寬不同，後面的文字會偏移。起因：推薦紀錄明細頁並排比對，「明細」文字偏 9px（Pro `solidMemoCircleInfo` 27、免費 `faFileLines` 18），先猜成正方形框、讀原始碼才確認。doc-update 沉澱提議 S-20261119-1，使用者同意。
+
+**v0.1.3（2026-11-20）：** `KNOWN-CAUSES.md` 補「多行輸入框的第一行文字比 Flutter 高約 20px」：Flutter 輸入元件的 title 傳空字串仍佔一行高，下面再加 TextField 的 contentPadding。起因：b2b-manager 工單申請頁並排比對，內容框第一行差 22px、左邊差 7px（`SLInputTextField(title: '')`）。doc-update 沉澱提議 S-20261120-1，使用者同意。
 
 **測試狀態：** 2026-11-11 推薦紀錄頁首次實跑，8 步走完、KNOWN-CAUSES 用上「行高」；擴充功能對 localhost 的點擊與 zoom 時好時壞，hover 沒驗到。
 
@@ -1800,6 +1802,7 @@ Wiki 內容歸屬對齊檢查。掃描所有 wiki 條目，逐一判斷每個「
 | **design-review** | **0.1.0** | **2026-11-13** | **design** | **新增：唯讀畫面 review，規格／去 AI 味／使用三軸；試用中** |
 | **design-md-init** | **0.1.0** | **2026-11-13** | **design** | **新增：建立 DESIGN.md（色彩、字型、間距、圓角、元件、icon）；試用中** |
 | **flutter-ui-compare** | **0.1.2** | **2026-11-19** | **dev** | **KNOWN-CAUSES 補「icon 後面的文字左右偏移」：Flutter `FaIcon` 寬度＝字形寬，Pro 換免費 icon 會偏移（推薦紀錄明細實測偏 9px）** |
+| **flutter-ui-compare** | **0.1.3** | **2026-11-20** | **dev** | **KNOWN-CAUSES 補「多行輸入框第一行文字比 Flutter 高約 20px」：Flutter 輸入元件空 title 仍佔一行（工單申請實測差 22px）** |
 | flutter-b2b-documentation | 1.0.0 | 無記錄 | dev | 已由 project-documentation 取代 |
 | **project-documentation** | **2.0.0** | **2026-04-28** | **dev** | **Spring Boot 完整支援；新增 Bug 修復紀錄、Widget 元件文件；kebab-case 命名；frontmatter 規範** |
 | doc-generator | 1.0.0 | 無記錄 | dev | |

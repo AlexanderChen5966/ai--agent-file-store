@@ -8,6 +8,7 @@
 | 按鈕裡的文字字型或字寬不對 | 原生 `<button>` 不繼承字型與字距（Chrome 預設 Arial、字距 normal） | 讀 `getComputedStyle(button).fontFamily` | 全站樣式加 `button { font-family: inherit; letter-spacing: inherit }` |
 | 固定高度的區塊比 Flutter 高（差值剛好是上下 padding 或框線） | Flutter `Container(height:, padding:)` 的 height 含 padding；網頁元素是 `content-box`（關掉 CSS reset 的專案、antd Modal 內部都是） | 高度差 = padding＋框線 | 該元素加 `box-sizing: border-box` |
 | 多行或單行文字的區塊高度不同 | Flutter 文字行高約 1.5 倍（NotoSansTC） | 字級 × 1.5 ≈ Flutter 的行高 | 網頁給 `line-height: 1.5` |
+| 多行輸入框的第一行文字比 Flutter 高約 20px（左邊也差幾 px） | Flutter 輸入元件的 title 傳空字串仍佔一行高（例：b2b-manager `SLInputTextField(title: '')` 用 16px 字的空 `SLText`），下面再加 TextField 的 `contentPadding` | 讀 widget 原始碼：空 title 一行（字級 × 約 1.45）＋ contentPadding top；實測「框線到第一行字」的距離 | 網頁輸入框的 `padding-top` 補上差值（b2b-manager 工單申請：antd 8.5 → 30.5、左 11 → 18） |
 | 輸入框、下拉的文字距左框不同 | Flutter 輸入元件的內距是「框線＋padding＋contentPadding」相加，和 UI 套件預設不同 | 讀 Flutter widget 原始碼把三個值相加 | 調整網頁元件的 `padding-inline-start` |
 | 標題列比 Flutter 高幾 px | `inline-flex` 對齊 baseline，放在標題元素裡會多出下伸部空白 | 把 display 改成 `flex` 後重量 | 用 block 層級的 flex |
 | hover 時網頁變色、Flutter 不變 | Flutter InkWell 的墨水被父層 `Container(color:)` 蓋住 | 在 Flutter 上真實 hover 截圖 | 以 Flutter 實測為準，網頁不加 hover 底色 |
