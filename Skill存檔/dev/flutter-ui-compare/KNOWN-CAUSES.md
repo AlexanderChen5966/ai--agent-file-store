@@ -7,6 +7,7 @@
 | Flutter 文字比網頁寬 3～5%（數字多的更明顯） | Flutter `ThemeData` 沒關 Material 3，TextTheme 帶字距：bodyMedium 0.25、titleSmall／labelLarge 0.1、bodySmall 0.4、bodyLarge 0.5 | 字數 × 字距 ≈ 寬度差 | 網頁對應的文字加同樣的 `letter-spacing` |
 | 按鈕裡的文字字型或字寬不對 | 原生 `<button>` 不繼承字型與字距（Chrome 預設 Arial、字距 normal） | 讀 `getComputedStyle(button).fontFamily` | 全站樣式加 `button { font-family: inherit; letter-spacing: inherit }` |
 | 固定高度的區塊比 Flutter 高（差值剛好是上下 padding 或框線） | Flutter `Container(height:, padding:)` 的 height 含 padding；網頁元素是 `content-box`（關掉 CSS reset 的專案、antd Modal 內部都是） | 高度差 = padding＋框線 | 該元素加 `box-sizing: border-box` |
+| 同一個共用元件，在不同頁面量到的文字位置差 1px（有的頁一致、有的頁差 1） | 置中後的位移落在半像素（例：(46 − 23) / 2 = 11.5），Chrome 依元素在頁面上的位置把半像素進位到上或下 | DOM 讀文字元素的 `getBoundingClientRect().top`，小數是 .5 就是這個原因 | 調整外層高度或內距，讓置中後的位移是整數（b2b-manager 表頭：內容區上方留 1，(45 − 23) / 2 = 11） |
 | 多行或單行文字的區塊高度不同 | Flutter 文字行高約 1.5 倍（NotoSansTC） | 字級 × 1.5 ≈ Flutter 的行高 | 網頁給 `line-height: 1.5` |
 | 多行輸入框的第一行文字比 Flutter 高約 20px（左邊也差幾 px） | Flutter 輸入元件的 title 傳空字串仍佔一行高（例：b2b-manager `SLInputTextField(title: '')` 用 16px 字的空 `SLText`），下面再加 TextField 的 `contentPadding` | 讀 widget 原始碼：空 title 一行（字級 × 約 1.45）＋ contentPadding top；實測「框線到第一行字」的距離 | 網頁輸入框的 `padding-top` 補上差值（b2b-manager 工單申請：antd 8.5 → 30.5、左 11 → 18） |
 | 輸入框、下拉的文字距左框不同 | Flutter 輸入元件的內距是「框線＋padding＋contentPadding」相加，和 UI 套件預設不同 | 讀 Flutter widget 原始碼把三個值相加 | 調整網頁元件的 `padding-inline-start` |
